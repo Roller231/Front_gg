@@ -1,0 +1,288 @@
+.navigation {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  background-color: var(--dark-bg);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 12px 0;
+  padding-bottom: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.nav-icon {
+  font-size: 20px;
+}
+
+.nav-label {
+  font-size: 11px;
+  color: var(--gray);
+}
+
+.center-item {
+  position: relative;
+  margin-top: -30px;
+}
+
+/* Барабан с эффектами */
+.baraban-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+
+.baraban-icon {
+  width: 48px;
+  height: 48px;
+  animation: baraban-spin 4s linear infinite;
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes baraban-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Свечение сзади */
+.baraban-glow {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.7) 0%, rgba(107, 63, 216, 0.4) 40%, transparent 70%);
+  border-radius: 50%;
+  z-index: 0;
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+/* Пульсирующие кольца */
+.baraban-pulse {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  border: 2px solid rgba(139, 92, 246, 0.6);
+  border-radius: 50%;
+  z-index: 1;
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.center-icon {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, var(--active-btn) 0%, #4a2cb3 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  border: 4px solid var(--dark-bg);
+  box-shadow: 0 4px 20px rgba(107, 63, 216, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Вращающиеся кольца */
+.slot-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  animation: spin 8s linear infinite;
+}
+
+.slot-ring.ring-2 {
+  width: 80%;
+  height: 80%;
+  border-color: rgba(255, 200, 100, 0.4);
+  animation: spin-reverse 6s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spin-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+/* Пульсирующее свечение */
+.slot-glow {
+  position: absolute;
+  width: 120%;
+  height: 120%;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.6) 0%, transparent 70%);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+/* Слот машина */
+.slot-machine {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.slot-window {
+  width: 28px;
+  height: 28px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 2px solid rgba(255, 215, 0, 0.5);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.slot-reel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slot-symbol {
+  font-size: 18px;
+  animation: symbol-spin 0.8s ease-out;
+}
+
+@keyframes symbol-spin {
+  0% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Рычаг */
+.slot-lever {
+  width: 4px;
+  height: 16px;
+  background: linear-gradient(to bottom, #ffd700, #ff8c00);
+  border-radius: 2px;
+  position: relative;
+  animation: lever-pull 2s ease-in-out infinite;
+}
+
+.slot-lever::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  background: #ff4444;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(255, 68, 68, 0.8);
+}
+
+@keyframes lever-pull {
+  0%, 100% { transform: translateY(0); }
+  15% { transform: translateY(6px); }
+  30% { transform: translateY(0); }
+}
+
+/* Искры */
+.sparkles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.sparkle {
+  position: absolute;
+  font-size: 10px;
+  animation: sparkle-float 2s ease-in-out infinite;
+}
+
+.sparkle.s1 {
+  top: 5px;
+  right: 5px;
+  animation-delay: 0s;
+}
+
+.sparkle.s2 {
+  bottom: 10px;
+  left: 5px;
+  animation-delay: 0.7s;
+}
+
+.sparkle.s3 {
+  top: 50%;
+  right: -2px;
+  animation-delay: 1.4s;
+}
+
+@keyframes sparkle-float {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.5) translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) translateY(-5px);
+  }
+}

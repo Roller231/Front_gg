@@ -1,0 +1,105 @@
+.task-list {
+  background-color: var(--dark-bg);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.task-item:last-of-type {
+  border-bottom: none;
+}
+
+.task-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.task-check {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.task-check.completed {
+  background-color: var(--primary-green);
+  color: var(--dark-bg);
+  border-radius: 50%;
+  font-weight: 700;
+}
+
+.task-text {
+  color: var(--white);
+  font-size: 16px;
+}
+
+.take-btn {
+  padding: 10px 28px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.take-btn.active {
+  background-color: var(--active-btn);
+  color: var(--white);
+}
+
+.take-btn.inactive {
+  background-color: var(--inactive-btn);
+  color: var(--gray);
+  border: 1px solid var(--gray);
+}
+
+.promo-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.promo-input {
+  flex: 1;
+  background-color: var(--page-bg);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: var(--white);
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.promo-input input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--white);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.apply-btn {
+  background-color: var(--active-btn);
+  color: var(--white);
+  padding: 12px 28px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}

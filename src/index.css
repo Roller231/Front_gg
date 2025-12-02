@@ -1,0 +1,39 @@
+:root {
+  --primary-green: #BBFD44;
+  --dark-bg: #0D0326;
+  --page-bg: #240058;
+  --active-btn: #6B3FD8;
+  --inactive-btn: #240058;
+  --card-bg: #0D0326;
+  --white: #ffffff;
+  --gray: #9ca3af;
+  
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #ffffff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--page-bg);
+  min-height: 100vh;
+  max-width: 430px;
+  margin: 0 auto;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

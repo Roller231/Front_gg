@@ -1,0 +1,394 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background-color: var(--page-bg);
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.logo-gg {
+  color: var(--primary-green);
+}
+
+.logo-cat {
+  color: var(--white);
+}
+
+.balance-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.balance-wrapper {
+  position: relative;
+}
+
+.balance-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #352851;
+  padding: 8px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.balance-box:hover {
+  background-color: #2a2a3e;
+}
+
+.currency-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.balance-amount {
+  color: var(--white);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.balance-arrow {
+  color: var(--gray);
+  font-size: 14px;
+  transition: transform 0.2s;
+}
+
+.balance-arrow.open {
+  transform: rotate(180deg);
+}
+
+/* Currency Dropdown */
+.currency-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background-color: #352851;
+  border-radius: 12px;
+  padding: 8px;
+  min-width: 140px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  animation: dropdownFadeIn 0.2s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.currency-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.currency-option:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.currency-option.selected {
+  background-color: rgba(139, 92, 246, 0.2);
+}
+
+.currency-amount {
+  color: var(--white);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.plus-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background-color: var(--primary-green);
+  color: var(--dark-bg);
+  font-size: 24px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--primary-green);
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Balance Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 60px;
+  z-index: 1000;
+  animation: overlayFadeIn 0.3s ease;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.balance-modal {
+  background-color: #352851;
+  border-radius: 16px;
+  padding: 20px;
+  width: 90%;
+  max-width: 340px;
+  animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-title {
+  color: var(--white);
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+}
+
+.account-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.account-card {
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.account-card:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.account-card.active {
+  border-color: var(--primary-green);
+  background-color: rgba(0, 255, 136, 0.1);
+}
+
+.account-label {
+  color: var(--gray);
+  font-size: 12px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.account-label:hover {
+  color: var(--white);
+}
+
+.account-arrow {
+  font-size: 10px;
+  transition: transform 0.2s;
+}
+
+.account-arrow.open {
+  transform: rotate(180deg);
+}
+
+/* Modal Dropdown */
+.modal-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #2a1f42;
+  border-radius: 8px;
+  padding: 6px;
+  margin-top: 8px;
+  z-index: 10;
+  animation: dropdownFadeIn 0.2s ease;
+}
+
+.modal-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--white);
+  font-size: 13px;
+  transition: background-color 0.2s;
+}
+
+.modal-dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.modal-dropdown-item.selected {
+  background-color: rgba(139, 92, 246, 0.3);
+}
+
+.dropdown-icon {
+  font-size: 14px;
+}
+
+.account-balance {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--white);
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.account-icon {
+  font-size: 16px;
+}
+
+.bonus-card {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.bonus-card:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.bonus-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bonus-label {
+  color: var(--gray);
+  font-size: 12px;
+}
+
+.bonus-balance {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--white);
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.bonus-arrow {
+  color: var(--gray);
+  font-size: 20px;
+}
+
+.wallet-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A855F7 100%);
+  border: none;
+  border-radius: 12px;
+  color: var(--white);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wallet-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+}
+
+.wallet-btn:active {
+  transform: translateY(0);
+}
+
+/* Notification */
+.notification {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+  color: var(--white);
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  z-index: 2000;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+  animation: notificationSlideIn 0.4s ease;
+}
+
+@keyframes notificationSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}

@@ -1,0 +1,43 @@
+.game-card {
+  background-color: var(--dark-bg);
+  border-radius: 16px;
+  padding: 16px;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+}
+
+.game-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.online-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--primary-green);
+  border-radius: 50%;
+}
+
+.online-count {
+  background-color: var(--page-bg);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.game-content {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+}
+
+.game-title {
+  color: var(--white);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
