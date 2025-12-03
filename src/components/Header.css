@@ -3,26 +3,29 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  background-color: var(--page-bg);
+  background-color: var(--dark-bg);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .logo {
-  font-size: 20px;
-  font-weight: 700;
+  display: flex;
+  align-items: center;
 }
 
-.logo-gg {
-  color: var(--primary-green);
-}
-
-.logo-cat {
-  color: var(--white);
+.logo img {
+  height: 32px;
+  display: block;
 }
 
 .balance-container {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .balance-wrapper {
@@ -32,42 +35,60 @@
 .balance-box {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   background-color: #352851;
-  padding: 8px 12px;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  padding: 6px 14px 6px 12px;
+  border-radius: 28px;
 }
 
-.balance-box:hover {
-  background-color: #2a2a3e;
+.balance-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding-right: 14px;
+}
+
+.balance-info:hover .balance-arrow svg path {
+  stroke: #aaa;
 }
 
 .currency-icon {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.currency-icon img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: contain;
 }
 
 .balance-amount {
   color: var(--white);
   font-weight: 600;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .balance-arrow {
-  color: var(--gray);
-  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: transform 0.2s;
+  margin-left: 2px;
 }
 
 .balance-arrow.open {
   transform: rotate(180deg);
+}
+
+.balance-arrow svg {
+  display: block;
 }
 
 /* Currency Dropdown */
@@ -120,19 +141,30 @@
 }
 
 .plus-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background-color: var(--primary-green);
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: radial-gradient(circle at 30% 30%, #BBFD44 0%, #72C004 100%);
   color: var(--dark-bg);
-  font-size: 24px;
-  font-weight: 600;
+  font-size: 28px;
+  font-weight: 500;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.plus-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 12px rgba(187, 253, 68, 0.4);
+}
+
+.plus-btn:active {
+  transform: scale(0.98);
 }
 
 .avatar {
@@ -140,7 +172,14 @@
   height: 40px;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid var(--primary-green);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.avatar:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 12px rgba(187, 253, 68, 0.5);
 }
 
 .avatar img {

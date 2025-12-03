@@ -1,11 +1,12 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './Header.css'
 
 const currencies = [
-  { id: 'diamond', icon: '💎', amount: '1.22', color: '#8B5CF6' },
-  { id: 'ruble', icon: '₽', amount: '800.000', color: '#EC4899' },
-  { id: 'star', icon: '⭐', amount: '800.000', color: '#F59E0B' },
-  { id: 'tether', icon: '₮', amount: '90.00', color: '#10B981' },
+  { id: 'coin1', icon: '/image/Coin Icon.svg', amount: '1.22' },
+  { id: 'coin2', icon: '/image/Coin Icon (1).svg', amount: '800.000' },
+  { id: 'coin3', icon: '/image/Coin Icon (2).svg', amount: '800.000' },
+  { id: 'coin4', icon: '/image/Coin Icon (3).svg', amount: '90.00' },
 ]
 
 const accountTypes = [
@@ -22,6 +23,7 @@ const gameCurrencies = [
 ]
 
 function Header() {
+  const navigate = useNavigate()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [selectedCurrency, setSelectedCurrency] = useState(currencies[0])
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -48,45 +50,52 @@ function Header() {
   return (
     <header className="header">
       <div className="logo">
-        <span className="logo-gg">gg</span>
-        <span className="logo-cat">CAT</span>
+        <img src="/image/Logo.svg" alt="GG Cat logo" />
       </div>
       
-      <div className="balance-container">
-        <div className="balance-wrapper">
-          <div 
-            className="balance-box" 
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          >
-            <span className="currency-icon" style={{ background: selectedCurrency.color }}>
-              {selectedCurrency.icon}
-            </span>
-            <span className="balance-amount">{selectedCurrency.amount}</span>
-            <span className={`balance-arrow ${isDropdownOpen ? 'open' : ''}`}>⌄</span>
-          </div>
-          
-          {isDropdownOpen && (
-            <div className="currency-dropdown">
-              {currencies.map((currency) => (
-                <div 
-                  key={currency.id}
-                  className={`currency-option ${selectedCurrency.id === currency.id ? 'selected' : ''}`}
-                  onClick={() => handleCurrencySelect(currency)}
-                >
-                  <span className="currency-icon" style={{ background: currency.color }}>
-                    {currency.icon}
-                  </span>
-                  <span className="currency-amount">{currency.amount}</span>
-                </div>
-              ))}
+      <div className="header-right">
+        <div className="balance-container">
+          <div className="balance-wrapper">
+            <div className="balance-box">
+              <div 
+                className="balance-info" 
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              >
+                <span className="currency-icon">
+                  <img src={selectedCurrency.icon} alt={selectedCurrency.id} />
+                </span>
+                <span className="balance-amount">{selectedCurrency.amount}</span>
+                <span className={`balance-arrow ${isDropdownOpen ? 'open' : ''}`}>
+                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
+                    <path d="M1 1.5L6 6.5L11 1.5" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span>
+              </div>
+              <button className="plus-btn" onClick={() => setIsModalOpen(true)}>+</button>
             </div>
-          )}
+            
+            {isDropdownOpen && (
+              <div className="currency-dropdown">
+                {currencies.map((currency) => (
+                  <div 
+                    key={currency.id}
+                    className={`currency-option ${selectedCurrency.id === currency.id ? 'selected' : ''}`}
+                    onClick={() => handleCurrencySelect(currency)}
+                  >
+                    <span className="currency-icon">
+                      <img src={currency.icon} alt={currency.id} />
+                    </span>
+                    <span className="currency-amount">{currency.amount}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-        <button className="plus-btn" onClick={() => setIsModalOpen(true)}>+</button>
-      </div>
-      
-      <div className="avatar">
-        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" />
+
+        <div className="avatar" onClick={() => navigate('/profile')}>
+          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" />
+        </div>
       </div>
 
       {/* Balance Modal */}

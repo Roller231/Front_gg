@@ -1,0 +1,353 @@
+.crash-page {
+  background-color: var(--page-bg);
+}
+
+.crash-content {
+  padding: 12px;
+  padding-bottom: 90px;
+  transform: scale(0.95);
+  transform-origin: top center;
+}
+
+/* Зона игры */
+.crash-game-area {
+  background: var(--page-bg);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Venus.png на заднем фоне в левом верхнем углу */
+.crash-game-area::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: 100px;
+  height: 100px;
+  background-image: url('/image/Venus.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: top left;
+  opacity: 0.7;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Вращающиеся лучи от центра, как на макете */
+.crash-game-area::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 520px;
+  height: 520px;
+  background: repeating-conic-gradient(
+    from 90deg,
+    #260057 0deg 7.5deg,
+    #3a0b80 7.5deg 15deg
+  );
+  opacity: 0.55;
+  z-index: 0;
+  pointer-events: none;
+  animation: crash-rays-rotate 25s linear infinite;
+  transition: opacity 0.4s ease;
+}
+
+@keyframes crash-rays-rotate {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Класс, отключающий лучи после окончания отсчёта */
+.crash-no-rays::after {
+  opacity: 0;
+}
+
+/* Контейнер анимации */
+.crash-animation-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.lottie-preflight,
+.lottie-postflight,
+.lottie-cat {
+  width: 220px;
+  height: 220px;
+}
+
+.lottie-cat {
+  position: absolute;
+  bottom: -74px;
+  left: 1.5%;
+  transform-origin: center;
+  animation: cat-fly-curve 3s ease-out forwards;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes cat-fly-curve {
+  0% {
+    transform: translate(0, 44px) scale(0.9);
+  }
+  50% {
+    transform: translate(38%, 20px) scale(1);
+  }
+  100% {
+    transform: translate(84%, -14px) scale(1.05);
+  }
+}
+
+/* Кривая линия коэффициента под котом */
+.coeff-path {
+  position: absolute;
+  bottom: -48px;
+  left: 0;
+  width: 100%;
+  height: 150px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.coeff-path-line {
+  fill: none;
+  stroke: var(--crash-gradient-end);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 420;
+  stroke-dashoffset: 420;
+  animation: coeff-path-draw 3s ease-out forwards;
+}
+
+@keyframes coeff-path-draw {
+  0% {
+    stroke-dashoffset: 420;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Обратный отсчёт */
+.countdown-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.countdown-number {
+  font-size: 120px;
+  font-weight: 700;
+  background: linear-gradient(180deg, var(--golden-start) 0%, var(--golden-middle) 50%, var(--golden-end) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 30px rgba(255, 175, 77, 0.6));
+  animation: countdown-pulse 1s ease-in-out;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes countdown-pulse {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Множитель */
+.multiplier-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+}
+
+.multiplier-value {
+  font-size: 32px;
+  font-weight: 700;
+  background: linear-gradient(180deg, var(--golden-start) 0%, var(--golden-middle) 50%, var(--golden-end) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 30px rgba(255, 175, 77, 0.6));
+}
+
+/* Слайдер множителей */
+.multiplier-slider {
+  display: flex;
+  gap: 8px;
+  padding: 8px 4px;
+  background: transparent;
+  border-radius: 0;
+  overflow-x: auto;
+  width: 100%;
+  justify-content: flex-start;
+  position: relative;
+  z-index: 4;
+}
+
+/* Скрываем полосу прокрутки под коэффициентами */
+.multiplier-slider::-webkit-scrollbar {
+  height: 0;
+}
+
+.multiplier-slider {
+  scrollbar-width: none;
+}
+
+.multiplier-slider::-webkit-scrollbar-track,
+.multiplier-slider::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+.multiplier-option {
+  flex: 0 0 auto;
+  min-width: 56px;
+  padding: 8px 12px;
+  background: rgba(5, 0, 20, 0.9);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--gray);
+  font-size: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  text-align: center;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
+}
+
+.multiplier-option.selected {
+  background: var(--active-btn);
+  color: var(--white);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 10px rgba(107, 63, 216, 0.7);
+}
+
+.multiplier-option:hover:not(.selected) {
+  background: rgba(107, 63, 216, 0.3);
+  color: var(--white);
+}
+
+/* Кнопка ставки */
+.bet-button {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(90deg, var(--crash-gradient-start) 0%, var(--crash-gradient-end) 100%);
+  border: none;
+  border-radius: 12px;
+  color: var(--white);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(38, 105, 229, 0.3);
+}
+
+.bet-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(38, 105, 229, 0.4);
+}
+
+.bet-button:active {
+  transform: translateY(0);
+}
+
+/* Список игроков */
+.players-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.player-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: rgba(13, 3, 38, 0.5);
+  border-radius: 12px;
+}
+
+.player-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.player-avatar {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--crash-gradient-start) 0%, var(--crash-gradient-end) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.player-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.player-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--white);
+}
+
+.player-multiplier {
+  font-size: 12px;
+  color: var(--gray);
+}
+
+.player-bet {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.coin-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.bet-amount {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary-green);
+}

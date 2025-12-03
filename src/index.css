@@ -8,6 +8,15 @@
   --white: #ffffff;
   --gray: #9ca3af;
   
+  /* Crash page gradient colors */
+  --crash-gradient-start: #2669E5;
+  --crash-gradient-end: #8C64E3;
+  
+  /* Golden gradient for countdown */
+  --golden-start: #FFAF4D;
+  --golden-middle: #FFF7A7;
+  --golden-end: #FFAF4D;
+  
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   font-weight: 400;

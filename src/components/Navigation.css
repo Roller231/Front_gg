@@ -11,7 +11,22 @@
   align-items: center;
   padding: 12px 0;
   padding-bottom: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  height: 70px;
+  z-index: 100;
+}
+
+/* Арка по центру */
+.navigation::before {
+  content: '';
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90px;
+  height: 45px;
+  background-color: var(--dark-bg);
+  border-radius: 45px 45px 0 0;
+  z-index: 0;
 }
 
 .nav-item {
@@ -20,6 +35,8 @@
   align-items: center;
   gap: 4px;
   cursor: pointer;
+  position: relative;
+  z-index: 2;
 }
 
 .nav-icon {
@@ -31,9 +48,50 @@
   color: var(--gray);
 }
 
+/* Активное состояние */
+.nav-item.active .nav-label {
+  color: var(--primary-green);
+}
+
+/* Crash icon активное состояние */
+.crash-icon-active {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.crash-icon-active::before {
+  content: '';
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(circle, rgba(38, 105, 229, 0.6) 0%, rgba(140, 100, 227, 0.4) 50%, transparent 70%);
+  border-radius: 50%;
+  z-index: 0;
+  animation: crash-glow-pulse 1.5s ease-in-out infinite;
+}
+
+.nav-icon.crash-glow {
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 0 8px rgba(38, 105, 229, 0.8));
+}
+
+@keyframes crash-glow-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
 .center-item {
   position: relative;
-  margin-top: -30px;
+  margin-top: 0;
 }
 
 /* Барабан с эффектами */
@@ -42,16 +100,36 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  width: 64px;
-  height: 64px;
+  width: 56px;
+  height: 56px;
+  margin-top: 8px;
+}
+
+.union-icon {
+  position: absolute;
+  top: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 55px;
+  pointer-events: none;
+  z-index: 10;
 }
 
 .baraban-icon {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   animation: baraban-spin 4s linear infinite;
   position: relative;
   z-index: 2;
+}
+
+.baraban-off {
+  margin-top: 4px;
+}
+
+.baraban-off-icon {
+  width: 44px;
+  height: 44px;
 }
 
 @keyframes baraban-spin {
