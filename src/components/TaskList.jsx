@@ -19,7 +19,7 @@ function TaskList() {
       <div className="task-item" onClick={() => handleSelect(1)}>
         <div className="task-left">
           <span className={`task-check ${selectedOption === 1 ? 'completed' : ''}`}>
-            {selectedOption === 1 ? '✓' : '○'}
+            {selectedOption === 1 && '✓'}
           </span>
           <span className="task-text">Сыграть 10 раз</span>
         </div>
@@ -31,7 +31,7 @@ function TaskList() {
       <div className="task-item" onClick={() => handleSelect(2)}>
         <div className="task-left">
           <span className={`task-check ${selectedOption === 2 ? 'completed' : ''}`}>
-            {selectedOption === 2 ? '✓' : '○'}
+            {selectedOption === 2 && '✓'}
           </span>
           <span className="task-text">Сыграть 10 раз</span>
         </div>

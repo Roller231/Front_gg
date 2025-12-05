@@ -7,6 +7,7 @@ import GameCard from './components/GameCard'
 import Navigation from './components/Navigation'
 import ProfilePage from './components/ProfilePage'
 import CrashPage from './components/CrashPage'
+import { CurrencyProvider } from './context/CurrencyContext'
 
 function HomePage() {
   return (
@@ -34,13 +35,15 @@ function HomePage() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/crash" element={<CrashPage />} />
-      </Routes>
-    </BrowserRouter>
+    <CurrencyProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/crash" element={<CrashPage />} />
+        </Routes>
+      </BrowserRouter>
+    </CurrencyProvider>
   )
 }
 

@@ -5,39 +5,54 @@
   min-height: 140px;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
 }
 
 .game-header {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 16px;
+  border-radius: 16px 0 32px 0;
+  align-self: flex-start;
+  margin-left: -16px;
+  margin-top: -16px;
+  width: 130px;
+  height: 36px;
 }
 
 .online-dot {
-  width: 8px;
-  height: 8px;
-  background-color: var(--primary-green);
+  width: 10px;
+  height: 10px;
+  background-color: #76DA19;
   border-radius: 50%;
 }
 
 .online-count {
-  background-color: var(--page-bg);
-  padding: 6px 12px;
-  border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
   color: var(--white);
+  letter-spacing: 0.5px;
 }
 
 .game-content {
-  flex: 1;
   display: flex;
   align-items: flex-end;
+  justify-content: flex-start;
+  margin-top: auto;
 }
 
 .game-title {
   color: var(--white);
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 1px;
+  font-family: 'SF Pro', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 130%;
+  letter-spacing: -0.41px;
+  text-transform: uppercase;
+  text-align: left;
+  align-self: flex-start;
+  margin-left: 16px;
 }

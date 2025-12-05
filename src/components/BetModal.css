@@ -1,0 +1,317 @@
+/* Оверлей */
+.bet-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: overlay-fade-in 0.3s ease-out;
+}
+
+@keyframes overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Контент модала */
+.bet-modal-content {
+  width: min(420px, calc(100% - 48px));
+  background: #2E2247;
+  border-radius: 24px 24px 0 0;
+  padding: 12px 20px 32px;
+  animation: modal-slide-up 0.3s ease-out;
+  touch-action: none;
+  user-select: none;
+}
+
+@keyframes modal-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Ручка для свайпа */
+.bet-modal-handle {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 16px;
+  cursor: grab;
+}
+
+.bet-modal-handle:active {
+  cursor: grabbing;
+}
+
+.bet-modal-handle-bar {
+  width: 40px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+/* Заголовок */
+.bet-modal-title {
+  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  margin: 0 0 20px;
+}
+
+/* Табы */
+.bet-modal-tabs {
+  display: flex;
+  gap: 0;
+  background: #2A1F4E;
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 20px;
+}
+
+.bet-modal-tab {
+  flex: 1;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bet-modal-tab.active {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+/* Контент вкладки Монеты */
+.bet-modal-coins-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bet-amount-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bet-amount-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.bet-balance {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.bet-amount-input-wrapper {
+  display: flex;
+  align-items: center;
+  background: #2A1F4E;
+  border-radius: 12px;
+  padding: 4px 4px 4px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bet-amount-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  padding: 12px 0;
+}
+
+.bet-amount-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.bet-amount-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bet-coin-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.bet-max-button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+  color: #fff;
+  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.bet-max-button:hover {
+  transform: scale(1.05);
+}
+
+.bet-max-button:active {
+  transform: scale(0.98);
+}
+
+/* Кнопка отправки */
+.bet-submit-button {
+  width: 100%;
+  padding: 16px 24px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #2C7DF8 0%, #951BF9 100%);
+  color: #fff;
+  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 8px 24px rgba(149, 27, 249, 0.3);
+}
+
+.bet-submit-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(149, 27, 249, 0.4);
+}
+
+.bet-submit-button:active {
+  transform: translateY(0);
+}
+
+.bet-submit-plus {
+  font-size: 20px;
+  font-weight: 400;
+}
+
+/* Контент вкладки Подарки */
+.bet-modal-gifts-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.gifts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.gift-card {
+  position: relative;
+  background: #2A1F4E;
+  border-radius: 16px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.gift-card:hover {
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+.gift-card.selected {
+  border-color: #8B5CF6;
+  background: #0D0326;
+}
+
+.gift-price {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.gift-coin-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.gift-price-value {
+  font-weight: 700;
+}
+
+.gift-check {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.gift-image {
+  width: 80px;
+  height: 80px;
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gift-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.gift-emoji {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.gifts-submit {
+  margin-top: 4px;
+}
+
+/* Радио кнопка для невыбранных */
+.gift-card:not(.selected)::after {
+  content: '';
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+}

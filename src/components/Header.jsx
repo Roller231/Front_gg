@@ -1,13 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Header.css'
-
-const currencies = [
-  { id: 'coin1', icon: '/image/Coin Icon.svg', amount: '1.22' },
-  { id: 'coin2', icon: '/image/Coin Icon (1).svg', amount: '800.000' },
-  { id: 'coin3', icon: '/image/Coin Icon (2).svg', amount: '800.000' },
-  { id: 'coin4', icon: '/image/Coin Icon (3).svg', amount: '90.00' },
-]
+import { useCurrency } from '../context/CurrencyContext'
 
 const accountTypes = [
   { id: 'usdt', name: 'USDT TON', icon: '💎', amount: '1.22' },
@@ -25,7 +19,7 @@ const gameCurrencies = [
 function Header() {
   const navigate = useNavigate()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [selectedCurrency, setSelectedCurrency] = useState(currencies[0])
+  const { currencyOptions, selectedCurrency, setSelectedCurrency } = useCurrency()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [activeAccountType, setActiveAccountType] = useState('usdt')
   const [showNotification, setShowNotification] = useState(false)
@@ -33,6 +27,8 @@ function Header() {
   const [showGameDropdown, setShowGameDropdown] = useState(false)
   const [selectedAccount, setSelectedAccount] = useState(accountTypes[0])
   const [selectedGameCurrency, setSelectedGameCurrency] = useState(gameCurrencies[0])
+
+  const visibleCurrencies = currencyOptions.filter((currency) => currency.id !== selectedCurrency.id)
 
   const handleWalletClick = () => {
     setShowNotification(true)
@@ -55,8 +51,8 @@ function Header() {
       
       <div className="header-right">
         <div className="balance-container">
-          <div className="balance-wrapper">
-            <div className="balance-box">
+          <div className={`balance-box ${isDropdownOpen ? 'open' : ''}`}>
+            <div className="balance-info-wrapper">
               <div 
                 className="balance-info" 
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -71,12 +67,12 @@ function Header() {
                   </svg>
                 </span>
               </div>
-              <button className="plus-btn" onClick={() => setIsModalOpen(true)}>+</button>
             </div>
-            
+            <button className="plus-btn" onClick={() => setIsModalOpen(true)}>+</button>
+
             {isDropdownOpen && (
               <div className="currency-dropdown">
-                {currencies.map((currency) => (
+                {visibleCurrencies.map((currency) => (
                   <div 
                     key={currency.id}
                     className={`currency-option ${selectedCurrency.id === currency.id ? 'selected' : ''}`}

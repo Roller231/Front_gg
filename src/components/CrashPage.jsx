@@ -1,23 +1,28 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Player } from '@lottiefiles/react-lottie-player'
 import './CrashPage.css'
 import Header from './Header'
 import Navigation from './Navigation'
+import BetModal from './BetModal'
+
+const initialHistoryValues = [1.0, 1.2, 4.96, 5.42, 8.5, 4.95, 4.0]
+const initialHistory = initialHistoryValues.map(value => ({ value, isPending: false }))
 
 function CrashPage() {
   const [gameState, setGameState] = useState('countdown') // 'countdown' | 'preflight' | 'flying' | 'postflight'
   const [countdown, setCountdown] = useState(3)
   const [multiplier, setMultiplier] = useState(1.0)
-  const [selectedMultiplier, setSelectedMultiplier] = useState(1.0)
-
-  const multiplierOptions = [1.0, 1.20, 5.42, 8.50, 4.95, 4]
+  const [coefficientHistory, setCoefficientHistory] = useState(initialHistory)
+  const coeffHistoryRef = useRef(null)
+  const prevGameState = useRef(null)
+  const [isBetModalOpen, setIsBetModalOpen] = useState(false)
 
   // Список игроков для отображения
   const players = [
-    { id: 1, name: 'Crazy Frog', avatar: '🐸', bet: 5.51, multiplier: '4.38 x1.24' },
-    { id: 2, name: 'MoonSun', avatar: '🌙', bet: 5.51, multiplier: '4.38 x1.24' },
-    { id: 3, name: 'ADA Drop', avatar: '💎', bet: 5.51, multiplier: '4.38 x1.24' },
-    { id: 4, name: 'Darkkk', avatar: '🎭', bet: null, multiplier: '4.38 x1.24' },
+    { id: 1, name: 'Crazy Frog', src: '/image/ava1.png', bet: 5.51, multiplier: '4.38 x1.24', gift: false },
+    { id: 2, name: 'MoonSun', src: '/image/ava2.png', bet: 5.51, multiplier: '4.38 x1.24', gift: true },
+    { id: 3, name: 'ADA Drop', src: '/image/ava3.png', bet: 5.51, multiplier: '4.38 x1.24', gift: false },
+    { id: 4, name: 'Darkkk', src: '/image/ava4.png', bet: 5.51, multiplier: '4.38 x1.24', gift: false },
   ]
 
   // Обратный отсчёт
@@ -48,11 +53,10 @@ function CrashPage() {
     if (gameState === 'flying') {
       const interval = setInterval(() => {
         setMultiplier(prev => {
-          const newValue = prev + 0.01
-          // Симуляция краша на случайном значении
-          if (newValue >= 1.6) {
+          const newValue = prev + 0.02
+          if (newValue >= 5) {
             setGameState('postflight')
-            return 1.6
+            return 5
           }
           return parseFloat(newValue.toFixed(2))
         })
@@ -78,6 +82,43 @@ function CrashPage() {
     }
   }, [gameState, restartGame])
 
+  // Добавляем блок «Ожидание» при старте отчёта
+  useEffect(() => {
+    const previousState = prevGameState.current
+    if (gameState === 'countdown' && previousState !== 'countdown') {
+      setCoefficientHistory(prevHistory => {
+        if (prevHistory[0]?.isPending) {
+          return prevHistory
+        }
+        const updatedHistory = [{ value: null, isPending: true }, ...prevHistory]
+        return updatedHistory.slice(0, 14)
+      })
+    }
+    prevGameState.current = gameState
+  }, [gameState])
+
+  // Обновляем историю коэффициентов после каждого раунда
+  useEffect(() => {
+    if (gameState === 'postflight') {
+      setCoefficientHistory(prevHistory => {
+        const nextValue = Number(multiplier.toFixed(2))
+        const updatedHistory = [...prevHistory]
+        if (updatedHistory[0]?.isPending) {
+          updatedHistory[0] = { value: nextValue, isPending: false }
+        } else {
+          updatedHistory.unshift({ value: nextValue, isPending: false })
+        }
+        return updatedHistory.slice(0, 14)
+      })
+    }
+  }, [gameState, multiplier])
+
+  useEffect(() => {
+    if (coeffHistoryRef.current) {
+      coeffHistoryRef.current.scrollTo({ left: 0, behavior: 'smooth' })
+    }
+  }, [coefficientHistory])
+
   return (
     <div className="app crash-page">
       <div className="top-bar">
@@ -90,6 +131,10 @@ function CrashPage() {
       <main className="main-content crash-content">
         {/* Зона игры */}
         <div className={`crash-game-area ${gameState !== 'countdown' ? 'crash-no-rays' : ''}`}>
+          <div
+            className={`cosmic-background ${gameState === 'flying' ? 'cosmic-background-active' : ''}`}
+            aria-hidden="true"
+          />
           {/* Анимации взрывов и полёта кота */}
           <div className="crash-animation-container">
             {gameState === 'countdown' && (
@@ -149,44 +194,85 @@ function CrashPage() {
             </div>
           )}
 
-          {/* Слайдер множителей */}
-          <div className="multiplier-slider">
-            {multiplierOptions.map((mult, index) => (
-              <button
-                key={index}
-                className={`multiplier-option ${selectedMultiplier === mult ? 'selected' : ''}`}
-                onClick={() => setSelectedMultiplier(mult)}
-              >
-                {mult.toFixed(2)}
-              </button>
-            ))}
+          <div className="coeff-history-overlay">
+            <div
+              className="coeff-history"
+              aria-label="История коэффициентов"
+              ref={coeffHistoryRef}
+            >
+              {coefficientHistory.map((item, index) => {
+                const displayValue = item.isPending ? 'Ожидание...' : item.value.toFixed(2)
+                const key = item.isPending ? `pending-${index}` : `${item.value}-${index}`
+                return (
+                  <div
+                    key={key}
+                    className={`coeff-history-item ${index === 0 ? 'active' : ''} ${item.isPending ? 'pending' : ''}`}
+                  >
+                    {displayValue}
+                  </div>
+                )
+              })}
+            </div>
           </div>
+
         </div>
 
         {/* Кнопка ставки */}
-        <button className="bet-button">
+        <button className="bet-button" onClick={() => setIsBetModalOpen(true)}>
           Сделать ставку
         </button>
 
+        {/* Модальное окно ставки */}
+        <BetModal 
+          isOpen={isBetModalOpen} 
+          onClose={() => setIsBetModalOpen(false)} 
+        />
+
         {/* Список игроков */}
         <div className="players-list">
-          {players.map(player => (
-            <div key={player.id} className="player-row">
-              <div className="player-info">
-                <div className="player-avatar">{player.avatar}</div>
-                <div className="player-details">
-                  <span className="player-name">{player.name}</span>
-                  <span className="player-multiplier">{player.multiplier}</span>
+          {players.map(player => {
+            const [betAmount, multiplierValue] = player.multiplier.split(' ')
+            return (
+              <div key={player.id} className="player-row">
+                <div className="player-info">
+                  <div className="player-avatar">
+                    {player.src ? (
+                      <img src={player.src} alt={player.name} />
+                    ) : (
+                      player.avatar
+                    )}
+                  </div>
+                  <div className="player-details">
+                    <span className="player-name">{player.name}</span>
+                    <div className="player-stats-row">
+                      <img src="/image/Coin Icon.svg" alt="Coin" className="coin-icon-small" />
+                      <span className="stat-bet">{betAmount}</span>
+                      <span className="stat-multiplier">{multiplierValue}</span>
+                    </div>
+                  </div>
                 </div>
+                {player.bet && (
+                  <div className="player-reward">
+                    <div className="reward-amount-container">
+                      <img src="/image/Coin Icon.svg" alt="Coin" className="coin-icon-large" />
+                      <span className={`reward-amount ${player.gift ? 'text-green' : ''}`}>
+                        {player.bet.toFixed ? player.bet.toFixed(2) : player.bet}
+                      </span>
+                    </div>
+                    <div className="gift-container">
+                      {player.gift && (
+                        <img
+                          src="/image/Progress Bar.svg"
+                          alt="Gift"
+                          className="gift-icon"
+                        />
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
-              {player.bet && (
-                <div className="player-bet">
-                  <img src="/image/Coin Icon.svg" alt="Coin" className="coin-icon" />
-                  <span className="bet-amount">{player.bet}</span>
-                </div>
-              )}
-            </div>
-          ))}
+            )
+          })}
         </div>
       </main>
       
