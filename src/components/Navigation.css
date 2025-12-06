@@ -54,6 +54,7 @@
 }
 
 /* Crash icon активное состояние */
+.cases-icon-active,
 .crash-icon-active {
   position: relative;
   display: flex;
@@ -61,12 +62,39 @@
   justify-content: center;
 }
 
+.cases-icon-active::before {
+  content: '';
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(
+    circle,
+    rgba(78, 217, 136, 0.6) 0%,
+    rgba(64, 201, 122, 0.4) 50%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  z-index: 0;
+  animation: cases-glow-pulse 1.6s ease-in-out infinite;
+}
+
+.nav-icon.cases-glow {
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 0 8px rgba(78, 217, 136, 0.8));
+}
+
 .crash-icon-active::before {
   content: '';
   position: absolute;
   width: 50px;
   height: 50px;
-  background: radial-gradient(circle, rgba(38, 105, 229, 0.6) 0%, rgba(140, 100, 227, 0.4) 50%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(78, 217, 136, 0.6) 0%,
+    rgba(64, 201, 122, 0.4) 50%,
+    transparent 70%
+  );
   border-radius: 50%;
   z-index: 0;
   animation: crash-glow-pulse 1.5s ease-in-out infinite;
@@ -75,7 +103,7 @@
 .nav-icon.crash-glow {
   position: relative;
   z-index: 1;
-  filter: drop-shadow(0 0 8px rgba(38, 105, 229, 0.8));
+  filter: drop-shadow(0 0 8px rgba(78, 217, 136, 0.8));
 }
 
 @keyframes crash-glow-pulse {
@@ -86,6 +114,17 @@
   50% {
     opacity: 1;
     transform: scale(1.2);
+  }
+}
+
+@keyframes cases-glow-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
   }
 }
 

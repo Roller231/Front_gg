@@ -1,0 +1,288 @@
+/* Оверлей */
+.deposit-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1001;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: overlay-fade-in 0.3s ease-out;
+}
+
+@keyframes overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Контент модала */
+.deposit-modal-content {
+  width: min(420px, calc(100% - 48px));
+  background: linear-gradient(180deg, #1A1035 0%, #0D0326 100%);
+  border-radius: 24px 24px 0 0;
+  padding: 12px 20px 32px;
+  animation: modal-slide-up 0.3s ease-out;
+  touch-action: none;
+  user-select: none;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes modal-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Ручка для свайпа */
+.deposit-modal-handle {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 16px;
+  cursor: grab;
+}
+
+.deposit-modal-handle:active {
+  cursor: grabbing;
+}
+
+.deposit-modal-handle-bar {
+  width: 40px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+/* Заголовок */
+.deposit-modal-title {
+  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  margin: 0 0 20px;
+}
+
+/* Табы */
+.deposit-modal-tabs {
+  display: flex;
+  gap: 0;
+  background: #2A1F4E;
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 24px;
+}
+
+.deposit-modal-tab {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.deposit-modal-tab.active {
+  background: linear-gradient(135deg, #2C7DF8 0%, #1E5FD9 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(44, 125, 248, 0.4);
+}
+
+/* Контент табов */
+.deposit-modal-tabs-content {
+  position: relative;
+  overflow: hidden;
+  min-height: 320px;
+  flex: 1;
+}
+
+.deposit-tab-panel {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+  overflow-y: auto;
+}
+
+.deposit-tab-panel.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Вкладка Подарки */
+.deposit-gifts-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.deposit-instructions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.deposit-instruction-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #2A1F4E;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.deposit-instruction-number {
+  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  min-width: 24px;
+}
+
+.deposit-instruction-emoji {
+  font-size: 24px;
+  min-width: 32px;
+  text-align: center;
+}
+
+.deposit-instruction-text {
+  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.5;
+}
+
+.deposit-link {
+  color: #2C7DF8;
+  font-weight: 600;
+}
+
+/* Вкладка Кошелёк */
+.deposit-wallet-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 40px 20px;
+}
+
+.deposit-wallet-message {
+  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+}
+
+.deposit-wallet-button {
+  width: 100%;
+  padding: 16px 24px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #2C7DF8 0%, #951BF9 100%);
+  color: #fff;
+  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 8px 24px rgba(44, 125, 248, 0.3);
+}
+
+.deposit-wallet-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(44, 125, 248, 0.4);
+}
+
+.deposit-wallet-button:active {
+  transform: translateY(0);
+}
+
+/* Вкладка Crypto Bot */
+.deposit-crypto-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.deposit-amount-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0 16px;
+}
+
+.deposit-amount-input {
+  width: 100%;
+  max-width: 260px;
+  text-align: center;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-size: 32px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.deposit-amount-input::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.deposit-currency-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.deposit-currency-button {
+  padding: 16px 24px;
+  border: none;
+  border-radius: 12px;
+  background: #2A1F4E;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.deposit-currency-button:hover {
+  background: #352856;
+}
+
+.deposit-currency-button.active {
+  background: linear-gradient(135deg, #2C7DF8 0%, #1E5FD9 100%);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(44, 125, 248, 0.4);
+  border-color: transparent;
+}
+
+.deposit-currency-button:active {
+  transform: scale(0.98);
+}

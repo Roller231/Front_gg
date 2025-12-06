@@ -340,7 +340,7 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  margin: 0 0 20px;
+  margin: 12px 0 20px;
   border: none;
   border-radius: 14px;
   background: radial-gradient(circle at 0% 100%, #2C7DF8 0%, #951BF9 100%);

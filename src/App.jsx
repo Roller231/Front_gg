@@ -7,6 +7,7 @@ import GameCard from './components/GameCard'
 import Navigation from './components/Navigation'
 import ProfilePage from './components/ProfilePage'
 import CrashPage from './components/CrashPage'
+import CasesPage from './components/CasesPage'
 import { CurrencyProvider } from './context/CurrencyContext'
 
 function HomePage() {
@@ -39,6 +40,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/cases" element={<CasesPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/crash" element={<CrashPage />} />
         </Routes>

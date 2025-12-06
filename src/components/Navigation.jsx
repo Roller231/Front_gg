@@ -45,9 +45,15 @@ function Navigation({ activePage = 'home' }) {
     <nav className="navigation">
       <div 
         className={`nav-item ${activePage === 'cases' ? 'active' : ''}`}
-        onClick={() => navigate('/')}
+        onClick={() => navigate('/cases')}
       >
-        <img src="/image/Cases.svg" alt="Cases" className="nav-icon" />
+        {activePage === 'cases' ? (
+          <div className="cases-icon-active">
+            <img src="/image/Cases_activ.svg" alt="Cases" className="nav-icon cases-glow" />
+          </div>
+        ) : (
+          <img src="/image/Cases.svg" alt="Cases" className="nav-icon" />
+        )}
         <span className="nav-label"></span>
       </div>
       <div 

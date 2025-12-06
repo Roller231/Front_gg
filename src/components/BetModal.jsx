@@ -4,10 +4,10 @@ import { useCurrency } from '../context/CurrencyContext'
 
 // Примеры подарков (с эмодзи как заглушки)
 const gifts = [
-  { id: 1, name: 'Сумка', emoji: '👜', price: 0.5 },
-  { id: 2, name: 'Pepe', emoji: '🐸', price: 0.5 },
-  { id: 3, name: 'Кристаллы', emoji: '💎', price: 0.5 },
-  { id: 4, name: 'Шлем', emoji: '⚔️', price: 0.5 },
+  { id: 1, name: 'Сумка', image: '/image/case_card1.png', price: 0.5 },
+  { id: 2, name: 'Pepe', image: '/image/case_card2.png', price: 0.5 },
+  { id: 3, name: 'Кристаллы', image: '/image/case_card3.png', price: 0.5 },
+  { id: 4, name: 'Шлем', image: '/image/case_card4.png', price: 0.5 },
 ]
 
 function BetModal({ isOpen, onClose }) {
@@ -137,7 +137,7 @@ function BetModal({ isOpen, onClose }) {
         </div>
 
         {/* Заголовок */}
-        <h2 className="bet-modal-title">Сделать Ставку</h2>
+        <h2 className="bet-modal-title">Вывести</h2>
 
         {/* Табы */}
         <div className="bet-modal-tabs">
@@ -156,69 +156,71 @@ function BetModal({ isOpen, onClose }) {
         </div>
 
         {/* Контент табов */}
-        {activeTab === 'coins' && (
-          <div className="bet-modal-coins-content">
-            <div className="bet-amount-header">
-              <span className="bet-amount-label">Сумма ставки</span>
-              <span className="bet-balance">Баланс: {currencyAmountLabel}</span>
-            </div>
-            
-            <div className="bet-amount-input-wrapper">
-              <input
-                type="text"
-                className="bet-amount-input"
-                value={betAmount}
-                onChange={(e) => setBetAmount(e.target.value.replace(/[^0-9.]/g, ''))}
-                placeholder="0"
-              />
-              <div className="bet-amount-actions">
-                <img src={currencyIcon} alt="currency" className="bet-coin-icon" />
-                <button className="bet-max-button" onClick={handleMaxClick}>
-                  MAX
-                </button>
+        <div className="bet-modal-tabs-content">
+          <div className={`bet-tab-panel ${activeTab === 'coins' ? 'active' : ''}`}>
+            <div className="bet-modal-coins-content">
+              <div className="bet-amount-header">
+                <span className="bet-amount-label">Сумма ставки</span>
+                <span className="bet-balance">Баланс: {currencyAmountLabel}</span>
               </div>
-            </div>
-
-            <button className="bet-submit-button">
-              <span className="bet-submit-plus">+</span>
-              Пополнить баланс
-            </button>
-          </div>
-        )}
-
-        {activeTab === 'gifts' && (
-          <div className="bet-modal-gifts-content">
-            <div className="gifts-grid">
-              {gifts.map((gift) => (
-                <div 
-                  key={gift.id} 
-                  className={`gift-card ${selectedGift === gift.id ? 'selected' : ''}`}
-                  onClick={() => setSelectedGift(gift.id)}
-                >
-                  <div className="gift-price">
-                    <img src={currencyIcon} alt="currency" className="gift-coin-icon" />
-                    <span className="gift-price-value">{gift.price}</span>
-                  </div>
-                  {selectedGift === gift.id && (
-                    <div className="gift-check">
-                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <circle cx="10" cy="10" r="10" fill="#00C853"/>
-                        <path d="M6 10L9 13L14 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                  )}
-                  <div className="gift-image">
-                    <span className="gift-emoji">{gift.emoji}</span>
-                  </div>
+              
+              <div className="bet-amount-input-wrapper">
+                <input
+                  type="text"
+                  className="bet-amount-input"
+                  value={betAmount}
+                  onChange={(e) => setBetAmount(e.target.value.replace(/[^0-9.]/g, ''))}
+                  placeholder="0"
+                />
+                <div className="bet-amount-actions">
+                  <img src={currencyIcon} alt="currency" className="bet-coin-icon" />
+                  <button className="bet-max-button" onClick={handleMaxClick}>
+                    MAX
+                  </button>
                 </div>
-              ))}
-            </div>
+              </div>
 
-            <button className="bet-submit-button gifts-submit">
-              Выбрать
-            </button>
+              <button className="bet-submit-button">
+                <span className="bet-submit-plus">+</span>
+                Вывести
+              </button>
+            </div>
           </div>
-        )}
+
+          <div className={`bet-tab-panel ${activeTab === 'gifts' ? 'active' : ''}`}>
+            <div className="bet-modal-gifts-content">
+              <div className="gifts-grid">
+                {gifts.map((gift) => (
+                  <div 
+                    key={gift.id} 
+                    className={`gift-card ${selectedGift === gift.id ? 'selected' : ''}`}
+                    onClick={() => setSelectedGift(gift.id)}
+                  >
+                    <div className="gift-price">
+                      <img src={currencyIcon} alt="currency" className="gift-coin-icon" />
+                      <span className="gift-price-value">{gift.price}</span>
+                    </div>
+                    {selectedGift === gift.id && (
+                      <div className="gift-check">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                          <circle cx="10" cy="10" r="10" fill="#00C853"/>
+                          <path d="M6 10L9 13L14 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
+                    )}
+                    <div className="gift-image">
+                      <img src={gift.image} alt={gift.name} className="gift-emoji" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button className="bet-submit-button gifts-submit">
+                Выбрать
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

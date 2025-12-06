@@ -1,0 +1,593 @@
+/* Оверлей */
+.case-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: case-overlay-fade-in 0.3s ease-out;
+}
+
+@keyframes case-overlay-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Контент модала */
+.case-modal-content {
+  width: min(420px, calc(100% - 32px));
+  max-height: 85vh;
+  background: linear-gradient(180deg, #1A1035 0%, #0D0326 100%);
+  border-radius: 24px 24px 0 0;
+  padding: 12px 16px 24px;
+  animation: case-modal-slide-up 0.3s ease-out;
+  touch-action: none;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-bottom: none;
+}
+
+.case-modal-content {
+  scrollbar-width: none;
+}
+
+.case-modal-content::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.case-modal-result {
+  justify-content: center;
+  align-items: center;
+  min-height: 480px;
+}
+
+@keyframes case-modal-slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* Ручка для свайпа */
+.case-modal-handle {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 12px;
+  cursor: grab;
+}
+
+.case-modal-handle:active {
+  cursor: grabbing;
+}
+
+.case-modal-handle-bar {
+  width: 40px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+/* Заголовок */
+.case-modal-title {
+  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  margin: 0 0 16px;
+}
+
+/* Превью кейсов — бесконечная лента */
+.case-preview-row {
+  position: relative;
+  overflow: hidden;
+  margin: 0 -16px 20px;
+  padding: 12px 0;
+  min-height: 85px;
+}
+
+.case-preview-track {
+  display: flex;
+  gap: 10px;
+  width: max-content;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.case-preview-item {
+  min-width: 70px;
+  width: 70px;
+  height: 70px;
+  background: #2A1F4E;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  flex-shrink: 0;
+}
+
+.case-preview-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: #4ADE80;
+  background: rgba(74, 222, 128, 0.15);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.case-preview-price {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.case-preview-coin {
+  width: 14px;
+  height: 14px;
+}
+
+.case-preview-gift {
+  font-size: 28px;
+}
+
+.case-preview-fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.case-preview-fade--left {
+  left: 0;
+  background: linear-gradient(90deg, rgba(13, 3, 38, 1) 0%, rgba(13, 3, 38, 0) 100%);
+}
+
+.case-preview-fade--right {
+  right: 0;
+  background: linear-gradient(270deg, rgba(13, 3, 38, 1) 0%, rgba(13, 3, 38, 0) 100%);
+}
+
+/* Секция заголовок */
+.case-section-title {
+  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  margin: 16px 0 12px;
+  letter-spacing: 0.5px;
+}
+
+/* Сетка предметов */
+.case-items-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.case-item-card {
+  background: #2A1F4E;
+  border-radius: 12px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.case-item-price {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.case-item-coin {
+  width: 14px;
+  height: 14px;
+}
+
+.case-item-image {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.case-item-gift {
+  font-size: 32px;
+}
+
+/* Кнопка открыть (платный) */
+.case-open-button {
+  width: 100%;
+  padding: 16px 24px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #2C7DF8 0%, #951BF9 100%);
+  color: #fff;
+  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 8px 24px rgba(149, 27, 249, 0.3);
+}
+
+.case-open-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(149, 27, 249, 0.4);
+}
+
+.case-open-button:active {
+  transform: translateY(0);
+}
+
+/* Инфо бокс (бесплатный) */
+.case-info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.case-info-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.case-info-text {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Кнопка депозита */
+.case-deposit-button {
+  width: 100%;
+  padding: 16px 24px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #2C7DF8 0%, #951BF9 100%);
+  color: #fff;
+  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 8px 24px rgba(149, 27, 249, 0.3);
+}
+
+.case-deposit-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(149, 27, 249, 0.4);
+}
+
+/* Кнопка промокода */
+.case-promo-button {
+  width: 100%;
+  padding: 14px 24px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 14px;
+  background: transparent;
+  color: #fff;
+  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.2s ease;
+}
+
+.case-promo-button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* ========== Экран спина ========== */
+.case-spin-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 0 16px;
+  min-height: 70vh;
+}
+
+.case-spin-track {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 16px;
+  background: radial-gradient(circle at 20% 20%, rgba(149, 27, 249, 0.15), transparent 45%),
+              radial-gradient(circle at 80% 30%, rgba(44, 125, 248, 0.15), transparent 40%),
+              rgba(26, 16, 53, 0.9);
+  border: 1px solid rgba(149, 27, 249, 0.25);
+  padding: 10px 0;
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.4);
+}
+
+.case-spin-track-inner {
+  display: flex;
+  gap: 10px;
+  padding: 6px 0;
+  animation: spin-scroll 4.6s linear forwards;
+}
+
+@keyframes spin-scroll {
+  0% { transform: translateX(0); }
+  10% { transform: translateX(-18%); }
+  30% { transform: translateX(-60%); }
+  55% { transform: translateX(-92%); }
+  78% { transform: translateX(-108%); }
+  92% { transform: translateX(-102%); }
+  100% { transform: translateX(-96%); }
+}
+
+.case-spin-item {
+  min-width: 96px;
+  height: 86px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+  transform: translateZ(0);
+}
+
+.case-spin-item--mid {
+  transform: scale(0.985) translateY(2px);
+  opacity: 0.9;
+  filter: blur(0.05px);
+}
+
+.case-spin-item--back {
+  transform: scale(0.97) translateY(4px);
+  opacity: 0.8;
+  filter: blur(0.12px);
+}
+
+.case-spin-gift {
+  font-size: 32px;
+}
+
+.case-spin-price {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.case-spin-price img {
+  width: 16px;
+  height: 16px;
+}
+
+.case-spin-marker {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.case-spin-marker-line {
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(255,255,255,0) 0%, #FFD166 45%, #FF9F1C 50%, #FFD166 55%, rgba(255,255,255,0) 100%);
+  border-radius: 2px;
+  box-shadow: 0 0 18px rgba(255, 209, 102, 0.7);
+}
+
+.case-spin-marker-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle, rgba(255, 209, 102, 0.18) 0%, rgba(255, 209, 102, 0) 70%);
+  transform: translate(-50%, -50%);
+  filter: blur(1px);
+}
+
+.case-spin-fog {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 28%;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(13, 3, 38, 0.9) 0%, rgba(13, 3, 38, 0) 100%);
+}
+
+.case-spin-fog--left {
+  left: 0;
+}
+
+.case-spin-fog--right {
+  right: 0;
+  transform: scaleX(-1);
+}
+
+.case-spin-caption {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.3px;
+}
+
+/* ========== Экран результата ========== */
+.case-result-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  position: relative;
+  overflow: hidden;
+  min-height: 400px;
+}
+
+.case-result-title {
+  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 32px;
+  text-align: center;
+  animation: result-title-pop 0.5s ease-out;
+}
+
+@keyframes result-title-pop {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.case-result-prize {
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  animation: prize-float 2s ease-in-out infinite;
+}
+
+@keyframes prize-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.case-result-gift {
+  font-size: 64px;
+}
+
+.case-result-amount {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 40px;
+}
+
+.case-result-plus {
+  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #4ADE80;
+}
+
+.case-result-currency {
+  width: 24px;
+  height: 24px;
+}
+
+.case-ok-button {
+  width: 100%;
+  max-width: 280px;
+  padding: 16px 24px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #2C7DF8 0%, #951BF9 100%);
+  color: #fff;
+  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 8px 24px rgba(149, 27, 249, 0.3);
+}
+
+.case-ok-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(149, 27, 249, 0.4);
+}
+
+/* Конфетти */
+.confetti-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  top: -10px;
+  animation: confetti-fall 3s ease-out forwards;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(500px) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Разные формы конфетти */
+.confetti:nth-child(odd) {
+  border-radius: 50%;
+}
+
+.confetti:nth-child(even) {
+  border-radius: 2px;
+}
+
+.confetti:nth-child(3n) {
+  width: 8px;
+  height: 8px;
+}
+
+.confetti:nth-child(5n) {
+  width: 6px;
+  height: 12px;
+}

@@ -31,6 +31,9 @@
   animation: modal-slide-up 0.3s ease-out;
   touch-action: none;
   user-select: none;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes modal-slide-up {
@@ -81,6 +84,27 @@
   margin-bottom: 20px;
 }
 
+.bet-modal-tabs-content {
+  position: relative;
+  overflow: hidden;
+  height: 260px;
+}
+
+.bet-tab-panel {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+
+.bet-tab-panel.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
 .bet-modal-tab {
   flex: 1;
   padding: 12px 24px;
@@ -106,6 +130,8 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .bet-amount-header {
@@ -133,6 +159,7 @@
   border-radius: 12px;
   padding: 4px 4px 4px 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  box-sizing: border-box;
 }
 
 .bet-amount-input {
@@ -155,6 +182,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-right: 16px;
 }
 
 .bet-coin-icon {
@@ -199,7 +227,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 10px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: 0 8px 24px rgba(149, 27, 249, 0.3);
 }
@@ -223,6 +251,8 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .gifts-grid {
