@@ -370,7 +370,7 @@
 .players-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
 }
 
 .player-row {

@@ -143,7 +143,21 @@
 }
 
 .case-preview-gift {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 28px;
+}
+
+.case-preview-animation,
+.case-preview-image {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover;
 }
 
 .case-preview-fade {
@@ -217,8 +231,13 @@
   justify-content: center;
 }
 
-.case-item-gift {
-  font-size: 32px;
+.case-item-animation,
+.case-item-img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover;
 }
 
 /* Кнопка открыть (платный) */
@@ -342,22 +361,26 @@
   display: flex;
   gap: 10px;
   padding: 6px 0;
-  animation: spin-scroll 4.6s linear forwards;
 }
 
 @keyframes spin-scroll {
-  0% { transform: translateX(0); }
-  10% { transform: translateX(-18%); }
-  30% { transform: translateX(-60%); }
-  55% { transform: translateX(-92%); }
-  78% { transform: translateX(-108%); }
-  92% { transform: translateX(-102%); }
-  100% { transform: translateX(-96%); }
+  0% { 
+    transform: translateX(50px); 
+  }
+  92% { 
+    transform: translateX(-2180px); 
+  }
+  96% { 
+    transform: translateX(-2165px); /* Небольшой откат - near miss эффект */
+  }
+  100% { 
+    transform: translateX(-2170px); /* Финальная позиция под маркером */
+  }
 }
 
 .case-spin-item {
-  min-width: 96px;
-  height: 86px;
+  min-width: 100px;
+  height: 90px;
   background: linear-gradient(160deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
@@ -383,7 +406,21 @@
 }
 
 .case-spin-gift {
-  font-size: 32px;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.case-spin-animation,
+.case-spin-image {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover;
 }
 
 .case-spin-price {

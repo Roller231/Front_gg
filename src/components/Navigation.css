@@ -9,31 +9,55 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 12px 0;
+  padding: 12px 14px;
   padding-bottom: 20px;
   height: 70px;
   z-index: 100;
 }
 
-/* Арка по центру */
+/* Арка по центру — волнистая форма */
 .navigation::before {
   content: '';
   position: absolute;
-  top: -35px;
+  top: -40px;
   left: 50%;
   transform: translateX(-50%);
-  width: 90px;
-  height: 45px;
+  width: 160px;
+  height: 62px;
   background-color: var(--dark-bg);
-  border-radius: 45px 45px 0 0;
   z-index: 0;
+  clip-path: path('M0,62 L0,45 C0,45 18,45 32,32 C46,18 62,6 80,6 C98,6 114,18 128,32 C142,45 160,45 160,45 L160,62 Z');
+}
+
+/* Свечение от верхнего края навигации */
+.navigation::after {
+  content: '';
+  position: absolute;
+  top: -50px;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  background: 
+    radial-gradient(ellipse 60% 100% at 50% 120%, rgba(60, 140, 255, 0.5) 0%, transparent 80%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Плоская навигация без арки (когда барабан выключен) */
+.navigation--flat::before,
+.navigation--flat::after {
+  display: none;
+}
+
+.navigation--flat .center-item {
+  margin-top: -5px;
 }
 
 .nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   cursor: pointer;
   position: relative;
   z-index: 2;
@@ -43,9 +67,24 @@
   font-size: 20px;
 }
 
+/* Размер только для центральной иконки рулетки в off-состоянии */
+.center-item .nav-icon {
+  height: 29px;
+  width: auto;
+}
+
 .nav-label {
-  font-size: 11px;
-  color: var(--gray);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.34);
+}
+
+/* Подпись для рулетки такая же, как у остальных (по макету) */
+.center-item .nav-label {
+  font-size: 12px;
+  font-weight: 500;
 }
 
 /* Активное состояние */
@@ -81,7 +120,7 @@
 .nav-icon.cases-glow {
   position: relative;
   z-index: 1;
-  filter: drop-shadow(0 0 8px rgba(78, 217, 136, 0.8));
+  filter: drop-shadow(0 -3px 8px rgba(78, 217, 136, 0.8));
 }
 
 .crash-icon-active::before {
@@ -103,7 +142,7 @@
 .nav-icon.crash-glow {
   position: relative;
   z-index: 1;
-  filter: drop-shadow(0 0 8px rgba(78, 217, 136, 0.8));
+  filter: drop-shadow(0 -3px 8px rgba(78, 217, 136, 0.8));
 }
 
 @keyframes crash-glow-pulse {
@@ -128,9 +167,51 @@
   }
 }
 
+/* Рулетка активное состояние (зелёное свечение) */
+.roulette-icon-active {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.roulette-icon-active::before {
+  content: '';
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  margin-top: 12px;
+  background: radial-gradient(
+    circle,
+    rgba(187, 253, 68, 0.6) 0%,
+    rgba(114, 192, 4, 0.4) 50%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  z-index: 0;
+  animation: roulette-glow-pulse 1.6s ease-in-out infinite;
+}
+
+.nav-icon.roulette-glow {
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 0 8px rgba(187, 253, 68, 0.9)) 
+          brightness(0) saturate(100%) invert(85%) sepia(60%) saturate(600%) hue-rotate(35deg) brightness(1.05);
+}
+
+@keyframes roulette-glow-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
 .center-item {
   position: relative;
-  margin-top: 0;
 }
 
 /* Барабан с эффектами */
@@ -139,36 +220,41 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  width: 56px;
-  height: 56px;
-  margin-top: 8px;
+  width: 72px;
+  height: 72px;
+  margin-top: 0;
 }
 
 .union-icon {
   position: absolute;
-  top: -32px;
+  top: -22px;
   left: 50%;
   transform: translateX(-50%);
-  width: 55px;
+  width: 58px;
   pointer-events: none;
   z-index: 10;
 }
 
 .baraban-icon {
-  width: 44px;
-  height: 44px;
+  width: 60px;
+  height: 60px;
   animation: baraban-spin 4s linear infinite;
   position: relative;
   z-index: 2;
 }
 
 .baraban-off {
-  margin-top: 4px;
+  margin-top: -16px;
+  margin-left: -4px;
+}
+
+.home-page .baraban-off {
+  margin-left: 0;
 }
 
 .baraban-off-icon {
-  width: 44px;
-  height: 44px;
+  width: 60px;
+  height: 60px;
 }
 
 @keyframes baraban-spin {
@@ -183,8 +269,8 @@
 /* Свечение сзади */
 .baraban-glow {
   position: absolute;
-  width: 70px;
-  height: 70px;
+  width: 90px;
+  height: 90px;
   background: radial-gradient(circle, rgba(139, 92, 246, 0.7) 0%, rgba(107, 63, 216, 0.4) 40%, transparent 70%);
   border-radius: 50%;
   z-index: 0;
@@ -205,8 +291,8 @@
 /* Пульсирующие кольца */
 .baraban-pulse {
   position: absolute;
-  width: 56px;
-  height: 56px;
+  width: 72px;
+  height: 72px;
   border: 2px solid rgba(139, 92, 246, 0.6);
   border-radius: 50%;
   z-index: 1;

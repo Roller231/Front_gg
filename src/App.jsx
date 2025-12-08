@@ -8,15 +8,12 @@ import Navigation from './components/Navigation'
 import ProfilePage from './components/ProfilePage'
 import CrashPage from './components/CrashPage'
 import CasesPage from './components/CasesPage'
+import PartnerPage from './components/PartnerPage'
 import { CurrencyProvider } from './context/CurrencyContext'
 
 function HomePage() {
   return (
-    <div className="app">
-      <div className="top-bar">
-        <span className="close-text">Close</span>
-        <span className="chevron">⌄</span>
-      </div>
+    <div className="app home-page">
       
       <Header />
       
@@ -24,12 +21,14 @@ function HomePage() {
         <Banner />
         <TaskList />
         <div className="games-section">
-          <GameCard />
-          <GameCard />
+          <GameCard title="РУЛЕТКА" online={55} />
+          <GameCard title="РУЛЕТКА" online={55} />
+          <GameCard title="PvP" online={597} />
+          <GameCard title="Upgrade" online={597} />
         </div>
       </main>
       
-      <Navigation activePage="cases" />
+      <Navigation />
     </div>
   )
 }
@@ -43,6 +42,7 @@ function App() {
           <Route path="/cases" element={<CasesPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/crash" element={<CrashPage />} />
+          <Route path="/partner" element={<PartnerPage />} />
         </Routes>
       </BrowserRouter>
     </CurrencyProvider>

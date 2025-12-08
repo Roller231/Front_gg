@@ -34,18 +34,18 @@ const freeCases = [
 ]
 
 const liveDrops = [
-  { id: 'drop-1', image: '/image/case-item-1.svg', name: 'Golden Bag' },
-  { id: 'drop-2', image: '/image/case-item-2.svg', name: 'Frog King' },
-  { id: 'drop-3', image: '/image/case-item-3.svg', name: 'Crystals' },
-  { id: 'drop-4', image: '/image/case-item-4.svg', name: 'Helmet' },
-  { id: 'drop-5', image: '/image/case-item-1.svg', name: 'Golden Bag' },
-  { id: 'drop-6', image: '/image/case-item-2.svg', name: 'Frog King' },
-  { id: 'drop-7', image: '/image/case-item-3.svg', name: 'Crystals' },
-  { id: 'drop-8', image: '/image/case-item-4.svg', name: 'Helmet' },
-  { id: 'drop-9', image: '/image/case-item-1.svg', name: 'Golden Bag' },
-  { id: 'drop-10', image: '/image/case-item-2.svg', name: 'Frog King' },
-  { id: 'drop-11', image: '/image/case-item-3.svg', name: 'Crystals' },
-  { id: 'drop-12', image: '/image/case-item-4.svg', name: 'Helmet' },
+  { id: 'drop-1', type: 'image', image: '/image/case_card1.png', name: 'Gift 1' },
+  { id: 'drop-2', type: 'image', image: '/image/case_card2.png', name: 'Gift 2' },
+  { id: 'drop-3', type: 'image', image: '/image/case_card3.png', name: 'Gift 3' },
+  { id: 'drop-4', type: 'image', image: '/image/case_card4.png', name: 'Gift 4' },
+  { id: 'drop-5', type: 'image', image: '/image/case_card1.png', name: 'Gift 1' },
+  { id: 'drop-6', type: 'image', image: '/image/case_card2.png', name: 'Gift 2' },
+  { id: 'drop-7', type: 'image', image: '/image/case_card3.png', name: 'Gift 3' },
+  { id: 'drop-8', type: 'image', image: '/image/case_card4.png', name: 'Gift 4' },
+  { id: 'drop-9', type: 'animation', animation: '/animation/sticker.json', name: 'Sticker' },
+  { id: 'drop-10', type: 'image', image: '/image/case_card2.png', name: 'Gift 2' },
+  { id: 'drop-11', type: 'image', image: '/image/case_card3.png', name: 'Gift 3' },
+  { id: 'drop-12', type: 'image', image: '/image/case_card4.png', name: 'Gift 4' },
 ]
 
 function CasesPage() {
@@ -91,16 +91,28 @@ function CasesPage() {
             <span className="live-dot"></span>
             <span className="live-text">Live</span>
           </div>
-          <div className="live-items" aria-label="История выпадения подарков">
-            {liveDrops.map((drop) => (
-              <div key={drop.id} className="live-item">
-                <img
-                  src="/image/Progress Bar.svg"
-                  alt="Gift"
-                  className="live-item-image"
-                />
-              </div>
-            ))}
+          <div className="live-items-wrapper">
+            <div className="live-items-track">
+              {/* Дублируем для бесконечной прокрутки */}
+              {[...liveDrops, ...liveDrops].map((drop, idx) => (
+                <div key={`${drop.id}-${idx}`} className="live-item">
+                  {drop.type === 'animation' && drop.animation ? (
+                    <Player
+                      autoplay
+                      loop
+                      src={drop.animation}
+                      className="live-item-animation"
+                    />
+                  ) : (
+                    <img
+                      src={drop.image}
+                      alt={drop.name}
+                      className="live-item-image"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 

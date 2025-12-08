@@ -4,7 +4,7 @@ import './Navigation.css'
 
 function Navigation({ activePage = 'home' }) {
   const navigate = useNavigate()
-  const [hasFreeSpins, setHasFreeSpins] = useState(true)
+  const [hasFreeSpins, setHasFreeSpins] = useState(false)
 
   // HTTP-запрос для бэкенда:
   // Ожидается GET /api/free-spins/status -> { hasFreeSpins: boolean }
@@ -42,7 +42,7 @@ function Navigation({ activePage = 'home' }) {
   }, [])
 
   return (
-    <nav className="navigation">
+    <nav className={`navigation ${hasFreeSpins ? '' : 'navigation--flat'}`}>
       <div 
         className={`nav-item ${activePage === 'cases' ? 'active' : ''}`}
         onClick={() => navigate('/cases')}
@@ -69,7 +69,10 @@ function Navigation({ activePage = 'home' }) {
         )}
         <span className="nav-label"></span>
       </div>
-      <div className="nav-item center-item" onClick={() => navigate('/')}>
+      <div 
+        className={`nav-item center-item ${activePage === 'home' ? 'active' : ''}`}
+        onClick={() => navigate('/')}
+      >
         {hasFreeSpins ? (
           <div className="baraban-container">
             <div className="baraban-glow"></div>
@@ -77,15 +80,22 @@ function Navigation({ activePage = 'home' }) {
             <img src="/image/Union.svg" alt="Free" className="union-icon" />
             <img src="/image/Baraban.png" alt="Baraban" className="baraban-icon" />
           </div>
-        ) : (
-          <div className="baraban-container baraban-off">
+        ) : activePage === 'home' ? (
+          <div className="roulette-icon-active">
             <img
               src="/image/Baraban_Off.svg"
-              alt="Baraban off"
-              className="baraban-off-icon"
+              alt="Рулетка"
+              className="nav-icon roulette-glow"
             />
           </div>
+        ) : (
+          <img
+            src="/image/Baraban_Off.svg"
+            alt="Baraban off"
+            className="nav-icon"
+          />
         )}
+        <span className="nav-label">Рулетка</span>
       </div>
       <div 
         className={`nav-item ${activePage === 'pvp' ? 'active' : ''}`}

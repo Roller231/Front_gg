@@ -10,7 +10,7 @@ const gifts = [
   { id: 4, name: 'Шлем', image: '/image/case_card4.png', price: 0.5 },
 ]
 
-function BetModal({ isOpen, onClose }) {
+function BetModal({ isOpen, onClose, mode = 'bet' }) {
   const [activeTab, setActiveTab] = useState('coins') // 'gifts' | 'coins'
   const [betAmount, setBetAmount] = useState('100')
   const [selectedGift, setSelectedGift] = useState(null)
@@ -113,6 +113,10 @@ function BetModal({ isOpen, onClose }) {
   const currencyIcon = selectedCurrency?.icon || '/image/Coin Icon.svg'
   const currencyAmountLabel = selectedCurrency?.amount || '0'
 
+  const isWithdrawMode = mode === 'withdraw'
+  const titleText = isWithdrawMode ? 'Вывести' : 'Сделать ставку'
+  const primaryButtonText = isWithdrawMode ? 'Вывести' : 'Сделать ставку'
+
   if (!isOpen) return null
 
   return (
@@ -137,7 +141,7 @@ function BetModal({ isOpen, onClose }) {
         </div>
 
         {/* Заголовок */}
-        <h2 className="bet-modal-title">Вывести</h2>
+        <h2 className="bet-modal-title">{titleText}</h2>
 
         {/* Табы */}
         <div className="bet-modal-tabs">
@@ -181,8 +185,7 @@ function BetModal({ isOpen, onClose }) {
               </div>
 
               <button className="bet-submit-button">
-                <span className="bet-submit-plus">+</span>
-                Вывести
+                {primaryButtonText}
               </button>
             </div>
           </div>

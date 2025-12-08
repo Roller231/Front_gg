@@ -2,27 +2,30 @@ import { useState, useRef, useEffect } from 'react'
 import './CaseModal.css'
 import { useCurrency } from '../context/CurrencyContext'
 import DepositModal from './DepositModal'
+import { Player } from '@lottiefiles/react-lottie-player'
 
 // Предметы внутри кейса (моковые данные)
 const caseItems = [
-  { id: 1, price: 0.1, image: '/image/case_card1.png' },
-  { id: 2, price: 0.1, image: '/image/case_card2.png' },
-  { id: 3, price: 0.1, image: '/image/case_card3.png' },
-  { id: 4, price: 0.1, image: '/image/case_card4.png' },
-  { id: 5, price: 0.1, image: '/image/case_card1.png' },
-  { id: 6, price: 0.1, image: '/image/case_card2.png' },
-  { id: 7, price: 0.1, image: '/image/case_card3.png' },
-  { id: 8, price: 0.1, image: '/image/case_card4.png' },
-  { id: 9, price: 0.1, image: '/image/case_card1.png' },
+  { id: 1, price: 0.1, type: 'image', image: '/image/case_card1.png', name: 'Gift 1' },
+  { id: 2, price: 0.1, type: 'image', image: '/image/case_card2.png', name: 'Gift 2' },
+  { id: 3, price: 0.1, type: 'image', image: '/image/case_card3.png', name: 'Gift 3' },
+  { id: 4, price: 0.1, type: 'image', image: '/image/case_card4.png', name: 'Gift 4' },
+  { id: 5, price: 0.1, type: 'animation', animation: '/animation/sticker.json', name: 'Sticker' },
 ]
 
 function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
   const [view, setView] = useState('main') // 'main' | 'spin' | 'result'
   const [wonAmount, setWonAmount] = useState(0)
+  const [wonItem, setWonItem] = useState(null)
   const [spinItems, setSpinItems] = useState([])
   const [isSpinning, setIsSpinning] = useState(false)
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false)
   const { selectedCurrency } = useCurrency()
+  const [spinOffset, setSpinOffset] = useState(50)
+  const [spinPhase, setSpinPhase] = useState('idle') // 'idle' | 'main' | 'settle'
+  const spinTrackRef = useRef(null)
+  const spinTrackInnerRef = useRef(null)
+  const spinAnimationStartedRef = useRef(false)
   
   // Для свайпа
   const modalRef = useRef(null)
@@ -36,6 +39,7 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
     if (isOpen) {
       setView('main')
       setWonAmount(0)
+      setWonItem(null)
       setSpinItems([])
       setIsSpinning(false)
       if (contentRef.current) {
@@ -115,29 +119,96 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
     }
   }
 
+  useEffect(() => {
+    if (view !== 'spin' || !isSpinning || !spinItems.length) return
+    if (spinAnimationStartedRef.current) return
+
+    spinAnimationStartedRef.current = true
+
+    const startOffset = 50
+    setSpinOffset(startOffset)
+
+    const rafId = requestAnimationFrame(() => {
+      const trackEl = spinTrackInnerRef.current
+      const containerEl = spinTrackRef.current
+      if (!trackEl || !containerEl) return
+
+      const items = trackEl.querySelectorAll('.case-spin-item')
+      const winnerEl =
+        trackEl.querySelector('.case-spin-item--winning') ||
+        items[Math.floor(items.length / 2)]
+      if (!winnerEl) return
+
+      const containerRect = containerEl.getBoundingClientRect()
+      const winnerRect = winnerEl.getBoundingClientRect()
+
+      const containerCenter = containerRect.left + containerRect.width / 2
+      const winnerCenter = winnerRect.left + winnerRect.width / 2
+
+      const delta = winnerCenter - containerCenter
+      const finalOffset = startOffset - delta
+      const overshootOffset = finalOffset - 15
+
+      // Основная фаза движения
+      setSpinPhase('main')
+      setSpinOffset(overshootOffset)
+
+      // Лёгкий откат к финальной позиции
+      setTimeout(() => {
+        setSpinPhase('settle')
+        setSpinOffset(finalOffset)
+      }, 4600)
+    })
+
+    return () => {
+      cancelAnimationFrame(rafId)
+    }
+  }, [view, isSpinning, spinItems])
+
   // Открытие кейса
   const handleOpenCase = () => {
     if (isSpinning) return
 
-    // Подготовим длинную ленту предметов с параллаксом
-    const baseItems = [...caseItems, ...caseItems, ...caseItems]
-    const shuffled = baseItems
-      .map((item, idx) => ({ ...item, uid: `${item.id}-${idx}-${Math.random().toString(36).slice(2)}` }))
-      .sort(() => Math.random() - 0.5)
+    // Выбираем выигрышный предмет заранее
+    const winningIndex = Math.floor(Math.random() * caseItems.length)
+    const winning = caseItems[winningIndex]
+    setWonItem(winning)
+    const winningAmount =
+      typeof winning.price === 'number'
+        ? winning.price
+        : parseFloat(winning.price || '0')
+    setWonAmount(winningAmount)
 
-    setSpinItems(shuffled)
+    spinAnimationStartedRef.current = false
+    setSpinPhase('idle')
+    setSpinOffset(50)
+
+    // Создаём длинную ленту предметов
+    // Выигрышный предмет будет на позиции, которая окажется под маркером после анимации
+    const totalItems = 30
+    const winningPosition = 22 // Позиция под маркером после остановки
+    
+    const items = []
+    for (let i = 0; i < totalItems; i++) {
+      if (i === winningPosition) {
+        // Вставляем выигрышный предмет
+        items.push({ ...winning, uid: `win-${Math.random().toString(36).slice(2)}`, isWinning: true })
+      } else {
+        // Случайный предмет из списка
+        const randomItem = caseItems[Math.floor(Math.random() * caseItems.length)]
+        items.push({ ...randomItem, uid: `${randomItem.id}-${i}-${Math.random().toString(36).slice(2)}`, isWinning: false })
+      }
+    }
+
+    setSpinItems(items)
     setView('spin')
     setIsSpinning(true)
-
-    // Имитация выигрыша и остановки
-    const randomWin = (Math.random() * 0.5).toFixed(2)
-    setWonAmount(parseFloat(randomWin))
 
     // Длительность спина и затем показать результат
     setTimeout(() => {
       setIsSpinning(false)
       setView('result')
-    }, 4800)
+    }, 5200)
   }
 
   const handleResultOk = () => {
@@ -178,19 +249,37 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
             {/* Превью кейсов — бесконечная лента */}
             <div className="case-preview-row">
               <div className="case-preview-track">
-                {[...Array(16)].map((_, i) => (
-                  <div key={`preview-${i}`} className="case-preview-item">
-                    {isPaid ? (
-                      <span className="case-preview-price">
-                        <img src={currencyIcon} alt="currency" className="case-preview-coin" />
-                        {caseItems[i % caseItems.length]?.price || '0.1'}
-                      </span>
-                    ) : (
-                      <span className="case-preview-badge">FREE</span>
-                    )}
-                    <div className="case-preview-gift">🎁</div>
-                  </div>
-                ))}
+                {[...Array(16)].map((_, i) => {
+                  const previewItem = caseItems[i % caseItems.length]
+                  return (
+                    <div key={`preview-${i}`} className="case-preview-item">
+                      {isPaid ? (
+                        <span className="case-preview-price">
+                          <img src={currencyIcon} alt="currency" className="case-preview-coin" />
+                          {previewItem?.price || '0.1'}
+                        </span>
+                      ) : (
+                        <span className="case-preview-badge">FREE</span>
+                      )}
+                      <div className="case-preview-gift">
+                        {previewItem?.type === 'animation' && previewItem.animation ? (
+                          <Player
+                            autoplay
+                            loop
+                            src={previewItem.animation}
+                            className="case-preview-animation"
+                          />
+                        ) : (
+                          <img
+                            src={previewItem?.image}
+                            alt={previewItem?.name || 'Gift'}
+                            className="case-preview-image"
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
               <div className="case-preview-fade case-preview-fade--left" />
               <div className="case-preview-fade case-preview-fade--right" />
@@ -208,7 +297,20 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
                         <span>{item.price}</span>
                       </div>
                       <div className="case-item-image">
-                        <div className="case-item-gift">🎁</div>
+                        {item.type === 'animation' && item.animation ? (
+                          <Player
+                            autoplay
+                            loop
+                            src={item.animation}
+                            className="case-item-animation"
+                          />
+                        ) : (
+                          <img
+                            src={item.image}
+                            alt={item.name || 'Gift'}
+                            className="case-item-img"
+                          />
+                        )}
                       </div>
                     </div>
                   ))}
@@ -241,7 +343,20 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
                         <span>{item.price}</span>
                       </div>
                       <div className="case-item-image">
-                        <div className="case-item-gift">🎁</div>
+                        {item.type === 'animation' && item.animation ? (
+                          <Player
+                            autoplay
+                            loop
+                            src={item.animation}
+                            className="case-item-animation"
+                          />
+                        ) : (
+                          <img
+                            src={item.image}
+                            alt={item.name || 'Gift'}
+                            className="case-item-img"
+                          />
+                        )}
                       </div>
                     </div>
                   ))}
@@ -255,14 +370,46 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
           </>
         ) : view === 'spin' ? (
           <div className="case-spin-view">
-            <div className="case-spin-track">
-              <div className="case-spin-track-inner">
+            <div className="case-spin-track" ref={spinTrackRef}>
+              <div
+                className="case-spin-track-inner"
+                ref={spinTrackInnerRef}
+                style={{
+                  transform: `translateX(${spinOffset}px)`,
+                  transition: isSpinning
+                    ? `transform ${
+                        spinPhase === 'main' ? 4.6 : spinPhase === 'settle' ? 0.4 : 0
+                      }s cubic-bezier(0.18, 0.89, 0.32, 1)`
+                    : 'none',
+                }}
+              >
                 {spinItems.map((item, index) => (
                   <div 
                     key={item.uid}
-                    className={`case-spin-item ${index % 3 === 0 ? 'case-spin-item--back' : index % 2 === 0 ? 'case-spin-item--mid' : ''}`}
+                    className={`case-spin-item ${
+                      index % 3 === 0
+                        ? 'case-spin-item--back'
+                        : index % 2 === 0
+                        ? 'case-spin-item--mid'
+                        : ''
+                    } ${item.isWinning ? 'case-spin-item--winning' : ''}`}
                   >
-                    <span className="case-spin-gift">🎁</span>
+                    <div className="case-spin-gift">
+                      {item.type === 'animation' && item.animation ? (
+                        <Player
+                          autoplay
+                          loop
+                          src={item.animation}
+                          className="case-spin-animation"
+                        />
+                      ) : (
+                        <img
+                          src={item.image}
+                          alt={item.name || 'Gift'}
+                          className="case-spin-image"
+                        />
+                      )}
+                    </div>
                     <span className="case-spin-price">
                       <img src={selectedCurrency?.icon || '/image/Coin Icon.svg'} alt="currency" />
                       {item.price}
@@ -299,7 +446,28 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
             <h2 className="case-result-title">Congratulations!</h2>
             
             <div className="case-result-prize">
-              <div className="case-result-gift">🎁</div>
+              {wonItem ? (
+                wonItem.type === 'animation' && wonItem.animation ? (
+                  <Player
+                    autoplay
+                    loop
+                    src={wonItem.animation}
+                    style={{ width: 80, height: 80 }}
+                  />
+                ) : (
+                  <img
+                    src={wonItem.image}
+                    alt={wonItem.name || 'Gift'}
+                    style={{ width: 80, height: 80, objectFit: 'contain' }}
+                  />
+                )
+              ) : (
+                <img
+                  src="/image/case_card1.png"
+                  alt="Gift"
+                  style={{ width: 80, height: 80, objectFit: 'contain' }}
+                />
+              )}
             </div>
             
             <div className="case-result-amount">
