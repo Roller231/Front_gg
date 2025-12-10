@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { Player } from '@lottiefiles/react-lottie-player'
 import './CrashPage.css'
 import Header from './Header'
@@ -8,6 +8,42 @@ import BetModal from './BetModal'
 const initialHistoryValues = [1.0, 1.2, 4.96, 5.42, 8.5, 4.95, 4.0]
 const initialHistory = initialHistoryValues.map(value => ({ value, isPending: false }))
 
+// Компонент линии — волнистая, левая часть внизу, правая поднимается
+function CrashLine({ multiplier, maxMultiplier }) {
+  const progress = Math.min((multiplier - 1) / (maxMultiplier - 1), 1) // 0 to 1
+  
+  // Случайные смещения для волн (генерируются один раз)
+  const waveOffsets = useRef(
+    Array.from({ length: 6 }, () => (Math.random() - 0.5) * 2)
+  ).current
+  
+  // Генерируем путь линии
+  const pathData = useMemo(() => {
+    const width = 320
+    const startY = 145 // Левый край всегда внизу
+    const endY = 145 - progress * 140 // Правый край поднимается
+    
+    // Простой путь: горизонтально до центра, потом резко вверх под углом
+    // Конечная точка ещё выше чтобы угол продолжался
+    const d = `M 0 ${startY} Q ${width * 0.5} ${startY - 5} ${width} ${endY - 30}`
+    
+    return d
+  }, [progress, waveOffsets])
+
+  return (
+    <svg
+      className="coeff-path"
+      viewBox="0 0 320 160"
+      preserveAspectRatio="none"
+    >
+      <path
+        d={pathData}
+        className="coeff-path-line-dynamic"
+      />
+    </svg>
+  )
+}
+
 function CrashPage() {
   const [gameState, setGameState] = useState('countdown') // 'countdown' | 'preflight' | 'flying' | 'postflight'
   const [countdown, setCountdown] = useState(3)
@@ -16,6 +52,7 @@ function CrashPage() {
   const coeffHistoryRef = useRef(null)
   const prevGameState = useRef(null)
   const [isBetModalOpen, setIsBetModalOpen] = useState(false)
+  const catLottieRef = useRef(null)
 
   // Список игроков для отображения
   const players = [
@@ -33,20 +70,13 @@ function CrashPage() {
       }, 1000)
       return () => clearTimeout(timer)
     } else if (gameState === 'countdown' && countdown === 0) {
-      setGameState('preflight')
+      // Сразу переходим к полёту без preflight анимации
+      setGameState('flying')
       setMultiplier(1.0)
     }
   }, [gameState, countdown])
 
-  // Короткая анимация перед появлением кота
-  useEffect(() => {
-    if (gameState === 'preflight') {
-      const timer = setTimeout(() => {
-        setGameState('flying')
-      }, 1000)
-      return () => clearTimeout(timer)
-    }
-  }, [gameState])
+  // preflight больше не используется — бесшовный переход
 
   // Рост множителя во время полёта кота
   useEffect(() => {
@@ -54,9 +84,9 @@ function CrashPage() {
       const interval = setInterval(() => {
         setMultiplier(prev => {
           const newValue = prev + 0.02
-          if (newValue >= 5) {
+          if (newValue >= 10) {
             setGameState('postflight')
-            return 5
+            return 10
           }
           return parseFloat(newValue.toFixed(2))
         })
@@ -82,28 +112,62 @@ function CrashPage() {
     }
   }, [gameState, restartGame])
 
-  // Добавляем блок «Ожидание» при старте отчёта
+
+  // Добавляем "Ожидание" при отсчёте, затем живой коэффициент при полёте
   useEffect(() => {
     const previousState = prevGameState.current
+    
+    // При старте отсчёта добавляем "Ожидание"
     if (gameState === 'countdown' && previousState !== 'countdown') {
       setCoefficientHistory(prevHistory => {
-        if (prevHistory[0]?.isPending) {
+        if (prevHistory[0]?.isPending || prevHistory[0]?.isLive) {
           return prevHistory
         }
-        const updatedHistory = [{ value: null, isPending: true }, ...prevHistory]
+        const updatedHistory = [{ value: null, isPending: true, isLive: false }, ...prevHistory]
         return updatedHistory.slice(0, 14)
       })
     }
+    
+    // При старте полёта меняем "Ожидание" на живой коэффициент
+    if (gameState === 'flying' && previousState !== 'flying') {
+      setCoefficientHistory(prevHistory => {
+        const updatedHistory = [...prevHistory]
+        if (updatedHistory[0]?.isPending) {
+          updatedHistory[0] = { value: multiplier, isPending: false, isLive: true }
+        } else if (!updatedHistory[0]?.isLive) {
+          updatedHistory.unshift({ value: multiplier, isPending: false, isLive: true })
+        }
+        return updatedHistory.slice(0, 14)
+      })
+    }
+    
     prevGameState.current = gameState
-  }, [gameState])
+  }, [gameState, multiplier])
 
-  // Обновляем историю коэффициентов после каждого раунда
+  // Обновляем живой коэффициент в истории во время игры
+  useEffect(() => {
+    if (gameState === 'flying') {
+      setCoefficientHistory(prevHistory => {
+        if (prevHistory[0]?.isLive) {
+          const updatedHistory = [...prevHistory]
+          updatedHistory[0] = { value: multiplier, isPending: false, isLive: true }
+          return updatedHistory
+        }
+        return prevHistory
+      })
+    }
+  }, [multiplier, gameState])
+
+  // Фиксируем коэффициент в истории после краша (убираем isLive)
   useEffect(() => {
     if (gameState === 'postflight') {
       setCoefficientHistory(prevHistory => {
         const nextValue = Number(multiplier.toFixed(2))
         const updatedHistory = [...prevHistory]
-        if (updatedHistory[0]?.isPending) {
+        if (updatedHistory[0]?.isLive) {
+          // Фиксируем живой коэффициент
+          updatedHistory[0] = { value: nextValue, isPending: false, isLive: false }
+        } else if (updatedHistory[0]?.isPending) {
           updatedHistory[0] = { value: nextValue, isPending: false }
         } else {
           updatedHistory.unshift({ value: nextValue, isPending: false })
@@ -121,10 +185,6 @@ function CrashPage() {
 
   return (
     <div className="app crash-page">
-      <div className="top-bar">
-        <span className="close-text">Close</span>
-        <span className="chevron">⌄</span>
-      </div>
       
       <Header />
       
@@ -134,6 +194,9 @@ function CrashPage() {
           <div
             className={`cosmic-background ${gameState === 'flying' ? 'cosmic-background-active' : ''}`}
             aria-hidden="true"
+            style={gameState === 'flying' ? {
+              '--star-speed': `${Math.max(2, 8 - (multiplier - 1) * 1.5)}s`
+            } : undefined}
           />
           {/* Анимации взрывов и полёта кота */}
           <div className="crash-animation-container">
@@ -143,34 +206,34 @@ function CrashPage() {
               </div>
             )}
 
-            {gameState === 'preflight' && (
-              <Player
-                autoplay
-                loop={false}
-                keepLastFrame
-                src="/animation/vzryv__.json"
-                className="lottie-preflight"
-              />
-            )}
-
             {gameState === 'flying' && (
               <>
-                <svg
-                  className="coeff-path"
-                  viewBox="0 0 320 160"
-                  preserveAspectRatio="none"
-                >
-                  <path
-                    d="M 8 150 C 70 145 160 115 312 40"
-                    className="coeff-path-line"
-                  />
-                </svg>
+                <CrashLine multiplier={multiplier} maxMultiplier={5} />
 
                 <Player
-                  autoplay
-                  loop
+                  autoplay={true}
+                  loop={false}
+                  keepLastFrame={true}
                   src="/animation/cat fly___.json"
                   className="lottie-cat"
+                  style={{
+                    transform: `translate(-50%, -50%) scale(${Math.min(0.9 + (multiplier - 1) * 0.075, 1.4)})`,
+                  }}
+                  lottieRef={(lottie) => {
+                    catLottieRef.current = lottie
+                  }}
+                  onEvent={(event) => {
+                    if (event === 'complete') {
+                      // Анимация завершилась — включаем loop и циклируем последние 5 кадров
+                      const lottie = catLottieRef.current
+                      if (lottie) {
+                        const totalFrames = lottie.totalFrames
+                        const loopStart = totalFrames - 180 // Последние 3 секунды (60fps × 3)
+                        lottie.loop = true // Включаем цикл!
+                        lottie.playSegments([loopStart, totalFrames], true)
+                      }
+                    }
+                  }}
                 />
               </>
             )}
@@ -202,11 +265,11 @@ function CrashPage() {
             >
               {coefficientHistory.map((item, index) => {
                 const displayValue = item.isPending ? 'Ожидание...' : item.value.toFixed(2)
-                const key = item.isPending ? `pending-${index}` : `${item.value}-${index}`
+                const key = item.isLive ? `live-${index}` : item.isPending ? `pending-${index}` : `${item.value}-${index}`
                 return (
                   <div
                     key={key}
-                    className={`coeff-history-item ${index === 0 ? 'active' : ''} ${item.isPending ? 'pending' : ''}`}
+                    className={`coeff-history-item ${index === 0 ? 'active' : ''} ${item.isPending ? 'pending' : ''} ${item.isLive ? 'live' : ''}`}
                   >
                     {displayValue}
                   </div>

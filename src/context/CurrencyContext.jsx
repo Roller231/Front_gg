@@ -11,14 +11,17 @@ const CurrencyContext = createContext(null)
 
 export function CurrencyProvider({ children }) {
   const [selectedCurrency, setSelectedCurrency] = useState(currencyOptions[0])
+  const [hasFreeSpins, setHasFreeSpins] = useState(true)
 
   const value = useMemo(
     () => ({
       currencyOptions,
       selectedCurrency,
       setSelectedCurrency,
+      hasFreeSpins,
+      setHasFreeSpins,
     }),
-    [selectedCurrency]
+    [selectedCurrency, hasFreeSpins]
   )
 
   return (

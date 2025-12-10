@@ -19,7 +19,7 @@ const gameCurrencies = [
 function Header() {
   const navigate = useNavigate()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const { currencyOptions, selectedCurrency, setSelectedCurrency } = useCurrency()
+  const { currencyOptions, selectedCurrency, setSelectedCurrency, hasFreeSpins, setHasFreeSpins } = useCurrency()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [activeAccountType, setActiveAccountType] = useState('usdt')
   const [showNotification, setShowNotification] = useState(false)
@@ -68,7 +68,9 @@ function Header() {
                 </span>
               </div>
             </div>
-            <button className="plus-btn" onClick={() => setIsModalOpen(true)}>+</button>
+            <button className="plus-btn" onClick={() => setIsModalOpen(true)}>
+              <img src="/image/plus icon.svg" alt="plus" />
+            </button>
 
             {isDropdownOpen && (
               <div className="currency-dropdown">
@@ -87,6 +89,41 @@ function Header() {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Drum Toggle */}
+        <div style={{ marginRight: '12px' }}>
+          <label className="switch" style={{ position: 'relative', display: 'inline-block', width: '40px', height: '24px' }}>
+            <input 
+              type="checkbox" 
+              checked={hasFreeSpins}
+              onChange={(e) => setHasFreeSpins(e.target.checked)}
+              style={{ opacity: 0, width: 0, height: 0 }}
+            />
+            <span style={{
+              position: 'absolute',
+              cursor: 'pointer',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: hasFreeSpins ? '#2196F3' : '#ccc',
+              borderRadius: '24px',
+              transition: '.4s'
+            }}></span>
+            <span style={{
+              position: 'absolute',
+              content: '""',
+              height: '16px',
+              width: '16px',
+              left: '4px',
+              bottom: '4px',
+              backgroundColor: 'white',
+              borderRadius: '50%',
+              transition: '.4s',
+              transform: hasFreeSpins ? 'translateX(16px)' : 'translateX(0)'
+            }}></span>
+          </label>
         </div>
 
         <div className="avatar" onClick={() => navigate('/profile')}>

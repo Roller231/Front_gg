@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navigation from './Navigation'
 import BetModal from './BetModal'
+import Header from './Header'
+import { useCurrency } from '../context/CurrencyContext'
 
 const userData = {
   name: 'Иван Иванов',
@@ -26,11 +28,13 @@ const operationsHistory = [
 
 function ProfilePage() {
   const navigate = useNavigate()
+  const { selectedCurrency } = useCurrency()
   const [activeTopup, setActiveTopup] = useState('gifts')
   const [isBetModalOpen, setIsBetModalOpen] = useState(false)
 
   return (
     <div className="profile-page">
+      <Header />
       {/* User Card */}
       <div className="profile-user-card">
         <div className="profile-avatar-container">
@@ -91,11 +95,13 @@ function ProfilePage() {
           <button className="sell-all-btn">Продать Все</button>
         </div>
         <div className="inventory-items">
-          {inventoryItems.map((item) => (
-            <div key={item.id} className="inventory-item">
-              <span className="inventory-item-icon">{item.icon}</span>
-            </div>
-          ))}
+          <div className="inventory-gifts">
+            {inventoryItems.map((item) => (
+              <div key={item.id} className="inventory-item">
+                <span className="inventory-item-icon">{item.icon}</span>
+              </div>
+            ))}
+          </div>
           <button className="inventory-arrow">
             <span>→</span>
           </button>
@@ -117,7 +123,7 @@ function ProfilePage() {
               <span className="operation-name">{op.name}</span>
               <span className="operation-amount">
                 {op.amount}
-                <span className="diamond-icon">💎</span>
+                <img src={selectedCurrency.icon} alt={selectedCurrency.id} className="diamond-icon" />
               </span>
             </div>
           ))}

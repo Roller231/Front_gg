@@ -77,11 +77,6 @@ function CasesPage() {
 
   return (
     <div className="cases-page">
-      <div className="top-bar">
-        <span className="close-text">Close</span>
-        <span className="chevron">⌄</span>
-      </div>
-
       <Header />
 
       <main className="cases-main">

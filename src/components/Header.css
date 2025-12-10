@@ -6,6 +6,19 @@
   background-color: var(--dark-bg);
 }
 
+/* Full width header on mobile */
+@media (max-width: 426px) {
+  .header {
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    width: 100vw;
+    padding: 8px 16px;
+  }
+}
+
 .header-right {
   display: flex;
   align-items: center;
@@ -167,19 +180,21 @@
 .plus-btn {
   width: 32px;
   height: 32px;
-  border-radius: 6px;
-  background: radial-gradient(circle at 30% 30%, #BBFD44 0%, #72C004 100%);
-  color: var(--dark-bg);
-  font-size: 22px;
-  font-weight: 500;
+  border-radius: 8px;
+  background: transparent;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  line-height: 1;
   flex-shrink: 0;
+  padding: 0;
   transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.plus-btn img {
+  width: 32px;
+  height: 32px;
 }
 
 .plus-btn:hover {

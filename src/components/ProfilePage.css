@@ -1,7 +1,7 @@
 .profile-page {
   min-height: 100vh;
   background-color: var(--page-bg);
-  padding: 16px;
+  padding: 0 16px;
   padding-bottom: 100px;
 }
 
@@ -206,6 +206,13 @@
   display: flex;
   gap: 10px;
   align-items: center;
+  justify-content: space-between;
+}
+
+.inventory-gifts {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
 .inventory-item {
@@ -241,6 +248,41 @@
 
 .inventory-arrow:hover {
   transform: translateX(4px);
+}
+
+/* Responsive inventory for small screens */
+
+/* До 426px: 4 коробки */
+@media (max-width: 426px) {
+  .inventory-gifts .inventory-item:nth-child(n+5) {
+    display: none;
+  }
+  
+  .inventory-item {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+  }
+  
+  .inventory-arrow {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+  }
+}
+
+/* До 380px: 3 коробки */
+@media (max-width: 380px) {
+  .inventory-gifts .inventory-item:nth-child(n+4) {
+    display: none;
+  }
+}
+
+/* До 322px: 2 коробки */
+@media (max-width: 322px) {
+  .inventory-gifts .inventory-item:nth-child(n+3) {
+    display: none;
+  }
 }
 
 /* Withdraw Button */
@@ -314,5 +356,7 @@
 }
 
 .diamond-icon {
-  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  margin-left: 4px;
 }

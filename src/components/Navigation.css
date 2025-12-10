@@ -50,27 +50,44 @@
 }
 
 .navigation--flat .center-item {
-  margin-top: -5px;
+  margin-top: 0;
 }
 
 .nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  justify-content: center;
+  gap: 4px;
   cursor: pointer;
   position: relative;
   z-index: 2;
+  min-width: 60px;
+}
+
+.nav-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
 }
 
 .nav-icon {
-  font-size: 20px;
+  width: 24px;
+  height: 24px;
 }
 
-/* Размер только для центральной иконки рулетки в off-состоянии */
+/* Размер для центральной иконки рулетки такой же */
+.center-item .nav-icon-wrapper {
+  width: 24px;
+  height: 24px;
+}
+
 .center-item .nav-icon {
-  height: 29px;
-  width: auto;
+  width: 24px;
+  height: 24px;
 }
 
 .nav-label {
@@ -81,68 +98,68 @@
   color: rgba(255, 255, 255, 0.34);
 }
 
-/* Подпись для рулетки такая же, как у остальных (по макету) */
-.center-item .nav-label {
-  font-size: 12px;
-  font-weight: 500;
-}
-
-/* Активное состояние */
+/* Активное состояние - текст зелёный */
 .nav-item.active .nav-label {
-  color: var(--primary-green);
+  color: #BBFD44;
 }
 
-/* Crash icon активное состояние */
-.cases-icon-active,
-.crash-icon-active {
+/* Активное состояние - свечение вокруг иконки */
+.nav-icon-wrapper.icon-active .nav-icon {
+  filter: drop-shadow(0 0 6px rgba(187, 253, 68, 0.8));
+}
+
+/* Рулетка активное состояние */
+.roulette-icon-active {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.cases-icon-active::before {
+.roulette-icon-active::before {
   content: '';
   position: absolute;
-  width: 50px;
-  height: 50px;
+  width: 80px;
+  height: 16px;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
   background: radial-gradient(
-    circle,
-    rgba(78, 217, 136, 0.6) 0%,
-    rgba(64, 201, 122, 0.4) 50%,
-    transparent 70%
+    ellipse 100% 100% at 50% 50%,
+    rgba(187, 253, 68, 0.8) 0%,
+    rgba(114, 192, 4, 0.5) 40%,
+    transparent 80%
   );
   border-radius: 50%;
   z-index: 0;
-  animation: cases-glow-pulse 1.6s ease-in-out infinite;
+  filter: blur(4px);
 }
 
-.nav-icon.cases-glow {
+.nav-icon.roulette-glow {
   position: relative;
   z-index: 1;
-  filter: drop-shadow(0 -3px 8px rgba(78, 217, 136, 0.8));
+  filter: drop-shadow(0 0 8px rgba(187, 253, 68, 0.9)) 
+          brightness(0) saturate(100%) invert(85%) sepia(60%) saturate(600%) hue-rotate(35deg) brightness(1.05);
 }
 
-.crash-icon-active::before {
+/* Свечение под активной иконкой */
+.nav-icon-wrapper.icon-active::before {
   content: '';
   position: absolute;
-  width: 50px;
-  height: 50px;
+  width: 80px;
+  height: 16px;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
   background: radial-gradient(
-    circle,
-    rgba(78, 217, 136, 0.6) 0%,
-    rgba(64, 201, 122, 0.4) 50%,
-    transparent 70%
+    ellipse 100% 100% at 50% 50%,
+    rgba(187, 253, 68, 0.8) 0%,
+    rgba(114, 192, 4, 0.5) 40%,
+    transparent 80%
   );
   border-radius: 50%;
   z-index: 0;
-  animation: crash-glow-pulse 1.5s ease-in-out infinite;
-}
-
-.nav-icon.crash-glow {
-  position: relative;
-  z-index: 1;
-  filter: drop-shadow(0 -3px 8px rgba(78, 217, 136, 0.8));
+  filter: blur(4px);
 }
 
 @keyframes crash-glow-pulse {
@@ -167,51 +184,10 @@
   }
 }
 
-/* Рулетка активное состояние (зелёное свечение) */
-.roulette-icon-active {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.roulette-icon-active::before {
-  content: '';
-  position: absolute;
-  width: 60px;
-  height: 60px;
-  margin-top: 12px;
-  background: radial-gradient(
-    circle,
-    rgba(187, 253, 68, 0.6) 0%,
-    rgba(114, 192, 4, 0.4) 50%,
-    transparent 70%
-  );
-  border-radius: 50%;
-  z-index: 0;
-  animation: roulette-glow-pulse 1.6s ease-in-out infinite;
-}
-
-.nav-icon.roulette-glow {
-  position: relative;
-  z-index: 1;
-  filter: drop-shadow(0 0 8px rgba(187, 253, 68, 0.9)) 
-          brightness(0) saturate(100%) invert(85%) sepia(60%) saturate(600%) hue-rotate(35deg) brightness(1.05);
-}
-
-@keyframes roulette-glow-pulse {
-  0%, 100% {
-    opacity: 0.6;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.12);
-  }
-}
 
 .center-item {
   position: relative;
+  margin-top: 0;
 }
 
 /* Барабан с эффектами */

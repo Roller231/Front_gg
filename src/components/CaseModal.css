@@ -112,29 +112,38 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 6px;
+  padding: 0;
   border: 1px solid rgba(139, 92, 246, 0.3);
   flex-shrink: 0;
+  aspect-ratio: 1 / 1;
+  position: relative;
+  overflow: hidden;
 }
 
 .case-preview-badge {
-  font-size: 10px;
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  font-size: 9px;
   font-weight: 700;
   color: #4ADE80;
   background: rgba(74, 222, 128, 0.15);
-  padding: 2px 8px;
+  padding: 2px 6px;
   border-radius: 4px;
-  margin-bottom: 8px;
+  z-index: 2;
 }
 
 .case-preview-price {
+  position: absolute;
+  top: 4px;
+  left: 4px;
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  font-weight: 700;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 600;
   color: #fff;
-  margin-bottom: 6px;
+  z-index: 2;
 }
 
 .case-preview-coin {
@@ -143,21 +152,49 @@
 }
 
 .case-preview-gift {
-  width: 48px;
-  height: 48px;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 28px;
+  z-index: 1;
 }
 
-.case-preview-animation,
 .case-preview-image {
   width: 100% !important;
   height: 100% !important;
   max-width: none !important;
   max-height: none !important;
-  object-fit: cover;
+  object-fit: contain !important;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.case-preview-animation {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.case-preview-animation * {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.case-preview-animation svg {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
 }
 
 .case-preview-fade {
@@ -201,21 +238,27 @@
 .case-item-card {
   background: #2A1F4E;
   border-radius: 12px;
-  padding: 8px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   border: 1px solid rgba(139, 92, 246, 0.2);
+  aspect-ratio: 1 / 1;
+  position: relative;
+  overflow: hidden;
 }
 
 .case-item-price {
+  position: absolute;
+  top: 8px;
+  left: 8px;
   display: flex;
   align-items: center;
   gap: 4px;
   font-size: 12px;
   font-weight: 600;
   color: #fff;
-  margin-bottom: 4px;
+  z-index: 2;
 }
 
 .case-item-coin {
@@ -224,20 +267,49 @@
 }
 
 .case-item-image {
-  width: 48px;
-  height: 48px;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1;
+  padding: 0 !important;
 }
 
-.case-item-animation,
 .case-item-img {
   width: 100% !important;
   height: 100% !important;
   max-width: none !important;
   max-height: none !important;
-  object-fit: cover;
+  object-fit: contain !important;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.case-item-animation {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.case-item-animation * {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.case-item-animation svg {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
 }
 
 /* Кнопка открыть (платный) */
@@ -380,7 +452,7 @@
 
 .case-spin-item {
   min-width: 100px;
-  height: 90px;
+  height: 100px;
   background: linear-gradient(160deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
@@ -388,9 +460,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
   transform: translateZ(0);
+  aspect-ratio: 1 / 1;
+  position: relative;
+  overflow: hidden;
 }
 
 .case-spin-item--mid {
@@ -406,21 +480,46 @@
 }
 
 .case-spin-gift {
-  width: 64px;
-  height: 64px;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  z-index: 1;
 }
 
-.case-spin-animation,
 .case-spin-image {
   width: 100% !important;
   height: 100% !important;
   max-width: none !important;
   max-height: none !important;
   object-fit: cover;
+}
+
+.case-spin-animation {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.case-spin-animation * {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.case-spin-animation svg {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .case-spin-price {
@@ -627,4 +726,327 @@
 .confetti:nth-child(5n) {
   width: 6px;
   height: 12px;
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 430px) {
+  .case-modal-content {
+    width: 100%;
+    margin: 0;
+    border-radius: 24px 24px 0 0;
+    padding: 12px 12px 24px;
+  }
+
+  .case-modal-title {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+
+  .case-preview-row {
+    margin: 0 -12px 16px;
+  }
+
+  .case-preview-item {
+    min-width: 65px;
+    width: 65px;
+    height: 65px;
+    aspect-ratio: 1 / 1;
+  }
+
+  .case-preview-price {
+    font-size: 9px;
+  }
+
+  .case-preview-coin {
+    width: 12px;
+    height: 12px;
+  }
+
+  .case-section-title {
+    font-size: 13px;
+    margin: 12px 0 10px;
+  }
+
+  .case-items-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .case-item-price {
+    top: 6px;
+    left: 6px;
+    font-size: 11px;
+  }
+
+  .case-item-coin {
+    width: 12px;
+    height: 12px;
+  }
+
+  .case-open-button,
+  .case-deposit-button {
+    padding: 14px 20px;
+    font-size: 15px;
+  }
+
+  .case-promo-button {
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+
+  .case-info-box {
+    padding: 10px;
+    margin-bottom: 12px;
+  }
+
+  .case-info-text {
+    font-size: 12px;
+  }
+
+  .case-spin-view {
+    padding: 20px 0 12px;
+    min-height: 65vh;
+  }
+
+  .case-spin-item {
+    min-width: 90px;
+    height: 90px;
+    aspect-ratio: 1 / 1;
+  }
+
+
+  .case-spin-price {
+    font-size: 13px;
+  }
+
+  .case-spin-caption {
+    font-size: 12px;
+  }
+
+  .case-result-view {
+    padding: 32px 16px;
+    min-height: 360px;
+  }
+
+  .case-result-title {
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+
+  .case-result-prize {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 20px;
+  }
+
+  .case-result-amount {
+    margin-bottom: 32px;
+  }
+
+  .case-result-plus {
+    font-size: 22px;
+  }
+
+  .case-ok-button {
+    max-width: 260px;
+    padding: 14px 20px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 375px) {
+  .case-modal-content {
+    padding: 10px 10px 20px;
+  }
+
+  .case-modal-title {
+    font-size: 19px;
+  }
+
+  .case-preview-row {
+    margin: 0 -10px 14px;
+  }
+
+  .case-preview-item {
+    min-width: 60px;
+    width: 60px;
+    height: 60px;
+    aspect-ratio: 1 / 1;
+  }
+
+  .case-items-grid {
+    gap: 5px;
+  }
+
+  .case-item-price {
+    top: 5px;
+    left: 5px;
+    font-size: 10px;
+  }
+
+  .case-spin-item {
+    min-width: 85px;
+    height: 85px;
+    aspect-ratio: 1 / 1;
+  }
+
+  .case-result-title {
+    font-size: 22px;
+  }
+
+  .case-result-prize {
+    width: 90px;
+    height: 90px;
+  }
+}
+
+@media (max-width: 320px) {
+  .case-modal-content {
+    padding: 8px 6px 16px;
+  }
+
+  .case-modal-title {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .case-preview-row {
+    margin: 0 -6px 12px;
+    min-height: 75px;
+  }
+
+  .case-preview-item {
+    min-width: 52px;
+    width: 52px;
+    height: 52px;
+    aspect-ratio: 1 / 1;
+  }
+
+  .case-preview-price {
+    top: 3px;
+    left: 3px;
+    font-size: 8px;
+  }
+
+  .case-preview-coin {
+    width: 12px;
+    height: 12px;
+  }
+
+  .case-section-title {
+    font-size: 12px;
+    margin: 10px 0 8px;
+  }
+
+  .case-items-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+
+  .case-item-card {
+    border-radius: 10px;
+  }
+
+  .case-item-price {
+    top: 4px;
+    left: 4px;
+    font-size: 9px;
+  }
+
+  .case-item-coin {
+    width: 11px;
+    height: 11px;
+  }
+
+  .case-open-button,
+  .case-deposit-button {
+    padding: 12px 16px;
+    font-size: 14px;
+    margin-top: 6px;
+  }
+
+  .case-promo-button {
+    padding: 10px 16px;
+    font-size: 13px;
+    margin-top: 6px;
+  }
+
+  .case-info-box {
+    padding: 8px;
+    margin-bottom: 10px;
+  }
+
+  .case-info-icon {
+    font-size: 16px;
+  }
+
+  .case-info-text {
+    font-size: 11px;
+  }
+
+  .case-spin-view {
+    padding: 16px 0 10px;
+    min-height: 60vh;
+  }
+
+  .case-spin-item {
+    min-width: 80px;
+    height: 80px;
+    aspect-ratio: 1 / 1;
+  }
+
+  .case-spin-gift {
+    width: 48px;
+    height: 48px;
+  }
+
+  .case-spin-price {
+    font-size: 12px;
+  }
+
+  .case-spin-price img {
+    width: 14px;
+    height: 14px;
+  }
+
+  .case-spin-caption {
+    font-size: 11px;
+  }
+
+  .case-result-view {
+    padding: 24px 12px;
+    min-height: 320px;
+  }
+
+  .case-result-title {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .case-result-prize {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 16px;
+  }
+
+  .case-result-amount {
+    margin-bottom: 24px;
+  }
+
+  .case-result-plus {
+    font-size: 20px;
+  }
+
+  .case-result-currency {
+    width: 20px;
+    height: 20px;
+  }
+
+  .case-ok-button {
+    max-width: 240px;
+    padding: 12px 16px;
+    font-size: 14px;
+  }
 }

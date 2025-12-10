@@ -1,45 +1,10 @@
-import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Navigation.css'
+import { useCurrency } from '../context/CurrencyContext'
 
 function Navigation({ activePage = 'home' }) {
   const navigate = useNavigate()
-  const [hasFreeSpins, setHasFreeSpins] = useState(false)
-
-  // HTTP-запрос для бэкенда:
-  // Ожидается GET /api/free-spins/status -> { hasFreeSpins: boolean }
-  // Здесь фронт просто дергает эндпоинт и кладёт флаг в состояние.
-  async function fetchFreeSpinsStatus() {
-    try {
-      const response = await fetch('/api/free-spins/status', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        // при необходимости можно включить куки/сессии
-        // credentials: 'include',
-      })
-
-      if (!response.ok) {
-        // TODO: при желании можно обработать ошибку (лог/тост)
-        return
-      }
-
-      const data = await response.json()
-
-      // backend: ожидается поле hasFreeSpins:boolean
-      if (typeof data.hasFreeSpins === 'boolean') {
-        setHasFreeSpins(data.hasFreeSpins)
-      }
-    } catch (error) {
-      // TODO: опционально логировать ошибку
-    }
-  }
-
-  useEffect(() => {
-    // при монтировании навигации один раз запрашиваем статус барабана
-    fetchFreeSpinsStatus()
-  }, [])
+  const { hasFreeSpins } = useCurrency()
 
   return (
     <nav className={`navigation ${hasFreeSpins ? '' : 'navigation--flat'}`}>
@@ -48,26 +13,30 @@ function Navigation({ activePage = 'home' }) {
         onClick={() => navigate('/cases')}
       >
         {activePage === 'cases' ? (
-          <div className="cases-icon-active">
-            <img src="/image/Cases_activ.svg" alt="Cases" className="nav-icon cases-glow" />
+          <div className="nav-icon-wrapper icon-active">
+            <img src="/image/mdi_gift (1).svg" alt="Cases" className="nav-icon" />
           </div>
         ) : (
-          <img src="/image/Cases.svg" alt="Cases" className="nav-icon" />
+          <div className="nav-icon-wrapper">
+            <img src="/image/mdi_gift.svg" alt="Cases" className="nav-icon" />
+          </div>
         )}
-        <span className="nav-label"></span>
+        <span className="nav-label">Cases</span>
       </div>
       <div 
         className={`nav-item ${activePage === 'crash' ? 'active' : ''}`}
         onClick={() => navigate('/crash')}
       >
         {activePage === 'crash' ? (
-          <div className="crash-icon-active">
-            <img src="/image/Crash_activ.svg" alt="Crash" className="nav-icon crash-glow" />
+          <div className="nav-icon-wrapper icon-active">
+            <img src="/image/ion_rocket (1).svg" alt="Crash" className="nav-icon" />
           </div>
         ) : (
-          <img src="/image/Crash.svg" alt="Crash" className="nav-icon" />
+          <div className="nav-icon-wrapper">
+            <img src="/image/ion_rocket.svg" alt="Crash" className="nav-icon" />
+          </div>
         )}
-        <span className="nav-label"></span>
+        <span className="nav-label">Crash</span>
       </div>
       <div 
         className={`nav-item center-item ${activePage === 'home' ? 'active' : ''}`}
@@ -75,41 +44,37 @@ function Navigation({ activePage = 'home' }) {
       >
         {hasFreeSpins ? (
           <div className="baraban-container">
-            <div className="baraban-glow"></div>
-            <div className="baraban-pulse"></div>
             <img src="/image/Union.svg" alt="Free" className="union-icon" />
             <img src="/image/Baraban.png" alt="Baraban" className="baraban-icon" />
           </div>
         ) : activePage === 'home' ? (
           <div className="roulette-icon-active">
-            <img
-              src="/image/Baraban_Off.svg"
-              alt="Рулетка"
-              className="nav-icon roulette-glow"
-            />
+            <img src="/image/Baraban_Off.svg" alt="Рулетка" className="nav-icon roulette-glow" />
           </div>
         ) : (
-          <img
-            src="/image/Baraban_Off.svg"
-            alt="Baraban off"
-            className="nav-icon"
-          />
+          <div className="nav-icon-wrapper">
+            <img src="/image/Baraban_Off.svg" alt="Рулетка" className="nav-icon" />
+          </div>
         )}
-        <span className="nav-label">Рулетка</span>
+        {!hasFreeSpins && <span className="nav-label">Рулетка</span>}
       </div>
       <div 
         className={`nav-item ${activePage === 'pvp' ? 'active' : ''}`}
         onClick={() => navigate('/')}
       >
-        <img src="/image/PvP.svg" alt="PvP" className="nav-icon" />
-        <span className="nav-label"></span>
+        <div className={`nav-icon-wrapper ${activePage === 'pvp' ? 'icon-active' : ''}`}>
+          <img src="/image/material-symbols_swords-rounded.svg" alt="PvP" className="nav-icon" />
+        </div>
+        <span className="nav-label">PvP</span>
       </div>
       <div 
         className={`nav-item ${activePage === 'upgrade' ? 'active' : ''}`}
         onClick={() => navigate('/')}
       >
-        <img src="/image/Upgrade.svg" alt="Upgrade" className="nav-icon" />
-        <span className="nav-label"></span>
+        <div className={`nav-icon-wrapper ${activePage === 'upgrade' ? 'icon-active' : ''}`}>
+          <img src="/image/pajamas_upgrade.svg" alt="Upgrade" className="nav-icon" />
+        </div>
+        <span className="nav-label">Upgrade</span>
       </div>
     </nav>
   )
