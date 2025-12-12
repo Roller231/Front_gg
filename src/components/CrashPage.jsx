@@ -23,9 +23,8 @@ function CrashLine({ multiplier, maxMultiplier }) {
     const startY = 145 // Левый край всегда внизу
     const endY = 145 - progress * 140 // Правый край поднимается
     
-    // Простой путь: горизонтально до центра, потом резко вверх под углом
-    // Конечная точка ещё выше чтобы угол продолжался
-    const d = `M 0 ${startY} Q ${width * 0.5} ${startY - 5} ${width} ${endY - 30}`
+    // Линия идёт от самого левого края (x=0) до самого правого (x=width)
+    const d = `M 0 ${startY} Q ${width * 0.5} ${startY - 5} ${width} ${endY}`
     
     return d
   }, [progress, waveOffsets])
@@ -190,13 +189,14 @@ function CrashPage() {
       
       <main className="main-content crash-content">
         {/* Зона игры */}
-        <div className={`crash-game-area ${gameState !== 'countdown' ? 'crash-no-rays' : ''}`}>
+        <div className={`crash-game-area ${gameState !== 'countdown' ? 'crash-no-rays' : ''}`}
+             style={gameState === 'flying' ? {
+               '--moon-speed': `${Math.max(1.5, 4 - (multiplier - 1) * 0.15)}s`,
+               '--star-speed': `${Math.max(2, 8 - (multiplier - 1) * 1.5)}s`
+             } : undefined}>
           <div
             className={`cosmic-background ${gameState === 'flying' ? 'cosmic-background-active' : ''}`}
             aria-hidden="true"
-            style={gameState === 'flying' ? {
-              '--star-speed': `${Math.max(2, 8 - (multiplier - 1) * 1.5)}s`
-            } : undefined}
           />
           {/* Анимации взрывов и полёта кота */}
           <div className="crash-animation-container">
@@ -308,7 +308,7 @@ function CrashPage() {
                   <div className="player-details">
                     <span className="player-name">{player.name}</span>
                     <div className="player-stats-row">
-                      <img src="/image/Coin Icon.svg" alt="Coin" className="coin-icon-small" />
+                      <img src="/image/Coin-Icon.svg" alt="Coin" className="coin-icon-small" />
                       <span className="stat-bet">{betAmount}</span>
                       <span className="stat-multiplier">{multiplierValue}</span>
                     </div>
@@ -317,7 +317,7 @@ function CrashPage() {
                 {player.bet && (
                   <div className="player-reward">
                     <div className="reward-amount-container">
-                      <img src="/image/Coin Icon.svg" alt="Coin" className="coin-icon-large" />
+                      <img src="/image/Coin-Icon.svg" alt="Coin" className="coin-icon-large" />
                       <span className={`reward-amount ${player.gift ? 'text-green' : ''}`}>
                         {player.bet.toFixed ? player.bet.toFixed(2) : player.bet}
                       </span>

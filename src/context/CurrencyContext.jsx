@@ -1,10 +1,10 @@
 import { createContext, useContext, useMemo, useState } from 'react'
 
 export const currencyOptions = [
-  { id: 'coins', icon: '/image/Coin Icon.svg', amount: '1.22' },
-  { id: 'gems', icon: '/image/Coin Icon (1).svg', amount: '800.000' },
-  { id: 'stars', icon: '/image/Coin Icon (2).svg', amount: '800.000' },
-  { id: 'shields', icon: '/image/Coin Icon (3).svg', amount: '90.00' },
+  { id: 'coins', icon: '/image/Coin-Icon.svg', amount: '1.22' },
+  { id: 'gems', icon: '/image/Coin-Icon-one.svg', amount: '800.000' },
+  { id: 'stars', icon: '/image/Coin-Icon-two.svg', amount: '800.000' },
+  { id: 'shields', icon: '/image/Coin-Icon-three.svg', amount: '90.00' },
 ]
 
 const CurrencyContext = createContext(null)

@@ -110,7 +110,7 @@ function BetModal({ isOpen, onClose, mode = 'bet' }) {
     setBetAmount(numeric || '0')
   }
 
-  const currencyIcon = selectedCurrency?.icon || '/image/Coin Icon.svg'
+  const currencyIcon = selectedCurrency?.icon || '/image/Coin-Icon.svg'
   const currencyAmountLabel = selectedCurrency?.amount || '0'
 
   const isWithdrawMode = mode === 'withdraw'

@@ -67,7 +67,7 @@ function CasesPage() {
 
   const cases = activeTab === 'paid' ? paidCases : freeCases
   const selectedCurrencyId = selectedCurrency?.id || 'coins'
-  const selectedCurrencyIcon = selectedCurrency?.icon || '/image/Coin Icon.svg'
+  const selectedCurrencyIcon = selectedCurrency?.icon || '/image/Coin-Icon.svg'
 
   const getCasePrice = (caseItem) => {
     if (activeTab !== 'paid') return null

@@ -218,7 +218,7 @@
 .inventory-item {
   width: 70px;
   height: 70px;
-  background: #1F0248;
+  background: rgba(31, 2, 72, 1);
   border: 2px dashed rgba(139, 92, 246, 0.4);
   border-radius: 12px;
   display: flex;
@@ -228,7 +228,8 @@
 
 .inventory-item-icon {
   font-size: 28px;
-  opacity: 0.4;
+  opacity: 0.8;
+  filter: brightness(1.5);
 }
 
 .inventory-arrow {

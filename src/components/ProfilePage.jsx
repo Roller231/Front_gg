@@ -15,10 +15,10 @@ const userData = {
 }
 
 const inventoryItems = [
-  { id: 1, icon: '🎁', empty: true },
-  { id: 2, icon: '🎁', empty: true },
-  { id: 3, icon: '🎁', empty: true },
-  { id: 4, icon: '🎁', empty: true },
+  { id: 1, icon: '/image/mdi_gift (2).svg', empty: true },
+  { id: 2, icon: '/image/mdi_gift (2).svg', empty: true },
+  { id: 3, icon: '/image/mdi_gift (2).svg', empty: true },
+  { id: 4, icon: '/image/mdi_gift (2).svg', empty: true },
 ]
 
 const operationsHistory = [
@@ -57,22 +57,7 @@ function ProfilePage() {
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="profile-action-buttons">
-        <button
-          className={`action-btn action-btn-primary ${activeTopup === 'gifts' ? 'active' : ''}`}
-          onClick={() => setActiveTopup('gifts')}
-        >
-          Пополнить подарками
-        </button>
-        <button
-          className={`action-btn action-btn-secondary ${activeTopup === 'money' ? 'active' : ''}`}
-          onClick={() => setActiveTopup('money')}
-        >
-          Пополнить Деньгами
-        </button>
-      </div>
-
+      
       {/* Bonus Banner */}
       <img 
         src="/image/19.png" 
@@ -98,7 +83,7 @@ function ProfilePage() {
           <div className="inventory-gifts">
             {inventoryItems.map((item) => (
               <div key={item.id} className="inventory-item">
-                <span className="inventory-item-icon">{item.icon}</span>
+                <img src={item.icon} alt="gift" className="inventory-item-icon" />
               </div>
             ))}
           </div>

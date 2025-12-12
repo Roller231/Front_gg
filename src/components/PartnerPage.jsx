@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from './Header'
 import Navigation from './Navigation'
+import { useCurrency } from '../context/CurrencyContext'
 import './PartnerPage.css'
 
 // Моковые данные для приглашенных друзей
@@ -15,6 +16,7 @@ const mockFriends = [
 
 function PartnerPage() {
   const navigate = useNavigate()
+  const { selectedCurrency } = useCurrency()
   const [promoCode, setPromoCode] = useState('')
   const [isCreatingPromo, setIsCreatingPromo] = useState(false)
   const [friends] = useState(mockFriends)
@@ -149,7 +151,7 @@ function PartnerPage() {
                   <span className="friend-name">{friend.name}</span>
                   <span className="friend-earnings">
                     {formatNumber(friend.earnings)}
-                    <img src="/image/Coin Icon.svg" alt="TON" className="ton-icon" />
+                    <img src={selectedCurrency?.icon || '/image/Coin-Icon.svg'} alt={selectedCurrency?.id || 'TON'} className="ton-icon" />
                   </span>
                 </div>
               ))}

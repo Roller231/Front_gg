@@ -39,15 +39,15 @@ function Navigation({ activePage = 'home' }) {
         <span className="nav-label">Crash</span>
       </div>
       <div 
-        className={`nav-item center-item ${activePage === 'home' ? 'active' : ''}`}
-        onClick={() => navigate('/')}
+        className={`nav-item center-item ${activePage === 'wheel' ? 'active' : ''}`}
+        onClick={() => navigate('/wheel')}
       >
         {hasFreeSpins ? (
           <div className="baraban-container">
             <img src="/image/Union.svg" alt="Free" className="union-icon" />
             <img src="/image/Baraban.png" alt="Baraban" className="baraban-icon" />
           </div>
-        ) : activePage === 'home' ? (
+        ) : activePage === 'wheel' ? (
           <div className="roulette-icon-active">
             <img src="/image/Baraban_Off.svg" alt="Рулетка" className="nav-icon roulette-glow" />
           </div>

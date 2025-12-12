@@ -44,8 +44,7 @@
 }
 
 /* Плоская навигация без арки (когда барабан выключен) */
-.navigation--flat::before,
-.navigation--flat::after {
+.navigation--flat::before {
   display: none;
 }
 

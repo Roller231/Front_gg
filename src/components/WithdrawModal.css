@@ -62,7 +62,7 @@
 }
 
 .withdraw-modal-title {
-  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 20px;
   font-weight: 700;
   color: #fff;
@@ -86,7 +86,7 @@
   border-radius: 10px;
   background: transparent;
   color: rgba(255, 255, 255, 0.6);
-  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -133,7 +133,7 @@
 }
 
 .withdraw-wallet-message {
-  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 16px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.6);
@@ -147,7 +147,7 @@
   border-radius: 14px;
   background: linear-gradient(135deg, #2C7DF8 0%, #951BF9 100%);
   color: #fff;
-  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
@@ -185,7 +185,7 @@
   background: transparent;
   border: none;
   outline: none;
-  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 32px;
   font-weight: 600;
   color: #ffffff;
@@ -202,7 +202,7 @@
   border-radius: 14px;
   background: linear-gradient(135deg, #2C7DF8 0%, #951BF9 100%);
   color: #fff;
-  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;

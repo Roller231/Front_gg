@@ -215,7 +215,7 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
     onClose()
   }
 
-  const currencyIcon = selectedCurrency?.icon || '/image/Coin Icon.svg'
+  const currencyIcon = selectedCurrency?.icon || '/image/Coin-Icon.svg'
   const caseName = caseData?.name || (isPaid ? 'БЕСПЛАТНО 2.0' : 'FREE 2.0')
 
   if (!isOpen) return null
@@ -324,7 +324,9 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
               /* Бесплатный кейс */
               <>
                 <div className="case-info-box">
-                  <div className="case-info-icon">ℹ️</div>
+                  <div className="case-info-icon">
+                    <img src="/image/Vector.png" alt="warning" className="case-info-icon-image" />
+                  </div>
                   <p className="case-info-text">
                     To open this case, you must deposit 3 TON within the last 24 hours
                   </p>
@@ -411,7 +413,7 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
                       )}
                     </div>
                     <span className="case-spin-price">
-                      <img src={selectedCurrency?.icon || '/image/Coin Icon.svg'} alt="currency" />
+                      <img src={selectedCurrency?.icon || '/image/Coin-Icon.svg'} alt="currency" />
                       {item.price}
                     </span>
                   </div>

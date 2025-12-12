@@ -76,7 +76,7 @@
 
 /* Заголовок */
 .case-modal-title {
-  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 22px;
   font-weight: 700;
   color: #fff;
@@ -159,8 +159,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
   z-index: 1;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .case-preview-image {
@@ -169,7 +170,8 @@
   max-width: none !important;
   max-height: none !important;
   object-fit: contain !important;
-  padding: 0;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  padding: 6px;
   box-sizing: border-box;
 }
 
@@ -178,8 +180,7 @@
   height: 100% !important;
   max-width: none !important;
   max-height: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
+  object-fit: contain !important;
 }
 
 .case-preview-animation * {
@@ -218,7 +219,7 @@
 
 /* Секция заголовок */
 .case-section-title {
-  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 14px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.6);
@@ -284,7 +285,8 @@
   max-width: none !important;
   max-height: none !important;
   object-fit: contain !important;
-  padding: 0;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  padding: 10px;
   box-sizing: border-box;
 }
 
@@ -293,8 +295,7 @@
   height: 100% !important;
   max-width: none !important;
   max-height: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
+  object-fit: contain !important;
 }
 
 .case-item-animation * {
@@ -320,7 +321,7 @@
   border-radius: 14px;
   background: linear-gradient(135deg, #2C7DF8 0%, #951BF9 100%);
   color: #fff;
-  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
@@ -341,7 +342,7 @@
 /* Инфо бокс (бесплатный) */
 .case-info-box {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
   background: rgba(59, 130, 246, 0.1);
   border: 1px solid rgba(59, 130, 246, 0.3);
@@ -353,6 +354,15 @@
 .case-info-icon {
   font-size: 18px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.case-info-icon-image {
+  width: 33px;
+  height: 33px;
+  object-fit: contain;
 }
 
 .case-info-text {
@@ -370,7 +380,7 @@
   border-radius: 14px;
   background: linear-gradient(135deg, #2C7DF8 0%, #951BF9 100%);
   color: #fff;
-  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
@@ -392,7 +402,7 @@
   border-radius: 14px;
   background: transparent;
   color: #fff;
-  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
@@ -484,11 +494,9 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
   z-index: 1;
+  padding: 0;
 }
 
 .case-spin-image {
@@ -497,6 +505,9 @@
   max-width: none !important;
   max-height: none !important;
   object-fit: cover;
+  display: block;
+  padding: 0;
+  margin: 0;
 }
 
 .case-spin-animation {
@@ -603,7 +614,7 @@
 }
 
 .case-result-title {
-  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 28px;
   font-weight: 700;
   color: #fff;
@@ -647,7 +658,7 @@
 }
 
 .case-result-plus {
-  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 24px;
   font-weight: 700;
   color: #4ADE80;
@@ -666,7 +677,7 @@
   border-radius: 14px;
   background: linear-gradient(135deg, #2C7DF8 0%, #951BF9 100%);
   color: #fff;
-  font-family: 'SF Pro Display', 'SF Pro', 'Inter', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
