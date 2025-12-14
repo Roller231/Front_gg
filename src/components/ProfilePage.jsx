@@ -33,11 +33,17 @@ function ProfilePage() {
     url_image ||
     `https://api.dicebear.com/7.x/avataaars/svg?seed=${username || id}`
 
+  /* ===== INVENTORY VIEW (как раньше) ===== */
+  const INVENTORY_SLOTS = 4
+  const inventoryView = Array.from({ length: INVENTORY_SLOTS }).map(
+    (_, i) => inventory?.[i] || null
+  )
+
   return (
     <div className="profile-page">
       <Header />
 
-      {/* ===== User Card ===== */}
+      {/* ===== USER CARD ===== */}
       <div className="profile-user-card">
         <div className="profile-avatar-container">
           <img src={avatar} alt="avatar" className="profile-avatar" />
@@ -69,14 +75,14 @@ function ProfilePage() {
         </div>
       </div>
 
-      {/* ===== Bonus Banner ===== */}
+      {/* ===== BONUS BANNER ===== */}
       <img
         src="/image/19.png"
         alt="Bonus Banner"
         className="bonus-banner-img"
       />
 
-      {/* ===== Partner Program ===== */}
+      {/* ===== PARTNER PROGRAM ===== */}
       <img
         src="/image/18.png"
         alt="Partner Program"
@@ -84,7 +90,7 @@ function ProfilePage() {
         onClick={() => navigate('/partner')}
       />
 
-      {/* ===== Inventory ===== */}
+      {/* ===== INVENTORY ===== */}
       <div className="inventory-section">
         <div className="inventory-header">
           <span className="inventory-title">
@@ -95,19 +101,19 @@ function ProfilePage() {
 
         <div className="inventory-items">
           <div className="inventory-gifts">
-            {inventory && inventory.length > 0 ? (
-              inventory.map((item, index) => (
-                <div key={index} className="inventory-item">
-                  <img
-                    src={item.icon || '/image/mdi_gift (2).svg'}
-                    alt="gift"
-                    className="inventory-item-icon"
-                  />
-                </div>
-              ))
-            ) : (
-              <div className="inventory-empty">Пусто</div>
-            )}
+            {inventoryView.map((item, index) => (
+              <div key={index} className="inventory-item">
+                <img
+                  src={
+                    item?.icon
+                      ? item.icon
+                      : '/image/mdi_gift (2).svg'
+                  }
+                  alt="gift"
+                  className="inventory-item-icon"
+                />
+              </div>
+            ))}
           </div>
 
           <button className="inventory-arrow">
@@ -116,7 +122,7 @@ function ProfilePage() {
         </div>
       </div>
 
-      {/* ===== Withdraw Button ===== */}
+      {/* ===== WITHDRAW BUTTON ===== */}
       <button
         className="withdraw-btn gg-btn-glow"
         onClick={() => setIsBetModalOpen(true)}
@@ -129,13 +135,15 @@ function ProfilePage() {
         />
       </button>
 
-      {/* ===== Operations History (заглушка под API) ===== */}
+      {/* ===== OPERATIONS (заглушка) ===== */}
       <div className="operations-section">
         <h3 className="operations-title">История Операций</h3>
         <div className="operations-list">
           <div className="operation-item">
             <span className="operation-date">—</span>
-            <span className="operation-name">Пополнений: {user.totalDEP}</span>
+            <span className="operation-name">
+              Пополнений: {user.totalDEP}
+            </span>
             <span className="operation-amount">
               {balance?.toFixed(2)}
               <img
