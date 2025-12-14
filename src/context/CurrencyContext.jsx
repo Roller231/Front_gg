@@ -1,70 +1,80 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { useUser } from './UserContext'
 
 const CurrencyContext = createContext(null)
-export const useCurrency = () => useContext(CurrencyContext)
+
+/**
+ * ⬇️ ВРЕМЕННЫЙ БАЗОВЫЙ БАЛАНС
+ * позже заменишь на user.balance,
+ * но ТОЛЬКО внутри компонента
+ */
+
+
+const STATIC_CURRENCIES = [
+  { id: 'coins', icon: '/image/Coin-Icon.svg' },
+  { id: 'gems', icon: '/image/Coin-Icon-one.svg' },
+  { id: 'stars', icon: '/image/Coin-Icon-two.svg' },
+  { id: 'shields', icon: '/image/Coin-Icon-three.svg' },
+]
 
 export function CurrencyProvider({ children }) {
-  const { user } = useUser()
-  const [rates, setRates] = useState({})
-  const [selectedCurrency, setSelectedCurrency] = useState({
-    id: 'USDT',
-    icon: '/image/usdt.svg',
-  })
-  const [hasFreeSpins, setHasFreeSpins] = useState(false)
 
+
+  const { user } = useUser()
+  const BASE_BALANCE = user?.balance ?? 0
+
+  const [rates, setRates] = useState({})
+  const [selectedCurrency, setSelectedCurrency] = useState(STATIC_CURRENCIES[0])
+  const [hasFreeSpins, setHasFreeSpins] = useState(true)
+
+  // 🔹 получаем курсы с бэка
   useEffect(() => {
     fetch(import.meta.env.VITE_API_URL + '/rates')
       .then(res => res.json())
       .then(setRates)
-      .catch(console.error)
+      .catch(() => setRates({}))
   }, [])
 
-  const getConvertedBalance = () => {
-    if (!user) return '0.00'
+  // 🔹 формируем currencyOptions (ТОЧНО КАК У ТЕБЯ БЫЛО)
+  const currencyOptions = useMemo(() => {
+    return STATIC_CURRENCIES.map((c) => ({
+      ...c,
+      amount: rates[c.id]
+        ? (BASE_BALANCE / rates[c.id]).toFixed(2)
+        : '0.00',
+    }))
+  }, [rates])
 
-    if (selectedCurrency.id === 'USDT') {
-      return user.balance.toFixed(2)
-    }
+  // 🔹 поддерживаем selectedCurrency актуальным
+  const resolvedSelectedCurrency = useMemo(() => {
+    return (
+      currencyOptions.find(c => c.id === selectedCurrency.id) ||
+      currencyOptions[0]
+    )
+  }, [currencyOptions, selectedCurrency.id])
 
-    if (!rates[selectedCurrency.id]) return '0.00'
-
-    return (user.balance / rates[selectedCurrency.id]).toFixed(6)
-  }
-
-  const balance = getConvertedBalance()
-
-  const safeBalance = user?.balance ?? 0
-
-  const currencyOptions = [
-    {
-      id: 'USDT',
-      icon: '/image/usdt.svg',
-      amount: safeBalance.toFixed(2),
-    },
-    {
-      id: 'TON',
-      icon: '/image/ton.svg',
-      amount: rates.TON ? (safeBalance / rates.TON).toFixed(2) : '0.00',
-    },
-    {
-      id: 'BTC',
-      icon: '/image/btc.svg',
-      amount: rates.BTC ? (safeBalance / rates.BTC).toFixed(6) : '0.000000',
-    },
-  ]
+  const value = useMemo(
+    () => ({
+      currencyOptions,
+      selectedCurrency: resolvedSelectedCurrency,
+      setSelectedCurrency,
+      hasFreeSpins,
+      setHasFreeSpins,
+    }),
+    [currencyOptions, resolvedSelectedCurrency, hasFreeSpins]
+  )
 
   return (
-    <CurrencyContext.Provider
-      value={{
-        currencyOptions,
-        selectedCurrency: { ...selectedCurrency, amount: balance },
-        setSelectedCurrency,
-        hasFreeSpins,
-        setHasFreeSpins,
-      }}
-    >
+    <CurrencyContext.Provider value={value}>
       {children}
     </CurrencyContext.Provider>
   )
+}
+
+export function useCurrency() {
+  const context = useContext(CurrencyContext)
+  if (!context) {
+    throw new Error('useCurrency must be used within a CurrencyProvider')
+  }
+  return context
 }
