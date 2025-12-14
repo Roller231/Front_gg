@@ -5,7 +5,7 @@ export async function apiFetch(path, options = {}) {
     headers: {
       'Content-Type': 'application/json',
     },
-    credentials: 'include', // если будут куки / auth
+    
     ...options,
   })
 
