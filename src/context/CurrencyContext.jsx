@@ -22,9 +22,11 @@ export function CurrencyProvider({ children }) {
 
   const getConvertedBalance = () => {
     if (!user) return '0.00'
+
     if (selectedCurrency.id === 'USDT') {
       return user.balance.toFixed(2)
     }
+
     if (!rates[selectedCurrency.id]) return '0.00'
 
     return (user.balance / rates[selectedCurrency.id]).toFixed(6)
@@ -32,10 +34,24 @@ export function CurrencyProvider({ children }) {
 
   const balance = getConvertedBalance()
 
+  const safeBalance = user?.balance ?? 0
+
   const currencyOptions = [
-    { id: 'USDT', icon: '/image/usdt.svg', amount: user?.balance?.toFixed(2) ?? '0.00' },
-    { id: 'TON', icon: '/image/ton.svg', amount: rates.TON ? (user.balance / rates.TON).toFixed(2) : '0.00' },
-    { id: 'BTC', icon: '/image/btc.svg', amount: rates.BTC ? (user.balance / rates.BTC).toFixed(6) : '0.000000' },
+    {
+      id: 'USDT',
+      icon: '/image/usdt.svg',
+      amount: safeBalance.toFixed(2),
+    },
+    {
+      id: 'TON',
+      icon: '/image/ton.svg',
+      amount: rates.TON ? (safeBalance / rates.TON).toFixed(2) : '0.00',
+    },
+    {
+      id: 'BTC',
+      icon: '/image/btc.svg',
+      amount: rates.BTC ? (safeBalance / rates.BTC).toFixed(6) : '0.000000',
+    },
   ]
 
   return (

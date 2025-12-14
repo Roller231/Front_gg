@@ -4,7 +4,6 @@ import './Header.css'
 import { useCurrency } from '../context/CurrencyContext'
 
 import { useUser } from '../context/UserContext'
-import { useCurrency } from '../context/CurrencyContext'
 
 const accountTypes = [
   { id: 'usdt', name: 'USDT TON', icon: '💎', amount: '1.22' },
