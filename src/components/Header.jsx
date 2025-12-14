@@ -3,6 +3,9 @@ import { Link, useNavigate } from 'react-router-dom'
 import './Header.css'
 import { useCurrency } from '../context/CurrencyContext'
 
+import { useUser } from '../context/UserContext'
+import { useCurrency } from '../context/CurrencyContext'
+
 const accountTypes = [
   { id: 'usdt', name: 'USDT TON', icon: '💎', amount: '1.22' },
   { id: 'btc', name: 'BTC', icon: '₿', amount: '0.0012' },
@@ -19,7 +22,15 @@ const gameCurrencies = [
 function Header() {
   const navigate = useNavigate()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const { currencyOptions, selectedCurrency, setSelectedCurrency, hasFreeSpins, setHasFreeSpins } = useCurrency()
+  const { user } = useUser()
+const {
+  currencyOptions,
+  selectedCurrency,
+  setSelectedCurrency,
+  hasFreeSpins,
+  setHasFreeSpins,
+} = useCurrency()
+
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [activeAccountType, setActiveAccountType] = useState('usdt')
   const [showNotification, setShowNotification] = useState(false)
@@ -29,6 +40,8 @@ function Header() {
   const [selectedGameCurrency, setSelectedGameCurrency] = useState(gameCurrencies[0])
 
   const visibleCurrencies = currencyOptions.filter((currency) => currency.id !== selectedCurrency.id)
+
+  
 
   const handleWalletClick = () => {
     setShowNotification(true)
@@ -127,7 +140,14 @@ function Header() {
         </div>
 
         <div className="avatar" onClick={() => navigate('/profile')}>
-          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" />
+        <img
+  src={
+    user?.url_image ||
+    `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}`
+  }
+  alt="avatar"
+/>
+
         </div>
       </div>
 
