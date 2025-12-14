@@ -39,7 +39,7 @@ const wheelPrizes = [
 const NUM_LIGHTS = 32 // Number of lights around the wheel
 
 function WheelPage() {
-  const { selectedCurrency } = useCurrency()
+  const { selectedCurrency, hasFreeSpins } = useCurrency()
   const [rotation, setRotation] = useState(0)
   const [isSpinning, setIsSpinning] = useState(false)
   const [showResult, setShowResult] = useState(false)
@@ -82,23 +82,21 @@ function WheelPage() {
     // For segment 0: 0 + 18 = 18 degrees
     // For segment 1: 36 + 18 = 54 degrees, etc.
     
-    // The target segment content angle in the wheel's coordinate system
-    const targetContentAngle = targetSegment * segmentAngle + (segmentAngle / 2)
-    
-    // We want the final wheel position to be such that targetContentAngle aligns with 0 (top)
-    // Final position should be: 360 - targetContentAngle (so when wheel rotates, content is at top)
-    const desiredFinalPosition = (360 - targetContentAngle) % 360
+    // Keep gift/card visual positions intact and adjust only the rotation formula.
+    // Segment drawing starts at top due to -90deg offset used in generateSegmentPath().
+    // We want the chosen segment center to end up under the top pointer.
+    const desiredFinalPosition = (360 - (targetSegment * segmentAngle + segmentAngle / 2)) % 360
     
     // Current wheel position (normalize to 0-360)
-    const currentPosition = rotation % 360
+    const currentPosition = ((rotation % 360) + 360) % 360
     
     // Calculate how much more we need to rotate
     let rotationNeeded = desiredFinalPosition - currentPosition
-    if (rotationNeeded < 0) rotationNeeded += 360
+    rotationNeeded = ((rotationNeeded % 360) + 360) % 360
     
     const newRotation = rotation + fullRotations + rotationNeeded
     
-    console.log('📊 Current:', currentPosition.toFixed(1), 'Target Content Angle:', targetContentAngle, 'Desired Final:', desiredFinalPosition.toFixed(1), 'Rotation Needed:', rotationNeeded.toFixed(1), 'New Total:', newRotation.toFixed(1))
+    console.log('📊 Current:', currentPosition.toFixed(1), 'Desired Final:', desiredFinalPosition.toFixed(1), 'Rotation Needed:', rotationNeeded.toFixed(1), 'New Total:', newRotation.toFixed(1))
     
     setRotation(newRotation)
     setWonPrize(wheelPrizes[targetSegment])
@@ -286,7 +284,7 @@ function WheelPage() {
             {/* Main wheel */}
             <div 
               className={`wheel-fortune ${isSpinning ? 'wheel-fortune--spinning' : ''}`}
-              style={{ transform: `rotate(${rotation}deg)` }}
+              style={{ transform: `rotate(${rotation}deg) scale(var(--wheel-scale))` }}
               ref={wheelRef}
             >
               <svg viewBox="0 0 300 300" className="wheel-svg">
@@ -418,15 +416,15 @@ function WheelPage() {
 
           {/* Buttons */}
           <div className="wheel-buttons-container">
+            <div className="wheel-bet-hint">Выше ставка - больше ценность лута</div>
             <button 
-              className={`wheel-spin-btn ${isSpinning ? 'wheel-spin-btn--disabled' : ''}`}
-              onClick={handleOpenDeposit}
+              className={`wheel-spin-btn gg-btn-glow ${isSpinning ? 'wheel-spin-btn--disabled' : ''}`}
+              onClick={hasFreeSpins ? handleSpin : handleOpenDeposit}
               disabled={isSpinning}
             >
               <span className="wheel-spin-btn-text">
-                Пополнить баланс
+                {hasFreeSpins ? 'Крутить' : 'Пополнить баланс'}
               </span>
-              <div className="wheel-spin-btn-shine"></div>
             </button>
             <button className="wheel-prizes-btn" onClick={handleOpenPrizes}>
               Список призов
@@ -465,7 +463,7 @@ function WheelPage() {
                   </div>
                 </div>
               </div>
-              <button className="wheel-result-close" onClick={closeResult}>
+              <button className="wheel-result-close gg-btn-glow" onClick={closeResult}>
                 Забрать
               </button>
             </div>
@@ -491,12 +489,16 @@ function WheelPage() {
                 <div className="prizes-modal-handle">
                   <div className="prizes-modal-handle-bar"></div>
                 </div>
-                <h2 className="prizes-modal-title">🎁 Список призов</h2>
+                <h2 className="prizes-modal-title">Список призов</h2>
               </div>
               <div className="prizes-modal-body">
                 <div className="prizes-grid">
                   {wheelPrizes.map((prize) => (
                     <div key={prize.id} className="prize-card">
+                      <span className="prize-price-badge">
+                        <img src={currencyIcon} alt="currency" className="prize-price-coin" />
+                        {prize.price}
+                      </span>
                       <div className="prize-image">
                         {prize.contentType === 'animation' ? (
                           <Player
@@ -508,12 +510,6 @@ function WheelPage() {
                         ) : (
                           <img src={prize.image} alt="prize" className="prize-img" />
                         )}
-                      </div>
-                      <div className="prize-info">
-                        <span className="prize-price">
-                          <img src={currencyIcon} alt="currency" className="prize-coin" />
-                          {prize.price}
-                        </span>
                       </div>
                     </div>
                   ))}

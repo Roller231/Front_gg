@@ -1,16 +1,28 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo, memo } from 'react'
 import { Player } from '@lottiefiles/react-lottie-player'
 import './CrashPage.css'
 import Header from './Header'
 import Navigation from './Navigation'
 import BetModal from './BetModal'
 
+const MemoHeader = memo(Header)
+const MemoNavigation = memo(Navigation)
+const MemoBetModal = memo(BetModal)
+
 const initialHistoryValues = [1.0, 1.2, 4.96, 5.42, 8.5, 4.95, 4.0]
 const initialHistory = initialHistoryValues.map(value => ({ value, isPending: false }))
 
+const players = [
+  { id: 1, name: 'Crazy Frog', src: '/image/ava1.png', bet: 5.51, betAmount: '4.38', multiplierValue: 'x1.24', gift: false },
+  { id: 2, name: 'MoonSun', src: '/image/ava2.png', bet: 5.51, betAmount: '4.38', multiplierValue: 'x1.24', gift: true },
+  { id: 3, name: 'ADA Drop', src: '/image/ava3.png', bet: 5.51, betAmount: '4.38', multiplierValue: 'x1.24', gift: false },
+  { id: 4, name: 'Darkkk', src: '/image/ava4.png', bet: 5.51, betAmount: '4.38', multiplierValue: 'x1.24', gift: false },
+]
+
 // Компонент линии — волнистая, левая часть внизу, правая поднимается
 function CrashLine({ multiplier, maxMultiplier }) {
-  const progress = Math.min((multiplier - 1) / (maxMultiplier - 1), 1) // 0 to 1
+  // Не ограничиваем progress, чтобы линия могла подниматься до потолка
+  const progress = (multiplier - 1) / (maxMultiplier - 1)
   
   // Случайные смещения для волн (генерируются один раз)
   const waveOffsets = useRef(
@@ -20,8 +32,9 @@ function CrashLine({ multiplier, maxMultiplier }) {
   // Генерируем путь линии
   const pathData = useMemo(() => {
     const width = 320
-    const startY = 145 // Левый край всегда внизу
-    const endY = 145 - progress * 140 // Правый край поднимается
+    const height = 280
+    const startY = height - 10 // Левый край всегда внизу
+    const endY = Math.max(5, startY - progress * (height - 15)) // Правый край поднимается до самого верха
     
     // Линия идёт от самого левого края (x=0) до самого правого (x=width)
     const d = `M 0 ${startY} Q ${width * 0.5} ${startY - 5} ${width} ${endY}`
@@ -32,7 +45,7 @@ function CrashLine({ multiplier, maxMultiplier }) {
   return (
     <svg
       className="coeff-path"
-      viewBox="0 0 320 160"
+      viewBox="0 0 320 280"
       preserveAspectRatio="none"
     >
       <path
@@ -50,16 +63,34 @@ function CrashPage() {
   const [coefficientHistory, setCoefficientHistory] = useState(initialHistory)
   const coeffHistoryRef = useRef(null)
   const prevGameState = useRef(null)
+  const multiplierRafIdRef = useRef(null)
+  const lastMultiplierUiUpdateRef = useRef(0)
   const [isBetModalOpen, setIsBetModalOpen] = useState(false)
   const catLottieRef = useRef(null)
+  const [giftIconIndex, setGiftIconIndex] = useState(0)
 
-  // Список игроков для отображения
-  const players = [
-    { id: 1, name: 'Crazy Frog', src: '/image/ava1.png', bet: 5.51, multiplier: '4.38 x1.24', gift: false },
-    { id: 2, name: 'MoonSun', src: '/image/ava2.png', bet: 5.51, multiplier: '4.38 x1.24', gift: true },
-    { id: 3, name: 'ADA Drop', src: '/image/ava3.png', bet: 5.51, multiplier: '4.38 x1.24', gift: false },
-    { id: 4, name: 'Darkkk', src: '/image/ava4.png', bet: 5.51, multiplier: '4.38 x1.24', gift: false },
-  ]
+  const giftIcons = useMemo(
+    () => [
+      '/image/case_card1.png',
+      '/image/case_card2.png',
+      '/image/case_card3.png',
+      '/image/case_card4.png',
+    ],
+    []
+  )
+
+  useEffect(() => {
+    if (gameState !== 'flying') {
+      setGiftIconIndex(0)
+      return
+    }
+
+    const intervalId = setInterval(() => {
+      setGiftIconIndex(prev => (prev + 1) % giftIcons.length)
+    }, 650)
+
+    return () => clearInterval(intervalId)
+  }, [gameState, giftIcons.length])
 
   // Обратный отсчёт
   useEffect(() => {
@@ -79,18 +110,43 @@ function CrashPage() {
 
   // Рост множителя во время полёта кота
   useEffect(() => {
-    if (gameState === 'flying') {
-      const interval = setInterval(() => {
-        setMultiplier(prev => {
-          const newValue = prev + 0.02
-          if (newValue >= 10) {
-            setGameState('postflight')
-            return 10
-          }
-          return parseFloat(newValue.toFixed(2))
-        })
-      }, 50)
-      return () => clearInterval(interval)
+    if (gameState !== 'flying') {
+      return
+    }
+
+    // Снижаем нагрузку: считаем мультипликатор каждый кадр, но обновляем React state реже.
+    // Было: +0.02 каждые 50ms => ~ +0.4 в секунду
+    const ratePerSecond = 0.4
+    const startTs = performance.now()
+    lastMultiplierUiUpdateRef.current = 0
+    setMultiplier(1.0)
+
+    const tick = (ts) => {
+      const elapsedSec = (ts - startTs) / 1000
+      const next = Math.min(10, 1 + elapsedSec * ratePerSecond)
+
+      // Обновляем UI примерно 15fps (каждые ~66ms), этого достаточно для цифр и анимаций.
+      if (ts - lastMultiplierUiUpdateRef.current >= 66) {
+        lastMultiplierUiUpdateRef.current = ts
+        setMultiplier(next >= 10 ? 10 : parseFloat(next.toFixed(2)))
+      }
+
+      if (next >= 10) {
+        setGameState('postflight')
+        multiplierRafIdRef.current = null
+        return
+      }
+
+      multiplierRafIdRef.current = requestAnimationFrame(tick)
+    }
+
+    multiplierRafIdRef.current = requestAnimationFrame(tick)
+
+    return () => {
+      if (multiplierRafIdRef.current != null) {
+        cancelAnimationFrame(multiplierRafIdRef.current)
+        multiplierRafIdRef.current = null
+      }
     }
   }, [gameState])
 
@@ -111,11 +167,10 @@ function CrashPage() {
     }
   }, [gameState, restartGame])
 
-
   // Добавляем "Ожидание" при отсчёте, затем живой коэффициент при полёте
   useEffect(() => {
     const previousState = prevGameState.current
-    
+
     // При старте отсчёта добавляем "Ожидание"
     if (gameState === 'countdown' && previousState !== 'countdown') {
       setCoefficientHistory(prevHistory => {
@@ -126,36 +181,22 @@ function CrashPage() {
         return updatedHistory.slice(0, 14)
       })
     }
-    
+
     // При старте полёта меняем "Ожидание" на живой коэффициент
     if (gameState === 'flying' && previousState !== 'flying') {
       setCoefficientHistory(prevHistory => {
         const updatedHistory = [...prevHistory]
         if (updatedHistory[0]?.isPending) {
-          updatedHistory[0] = { value: multiplier, isPending: false, isLive: true }
+          updatedHistory[0] = { value: 1.0, isPending: false, isLive: true }
         } else if (!updatedHistory[0]?.isLive) {
-          updatedHistory.unshift({ value: multiplier, isPending: false, isLive: true })
+          updatedHistory.unshift({ value: 1.0, isPending: false, isLive: true })
         }
         return updatedHistory.slice(0, 14)
       })
     }
-    
-    prevGameState.current = gameState
-  }, [gameState, multiplier])
 
-  // Обновляем живой коэффициент в истории во время игры
-  useEffect(() => {
-    if (gameState === 'flying') {
-      setCoefficientHistory(prevHistory => {
-        if (prevHistory[0]?.isLive) {
-          const updatedHistory = [...prevHistory]
-          updatedHistory[0] = { value: multiplier, isPending: false, isLive: true }
-          return updatedHistory
-        }
-        return prevHistory
-      })
-    }
-  }, [multiplier, gameState])
+    prevGameState.current = gameState
+  }, [gameState])
 
   // Фиксируем коэффициент в истории после краша (убираем isLive)
   useEffect(() => {
@@ -178,18 +219,21 @@ function CrashPage() {
 
   useEffect(() => {
     if (coeffHistoryRef.current) {
-      coeffHistoryRef.current.scrollTo({ left: 0, behavior: 'smooth' })
+      const rafId = requestAnimationFrame(() => {
+        coeffHistoryRef.current?.scrollTo({ left: 0, behavior: 'smooth' })
+      })
+      return () => cancelAnimationFrame(rafId)
     }
-  }, [coefficientHistory])
+  }, [gameState])
 
   return (
     <div className="app crash-page">
       
-      <Header />
+      <MemoHeader />
       
       <main className="main-content crash-content">
         {/* Зона игры */}
-        <div className={`crash-game-area ${gameState !== 'countdown' ? 'crash-no-rays' : ''}`}
+        <div className={`crash-game-area ${gameState === 'countdown' ? 'crash-countdown' : ''} ${gameState === 'postflight' ? 'crash-postflight' : ''} ${gameState !== 'countdown' ? 'crash-no-rays' : ''}`}
              style={gameState === 'flying' ? {
                '--moon-speed': `${Math.max(1.5, 4 - (multiplier - 1) * 0.15)}s`,
                '--star-speed': `${Math.max(2, 8 - (multiplier - 1) * 1.5)}s`
@@ -198,6 +242,7 @@ function CrashPage() {
             className={`cosmic-background ${gameState === 'flying' ? 'cosmic-background-active' : ''}`}
             aria-hidden="true"
           />
+          <div className="crash-game-area-fade" />
           {/* Анимации взрывов и полёта кота */}
           <div className="crash-animation-container">
             {gameState === 'countdown' && (
@@ -264,7 +309,11 @@ function CrashPage() {
               ref={coeffHistoryRef}
             >
               {coefficientHistory.map((item, index) => {
-                const displayValue = item.isPending ? 'Ожидание...' : item.value.toFixed(2)
+                const displayValue = item.isPending
+                  ? 'Ожидание...'
+                  : item.isLive
+                    ? multiplier.toFixed(2)
+                    : item.value.toFixed(2)
                 const key = item.isLive ? `live-${index}` : item.isPending ? `pending-${index}` : `${item.value}-${index}`
                 return (
                   <div
@@ -281,7 +330,7 @@ function CrashPage() {
         </div>
 
         {/* Кнопка ставки */}
-        <button className="bet-button" onClick={() => setIsBetModalOpen(true)}>
+        <button className="bet-button gg-btn-glow" onClick={() => setIsBetModalOpen(true)}>
           Сделать ставку
         </button>
 
@@ -293,53 +342,59 @@ function CrashPage() {
 
         {/* Список игроков */}
         <div className="players-list">
-          {players.map(player => {
-            const [betAmount, multiplierValue] = player.multiplier.split(' ')
-            return (
-              <div key={player.id} className="player-row">
-                <div className="player-info">
-                  <div className="player-avatar">
-                    {player.src ? (
-                      <img src={player.src} alt={player.name} />
-                    ) : (
-                      player.avatar
-                    )}
-                  </div>
-                  <div className="player-details">
-                    <span className="player-name">{player.name}</span>
-                    <div className="player-stats-row">
-                      <img src="/image/Coin-Icon.svg" alt="Coin" className="coin-icon-small" />
-                      <span className="stat-bet">{betAmount}</span>
-                      <span className="stat-multiplier">{multiplierValue}</span>
-                    </div>
-                  </div>
-                </div>
-                {player.bet && (
-                  <div className="player-reward">
-                    <div className="reward-amount-container">
-                      <img src="/image/Coin-Icon.svg" alt="Coin" className="coin-icon-large" />
-                      <span className={`reward-amount ${player.gift ? 'text-green' : ''}`}>
-                        {player.bet.toFixed ? player.bet.toFixed(2) : player.bet}
-                      </span>
-                    </div>
-                    <div className="gift-container">
-                      {player.gift && (
-                        <img
-                          src="/image/Progress Bar.svg"
-                          alt="Gift"
-                          className="gift-icon"
-                        />
+          {(() => {
+            const rewardMultiplier = gameState === 'flying' || gameState === 'postflight' ? multiplier : 1
+
+            return players.map(player => {
+              const rewardValue = Number((Number(player.bet) * rewardMultiplier).toFixed(2))
+
+              return (
+                <div key={player.id} className="player-row">
+                  <div className="player-info">
+                    <div className="player-avatar">
+                      {player.src ? (
+                        <img src={player.src} alt={player.name} />
+                      ) : (
+                        player.avatar
                       )}
                     </div>
+                    <div className="player-details">
+                      <span className="player-name">{player.name}</span>
+                      <div className="player-stats-row">
+                        <img src="/image/Coin-Icon.svg" alt="Coin" className="coin-icon-small" />
+                        <span className="stat-bet">{player.betAmount}</span>
+                        <span className="stat-multiplier">{player.multiplierValue}</span>
+                      </div>
+                    </div>
                   </div>
-                )}
-              </div>
-            )
-          })}
+                  {player.bet && (
+                    <div className="player-reward">
+                      <div className="reward-amount-container">
+                        <img src="/image/Coin-Icon.svg" alt="Coin" className="coin-icon-large" />
+                        <span className={`reward-amount ${player.gift ? 'text-green' : ''}`}>
+                          {rewardValue.toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="gift-container">
+                        {player.gift && (
+                          <img
+                            key={giftIconIndex}
+                            src={giftIcons[giftIconIndex]}
+                            alt="Gift"
+                            className="gift-icon"
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })
+          })()}
         </div>
       </main>
       
-      <Navigation activePage="crash" />
+      <MemoNavigation activePage="crash" />
     </div>
   )
 }

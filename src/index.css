@@ -46,3 +46,56 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+ .gg-btn-glow {
+   position: relative;
+   overflow: hidden;
+   isolation: isolate;
+   --gg-btn-glow-color: rgba(139, 92, 246, 0.55);
+   --gg-btn-glow-color-2: rgba(139, 92, 246, 0.35);
+   box-shadow:
+     0 4px 20px var(--gg-btn-glow-color),
+     0 0 40px var(--gg-btn-glow-color-2),
+     inset 0 1px 0 rgba(255, 255, 255, 0.2);
+   transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+ }
+
+ .gg-btn-glow::before {
+   content: '';
+   position: absolute;
+   top: 0;
+   left: -120%;
+   width: 120%;
+   height: 100%;
+   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+   animation: gg-btn-shine 3s ease-in-out infinite;
+   z-index: 0;
+   pointer-events: none;
+ }
+
+ .gg-btn-glow > * {
+   position: relative;
+   z-index: 1;
+ }
+
+ .gg-btn-glow:hover:not(:disabled) {
+   transform: translateY(-3px) scale(1.02);
+   box-shadow:
+     0 8px 30px var(--gg-btn-glow-color),
+     0 0 60px var(--gg-btn-glow-color-2),
+     inset 0 1px 0 rgba(255, 255, 255, 0.2);
+ }
+
+ .gg-btn-glow:active:not(:disabled) {
+   transform: translateY(-1px) scale(0.98);
+ }
+
+ @keyframes gg-btn-shine {
+   0% {
+     left: -120%;
+   }
+   50%,
+   100% {
+     left: 120%;
+   }
+ }

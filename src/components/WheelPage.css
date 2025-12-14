@@ -9,6 +9,8 @@
   position: relative;
   padding-bottom: 100px;
   overflow: hidden;
+  --wheel-scale: 0.9786;
+  --wheel-top: 20px;
 }
 
 .wheel-main {
@@ -164,7 +166,7 @@
   position: absolute;
   width: 800px;
   height: 800px;
-  top: 30px;
+  top: var(--wheel-top);
   left: 50%;
   margin-left: -400px;
   border-radius: 50%;
@@ -190,7 +192,7 @@
   position: absolute;
   width: 800px;
   height: 800px;
-  top: 30px;
+  top: var(--wheel-top);
   left: 50%;
   margin-left: -400px;
   border-radius: 50%;
@@ -222,12 +224,14 @@
   position: absolute;
   width: 700px;
   height: 700px;
-  top: 30px;
+  top: var(--wheel-top);
   left: 50%;
   margin-left: -350px;
   border-radius: 50%;
-  transition: transform 6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: transform 6s cubic-bezier(0.1, 0.9, 0.08, 1);
   will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .wheel-fortune--spinning {
@@ -250,14 +254,14 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 70px;
-  height: 70px;
+  width: 84px;
+  height: 84px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   transform-origin: 0 0;
-  transform: rotate(var(--segment-angle)) translate(-35px, -260px);
+  transform: rotate(var(--segment-angle)) translate(-42px, -258px);
   pointer-events: none;
   background: linear-gradient(160deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -273,7 +277,7 @@
   display: flex;
   align-items: center;
   gap: 2px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   color: #fff;
   background: rgba(0, 0, 0, 0.6);
@@ -283,8 +287,8 @@
 }
 
 .wheel-segment-coin {
-  width: 10px;
-  height: 10px;
+  width: 11px;
+  height: 11px;
   object-fit: contain;
 }
 
@@ -314,7 +318,7 @@
   position: absolute;
   width: 140px;
   height: 140px;
-  top: 350px;
+  top: calc(var(--wheel-top) + (700px * var(--wheel-scale)) / 2 - 70px);
   left: 50%;
   margin-left: -70px;
   border-radius: 50%;
@@ -377,9 +381,31 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: linear-gradient(to top, var(--page-bg) 0%, transparent 100%);
+  background: transparent;
   position: relative;
   z-index: 30;
+  margin-top: -35px;
+  isolation: isolate;
+}
+
+.wheel-buttons-container::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -140px;
+  bottom: 0;
+  background: linear-gradient(to top, var(--page-bg) 0%, var(--page-bg) 65%, transparent 100%);
+  z-index: -1;
+}
+
+.wheel-bet-hint {
+  margin-bottom: 12px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.75);
 }
 
 /* Spin button */
@@ -755,6 +781,28 @@
   cursor: pointer;
 }
 
+.prize-price-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 4px 6px;
+  border-radius: 8px;
+  z-index: 3;
+}
+
+.prize-price-coin {
+  width: 12px;
+  height: 12px;
+  object-fit: contain;
+}
+
 .prize-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
@@ -781,35 +829,13 @@
   height: 100% !important;
 }
 
-.prize-info {
-  padding: 4px;
-  background: rgba(0, 0, 0, 0.3);
-}
 
-.prize-price {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #fff;
-}
-
-.prize-coin {
-  width: 14px;
-  height: 14px;
-  object-fit: contain;
-}
 
 /* Адаптация для средних экранов */
 @media (max-width: 500px) {
   .prizes-grid {
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     gap: 9px;
-  }
-
-  .prize-info {
-    padding: 5px;
   }
 }
 
@@ -848,10 +874,6 @@
   .prize-card {
     padding: 4px;
   }
-
-  .prize-info {
-    padding: 3px;
-  }
 }
 
 @media (max-width: 350px) {
@@ -873,13 +895,6 @@
     padding: 3px;
   }
 
-  .prize-info {
-    padding: 3px;
-  }
-
-  .prize-price {
-    font-size: 12px;
-  }
 }
 
 @media (max-width: 280px) {
@@ -901,13 +916,6 @@
     padding: 2px;
   }
 
-  .prize-info {
-    padding: 2px;
-  }
-
-  .prize-price {
-    font-size: 11px;
-  }
 }
 
 

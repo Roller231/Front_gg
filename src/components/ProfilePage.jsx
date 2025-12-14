@@ -94,7 +94,7 @@ function ProfilePage() {
       </div>
 
       {/* Withdraw Button */}
-      <button className="withdraw-btn" onClick={() => setIsBetModalOpen(true)}>
+      <button className="withdraw-btn gg-btn-glow" onClick={() => setIsBetModalOpen(true)}>
         Вывести деньги
       </button>
 

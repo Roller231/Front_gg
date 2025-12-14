@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import './Header.css'
 import { useCurrency } from '../context/CurrencyContext'
 
@@ -45,9 +45,9 @@ function Header() {
 
   return (
     <header className="header">
-      <div className="logo">
+      <Link className="logo" to="/" aria-label="На главную">
         <img src="/image/Logo.svg" alt="GG Cat logo" />
-      </div>
+      </Link>
       
       <div className="header-right">
         <div className="balance-container">

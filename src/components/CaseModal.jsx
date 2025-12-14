@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import './CaseModal.css'
+import './WheelPage.css'
 import { useCurrency } from '../context/CurrencyContext'
 import DepositModal from './DepositModal'
 import { Player } from '@lottiefiles/react-lottie-player'
@@ -220,6 +221,56 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
 
   if (!isOpen) return null
 
+  if (view === 'result') {
+    return (
+      <>
+        <div className="wheel-result-overlay" onClick={handleResultOk}>
+          <div className="wheel-result-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="wheel-result-particles">
+              {[...Array(20)].map((_, i) => (
+                <div key={i} className="wheel-particle" style={{ '--particle-index': i }} />
+              ))}
+            </div>
+            <div className="wheel-result-glow"></div>
+            <h2 className="wheel-result-title">🎁 Поздравляем!</h2>
+            <div className="wheel-result-prize">
+              <div className="wheel-result-card">
+                <span className="wheel-result-price">
+                  <img src={currencyIcon} alt="currency" className="wheel-result-coin" />
+                  {wonAmount.toFixed(2)}
+                </span>
+                <div className="wheel-result-prize-content">
+                  {wonItem ? (
+                    wonItem.type === 'animation' && wonItem.animation ? (
+                      <Player
+                        autoplay
+                        loop
+                        src={wonItem.animation}
+                        className="wheel-result-animation"
+                      />
+                    ) : (
+                      <img src={wonItem.image} alt="prize" className="wheel-result-image" />
+                    )
+                  ) : (
+                    <img src="/image/case_card1.png" alt="prize" className="wheel-result-image" />
+                  )}
+                </div>
+              </div>
+            </div>
+            <button className="wheel-result-close gg-btn-glow" onClick={handleResultOk}>
+              Забрать
+            </button>
+          </div>
+        </div>
+
+        <DepositModal
+          isOpen={isDepositModalOpen}
+          onClose={() => setIsDepositModalOpen(false)}
+        />
+      </>
+    )
+  }
+
   return (
     <div 
       className="case-modal-overlay" 
@@ -372,116 +423,65 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
           </>
         ) : view === 'spin' ? (
           <div className="case-spin-view">
-            <div className="case-spin-track" ref={spinTrackRef}>
-              <div
-                className="case-spin-track-inner"
-                ref={spinTrackInnerRef}
-                style={{
-                  transform: `translateX(${spinOffset}px)`,
-                  transition: isSpinning
-                    ? `transform ${
-                        spinPhase === 'main' ? 4.6 : spinPhase === 'settle' ? 0.4 : 0
-                      }s cubic-bezier(0.18, 0.89, 0.32, 1)`
-                    : 'none',
-                }}
-              >
-                {spinItems.map((item, index) => (
-                  <div 
-                    key={item.uid}
-                    className={`case-spin-item ${
-                      index % 3 === 0
-                        ? 'case-spin-item--back'
-                        : index % 2 === 0
-                        ? 'case-spin-item--mid'
-                        : ''
-                    } ${item.isWinning ? 'case-spin-item--winning' : ''}`}
-                  >
-                    <div className="case-spin-gift">
-                      {item.type === 'animation' && item.animation ? (
-                        <Player
-                          autoplay
-                          loop
-                          src={item.animation}
-                          className="case-spin-animation"
-                        />
-                      ) : (
-                        <img
-                          src={item.image}
-                          alt={item.name || 'Gift'}
-                          className="case-spin-image"
-                        />
-                      )}
-                    </div>
-                    <span className="case-spin-price">
-                      <img src={selectedCurrency?.icon || '/image/Coin-Icon.svg'} alt="currency" />
-                      {item.price}
-                    </span>
-                  </div>
-                ))}
-              </div>
+            <div className="case-spin-wrapper">
               <div className="case-spin-marker">
+                <img src="/image/Group 7188.png" alt="cat" className="case-spin-marker-cat" />
                 <div className="case-spin-marker-line"></div>
-                <div className="case-spin-marker-glow"></div>
               </div>
-              <div className="case-spin-fog case-spin-fog--left"></div>
-              <div className="case-spin-fog case-spin-fog--right"></div>
+              <div className="case-spin-track" ref={spinTrackRef}>
+                <div
+                  className="case-spin-track-inner"
+                  ref={spinTrackInnerRef}
+                  style={{
+                    transform: `translateX(${spinOffset}px)`,
+                    transition: isSpinning
+                      ? `transform ${
+                          spinPhase === 'main' ? 4.6 : spinPhase === 'settle' ? 0.4 : 0
+                        }s cubic-bezier(0.18, 0.89, 0.32, 1)`
+                      : 'none',
+                  }}
+                >
+                  {spinItems.map((item, index) => (
+                    <div 
+                      key={item.uid}
+                      className={`case-spin-item ${
+                        index % 3 === 0
+                          ? 'case-spin-item--back'
+                          : index % 2 === 0
+                          ? 'case-spin-item--mid'
+                          : ''
+                      } ${item.isWinning ? 'case-spin-item--winning' : ''}`}
+                    >
+                      <div className="case-spin-gift">
+                        {item.type === 'animation' && item.animation ? (
+                          <Player
+                            autoplay
+                            loop
+                            src={item.animation}
+                            className="case-spin-animation"
+                          />
+                        ) : (
+                          <img
+                            src={item.image}
+                            alt={item.name || 'Gift'}
+                            className="case-spin-image"
+                          />
+                        )}
+                      </div>
+                      <span className="case-spin-price">
+                        <img src={selectedCurrency?.icon || '/image/Coin-Icon.svg'} alt="currency" />
+                        {item.price}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <div className="case-spin-fog case-spin-fog--left"></div>
+                <div className="case-spin-fog case-spin-fog--right"></div>
+              </div>
             </div>
             <div className="case-spin-caption">Ожидаем выпадение...</div>
           </div>
-        ) : (
-          /* Экран результата */
-          <div className="case-result-view">
-            <div className="confetti-container">
-              {[...Array(50)].map((_, i) => (
-                <div 
-                  key={i} 
-                  className="confetti"
-                  style={{
-                    left: `${Math.random() * 100}%`,
-                    animationDelay: `${Math.random() * 2}s`,
-                    backgroundColor: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'][Math.floor(Math.random() * 7)]
-                  }}
-                />
-              ))}
-            </div>
-            
-            <h2 className="case-result-title">Congratulations!</h2>
-            
-            <div className="case-result-prize">
-              {wonItem ? (
-                wonItem.type === 'animation' && wonItem.animation ? (
-                  <Player
-                    autoplay
-                    loop
-                    src={wonItem.animation}
-                    style={{ width: 80, height: 80 }}
-                  />
-                ) : (
-                  <img
-                    src={wonItem.image}
-                    alt={wonItem.name || 'Gift'}
-                    style={{ width: 80, height: 80, objectFit: 'contain' }}
-                  />
-                )
-              ) : (
-                <img
-                  src="/image/case_card1.png"
-                  alt="Gift"
-                  style={{ width: 80, height: 80, objectFit: 'contain' }}
-                />
-              )}
-            </div>
-            
-            <div className="case-result-amount">
-              <span className="case-result-plus">+{wonAmount.toFixed(2)}</span>
-              <img src={currencyIcon} alt="currency" className="case-result-currency" />
-            </div>
-
-            <button className="case-ok-button" onClick={handleResultOk}>
-              Ok
-            </button>
-          </div>
-        )}
+        ) : null}
       </div>
 
       <DepositModal 
