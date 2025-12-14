@@ -226,13 +226,8 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
       <>
         <div className="wheel-result-overlay" onClick={handleResultOk}>
           <div className="wheel-result-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="wheel-result-particles">
-              {[...Array(20)].map((_, i) => (
-                <div key={i} className="wheel-particle" style={{ '--particle-index': i }} />
-              ))}
-            </div>
             <div className="wheel-result-glow"></div>
-            <h2 className="wheel-result-title">🎁 Поздравляем!</h2>
+            <h2 className="wheel-result-title">Поздравляем!</h2>
             <div className="wheel-result-prize">
               <div className="wheel-result-card">
                 <span className="wheel-result-price">

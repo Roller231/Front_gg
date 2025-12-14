@@ -28,6 +28,8 @@ function CrashLine({ multiplier, maxMultiplier }) {
   const waveOffsets = useRef(
     Array.from({ length: 6 }, () => (Math.random() - 0.5) * 2)
   ).current
+
+  const wavePhase = useRef(Math.random() * Math.PI * 2).current
   
   // Генерируем путь линии
   const pathData = useMemo(() => {
@@ -35,10 +37,38 @@ function CrashLine({ multiplier, maxMultiplier }) {
     const height = 280
     const startY = height - 10 // Левый край всегда внизу
     const endY = Math.max(5, startY - progress * (height - 15)) // Правый край поднимается до самого верха
-    
-    // Линия идёт от самого левого края (x=0) до самого правого (x=width)
-    const d = `M 0 ${startY} Q ${width * 0.5} ${startY - 5} ${width} ${endY}`
-    
+
+    const pointsCount = 24
+    const waveCount = 3
+    const amplitude = 4.5
+    const points = Array.from({ length: pointsCount }, (_, idx) => {
+      const t = idx / (pointsCount - 1)
+      const x = t * width
+      // Базовая линия — как было раньше: M0,startY Q (width*0.5, startY-5) width,endY
+      // Для этой кривой x(t) = width * t, так что достаточно посчитать y(t).
+      const controlY = startY - 5
+      const baseY =
+        (1 - t) * (1 - t) * startY +
+        2 * (1 - t) * t * controlY +
+        t * t * endY
+
+      const offsetBucket = waveOffsets[Math.min(waveOffsets.length - 1, Math.floor(t * waveOffsets.length))]
+      // Чтобы не ломать рост и не смещать края — затухаем к 0 на концах
+      const envelope = Math.sin(Math.PI * t)
+      const irregular = offsetBucket * 0.9 * envelope
+      const wave = Math.sin(t * waveCount * Math.PI * 2 + wavePhase) * amplitude * envelope
+
+      return { x, y: baseY + wave + irregular }
+    })
+
+    let d = `M ${points[0].x} ${points[0].y}`
+    for (let i = 1; i < points.length - 2; i += 1) {
+      const midX = (points[i].x + points[i + 1].x) / 2
+      const midY = (points[i].y + points[i + 1].y) / 2
+      d += ` Q ${points[i].x} ${points[i].y} ${midX} ${midY}`
+    }
+    d += ` Q ${points[points.length - 2].x} ${points[points.length - 2].y} ${points[points.length - 1].x} ${points[points.length - 1].y}`
+
     return d
   }, [progress, waveOffsets])
 

@@ -159,8 +159,43 @@
   transition: color 0.2s ease, opacity 0.2s ease;
 }
 
+.promo-copy-btn,
+.promo-edit-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
 .promo-confirm-btn {
   color: #10B981;
+}
+
+.promo-copy-btn {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.promo-copy-btn.copied {
+  color: #10B981;
+}
+
+.promo-copy-btn:hover {
+  opacity: 0.9;
+}
+
+.promo-edit-btn {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.promo-edit-btn:hover {
+  opacity: 0.9;
 }
 
 .promo-confirm-btn:disabled {

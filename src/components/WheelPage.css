@@ -159,6 +159,7 @@
   height: 350px;
   overflow: hidden;
   margin-top: auto;
+  transform: translateY(-38px);
 }
 
 /* Outer glow ring */
@@ -384,7 +385,7 @@
   background: transparent;
   position: relative;
   z-index: 30;
-  margin-top: -35px;
+  margin-top: -80px;
   isolation: isolate;
 }
 
@@ -464,6 +465,77 @@
   transform: scale(0.98);
 }
 
+@media (max-height: 560px) {
+  .wheel-page {
+    padding-bottom: 0;
+    --wheel-scale: 0.92;
+    --wheel-top: 12px;
+  }
+
+  .wheel-section {
+    padding-top: 10px;
+  }
+
+  .wheel-container {
+    height: 330px;
+    transform: translateY(-44px);
+  }
+
+  .wheel-buttons-container {
+    margin-top: -88px;
+    padding: 14px 16px calc(70px + 16px);
+    gap: 10px;
+  }
+
+  .wheel-bet-hint {
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+
+  .wheel-spin-btn {
+    padding: 14px 32px;
+    font-size: 16px;
+  }
+
+  .wheel-prizes-btn {
+    padding: 14px 32px;
+    font-size: 14px;
+  }
+}
+
+@media (max-height: 430px) {
+  .wheel-page {
+    padding-bottom: 0;
+    --wheel-scale: 0.82;
+    --wheel-top: 6px;
+  }
+
+  .wheel-container {
+    height: 290px;
+    transform: translateY(-60px);
+  }
+
+  .wheel-buttons-container {
+    margin-top: -110px;
+    padding: 10px 16px calc(70px + 14px);
+    gap: 8px;
+  }
+
+  .wheel-bet-hint {
+    display: none;
+  }
+
+  .wheel-spin-btn {
+    padding: 12px 28px;
+    font-size: 15px;
+  }
+
+  .wheel-prizes-btn {
+    padding: 12px 28px;
+    font-size: 13px;
+  }
+}
+
 .wheel-spin-btn--disabled {
   opacity: 0.7;
   cursor: not-allowed;
@@ -537,47 +609,23 @@
   100% { transform: scale(1); opacity: 1; }
 }
 
-.wheel-result-particles {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.wheel-particle {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #FFD700, #FFA500);
-  animation: particleFloat 2s ease-in-out infinite;
-  animation-delay: calc(var(--particle-index) * 0.1s);
-  left: calc(var(--particle-index) * 5%);
-  top: 100%;
-}
-
-@keyframes particleFloat {
-  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-  50% { opacity: 1; }
-  100% { transform: translateY(-400px) rotate(720deg); opacity: 0; }
-}
-
 .wheel-result-glow {
   position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 50%);
-  animation: resultGlow 2s ease-in-out infinite;
+  top: 50%;
+  left: 50%;
+  width: 520px;
+  height: 520px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.55) 0%, rgba(59, 130, 246, 0.35) 35%, rgba(255, 255, 255, 0.12) 55%, transparent 72%);
+  filter: blur(6px);
+  opacity: 0.9;
+  pointer-events: none;
+  animation: resultGlow 2.4s ease-in-out infinite;
 }
 
 @keyframes resultGlow {
-  0%, 100% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.2); }
+  0%, 100% { opacity: 0.65; transform: translate(-50%, -50%) scale(0.92); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
 }
 
 .wheel-result-title {
@@ -816,6 +864,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  position: relative;
 }
 
 .prize-img {
@@ -825,8 +874,29 @@
 }
 
 .prize-animation {
+  position: absolute !important;
+  inset: 0 !important;
   width: 100% !important;
   height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.prize-animation * {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.prize-animation svg {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
 }
 
 
@@ -853,7 +923,7 @@
   }
 
   .prize-card {
-    padding: 6px;
+    padding: 0;
   }
 }
 
@@ -872,7 +942,7 @@
   }
 
   .prize-card {
-    padding: 4px;
+    padding: 0;
   }
 }
 
@@ -892,7 +962,7 @@
   }
 
   .prize-card {
-    padding: 3px;
+    padding: 0;
   }
 
 }
@@ -913,7 +983,7 @@
   }
 
   .prize-card {
-    padding: 2px;
+    padding: 0;
   }
 
 }

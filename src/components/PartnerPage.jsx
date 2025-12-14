@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from './Header'
 import Navigation from './Navigation'
@@ -18,11 +18,26 @@ function PartnerPage() {
   const navigate = useNavigate()
   const { selectedCurrency } = useCurrency()
   const [promoCode, setPromoCode] = useState('')
+  const [savedPromoCode, setSavedPromoCode] = useState('')
   const [isCreatingPromo, setIsCreatingPromo] = useState(false)
   const [friends] = useState(mockFriends)
   const [copied, setCopied] = useState(false)
+  const [promoCopied, setPromoCopied] = useState(false)
+
+  const promoStorageKey = 'ggcat_partner_promo_code'
 
   const inviteLink = 'https://t.me/ggcat_bot?start=ref123456'
+
+  useEffect(() => {
+    try {
+      const storedPromo = localStorage.getItem(promoStorageKey)
+      if (storedPromo) {
+        setSavedPromoCode(storedPromo)
+      }
+    } catch (err) {
+      console.error('Failed to read promo code from storage:', err)
+    }
+  }, [])
 
   const handleCopyLink = async () => {
     try {
@@ -41,12 +56,47 @@ function PartnerPage() {
     window.open(shareUrl, '_blank')
   }
 
+  const writeToClipboard = async (text) => {
+    if (!text) return
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text)
+        return
+      }
+
+      const textarea = document.createElement('textarea')
+      textarea.value = text
+      textarea.style.position = 'fixed'
+      textarea.style.opacity = '0'
+      document.body.appendChild(textarea)
+      textarea.focus()
+      textarea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textarea)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+    }
+  }
+
   const handleCreatePromo = () => {
     if (!isCreatingPromo) {
       setIsCreatingPromo(true)
+      if (savedPromoCode) {
+        setPromoCode(savedPromoCode)
+      }
     } else if (promoCode.trim()) {
+      const nextPromo = promoCode.trim()
       // TODO: отправить промокод на сервер
-      console.log('Creating promo code:', promoCode)
+      console.log('Creating promo code:', nextPromo)
+
+      setSavedPromoCode(nextPromo)
+      try {
+        localStorage.setItem(promoStorageKey, nextPromo)
+      } catch (err) {
+        console.error('Failed to save promo code to storage:', err)
+      }
+
       setIsCreatingPromo(false)
       setPromoCode('')
     }
@@ -55,6 +105,22 @@ function PartnerPage() {
   const handleCancelPromo = () => {
     setIsCreatingPromo(false)
     setPromoCode('')
+  }
+
+  const handleCopyPromo = async () => {
+    if (!savedPromoCode) return
+    await writeToClipboard(savedPromoCode)
+    setPromoCopied(true)
+    setTimeout(() => setPromoCopied(false), 2000)
+  }
+
+  const handleEditPromo = () => {
+    if (!savedPromoCode) {
+      setIsCreatingPromo(true)
+      return
+    }
+    setIsCreatingPromo(true)
+    setPromoCode(savedPromoCode)
   }
 
   const formatNumber = (num) => {
@@ -92,11 +158,41 @@ function PartnerPage() {
         {/* Create Promo Code Section */}
         <div className="promo-section">
           <h2 className="promo-title">Создать промокод</h2>
-          
+
           {!isCreatingPromo ? (
-            <button className="create-promo-btn" onClick={handleCreatePromo}>
-              Создать промокод
-            </button>
+            savedPromoCode ? (
+              <div className="promo-input-wrapper">
+                <label className="promo-label">Ваш промокод:</label>
+                <div className="promo-input-container">
+                  <input
+                    type="text"
+                    className="promo-input"
+                    value={savedPromoCode}
+                    readOnly
+                  />
+                  <button className="promo-edit-btn" onClick={handleEditPromo} title="Изменить промокод">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 20H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      <path d="M16.5 3.5C17.3284 2.67157 18.6716 2.67157 19.5 3.5C20.3284 4.32843 20.3284 5.67157 19.5 6.5L7 19L3 20L4 16L16.5 3.5Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  <button
+                    className={`promo-copy-btn ${promoCopied ? 'copied' : ''}`}
+                    onClick={handleCopyPromo}
+                    title="Скопировать промокод"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" strokeWidth="2"/>
+                      <path d="M5 15H4C2.89543 15 2 14.1046 2 13V4C2 2.89543 2.89543 2 4 2H13C14.1046 2 15 2.89543 15 4V5" stroke="currentColor" strokeWidth="2"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button className="create-promo-btn" onClick={handleCreatePromo}>
+                Создать промокод
+              </button>
+            )
           ) : (
             <div className="promo-input-wrapper">
               <label className="promo-label">Промокод:</label>
@@ -109,16 +205,17 @@ function PartnerPage() {
                   onChange={(e) => setPromoCode(e.target.value)}
                   autoFocus
                 />
-                <button 
+                <button
                   className="promo-confirm-btn"
                   onClick={handleCreatePromo}
                   disabled={!promoCode.trim()}
+                  title="Сохранить"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M5 12L10 17L20 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </button>
-                <button className="promo-cancel-btn" onClick={handleCancelPromo}>
+                <button className="promo-cancel-btn" onClick={handleCancelPromo} title="Отмена">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M6 6L18 18M6 18L18 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
                   </svg>

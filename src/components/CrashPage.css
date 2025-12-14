@@ -546,13 +546,13 @@
 }
 
 .gift-container {
-  width: 48px; /* Reserve space for gift */
+  width: 44px; /* Reserve space for gift */
   height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 0;
-  margin-right: 20px;
+  margin-left: 4px;
+  margin-right: 0;
 }
 
 .gift-icon {

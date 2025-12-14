@@ -67,6 +67,19 @@
   gap: 2px;
 }
 
+ .rating-badge {
+  cursor: pointer;
+ }
+
+ .rating-badge:hover {
+  transform: translateY(-1px);
+ }
+
+ .rating-badge:focus-visible {
+  outline: 2px solid rgba(139, 92, 246, 0.8);
+  outline-offset: 2px;
+ }
+
 .rating-icon {
   font-size: 16px;
   margin-top: -2px;

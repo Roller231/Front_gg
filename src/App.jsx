@@ -10,6 +10,7 @@ import CrashPage from './components/CrashPage'
 import CasesPage from './components/CasesPage'
 import PartnerPage from './components/PartnerPage'
 import WheelPage from './components/WheelPage'
+import Top20Page from './components/Top20Page'
 import { CurrencyProvider } from './context/CurrencyContext'
 
 function HomePage() {
@@ -45,6 +46,7 @@ function App() {
           <Route path="/crash" element={<CrashPage />} />
           <Route path="/partner" element={<PartnerPage />} />
           <Route path="/wheel" element={<WheelPage />} />
+          <Route path="/top-20" element={<Top20Page />} />
         </Routes>
       </BrowserRouter>
     </CurrencyProvider>

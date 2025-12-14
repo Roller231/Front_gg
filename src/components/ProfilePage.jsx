@@ -45,7 +45,18 @@ function ProfilePage() {
           <p className="profile-user-id">{userData.oderId}</p>
         </div>
         <div className="profile-user-right">
-          <div className="info-badge rating-badge">
+          <div
+            className="info-badge rating-badge"
+            role="button"
+            tabIndex={0}
+            onClick={() => navigate('/top-20')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                navigate('/top-20')
+              }
+            }}
+          >
             <span className="rating-icon">👑</span>
             <span className="rating-value">{userData.rating}</span>
           </div>
