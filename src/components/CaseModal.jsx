@@ -27,7 +27,11 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
   const [loadingDrops, setLoadingDrops] = useState(true)
   const { user, setUser } = useUser()
 
-  
+  const casePrice = Number(caseData?.price || 0)
+const userBalance = Number(user?.balance || 0)
+
+const canOpenCase = !isPaid || userBalance >= casePrice
+
 
   const [spinOffset, setSpinOffset] = useState(50)
   const [spinPhase, setSpinPhase] = useState('idle') // 'idle' | 'main' | 'settle'
@@ -233,7 +237,23 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
   // Открытие кейса
   const handleOpenCase = async () => {
     if (isSpinning || !caseItems.length) return
-
+  
+    // ❌ защита на всякий случай
+    if (isPaid && user.balance < casePrice) return
+  
+    // 🔥 СПИСЫВАЕМ БАЛАНС
+    if (isPaid && user) {
+      try {
+        const updatedUser = await usersApi.updateUser(user.id, {
+          balance: user.balance - casePrice,
+        })
+  
+        setUser(updatedUser)
+      } catch (err) {
+        console.error('Failed to deduct balance:', err)
+        return
+      }
+    }
     const winning = rollDrop(caseItems)
   
     setWonItem(winning)
@@ -439,8 +459,10 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
                   ))}
                 </div>
 
-                <button className="case-open-button" onClick={handleOpenCase}>
-                  Открыть
+                <button className="case-open-button" onClick={handleOpenCase} disabled={!canOpenCase || isSpinning}>
+                {canOpenCase
+    ? 'Открыть'
+    : 'Недостаточно средств'}
                 </button>
               </>
             ) : (
