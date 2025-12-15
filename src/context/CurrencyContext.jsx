@@ -3,13 +3,7 @@ import { useUser } from './UserContext'
 
 const CurrencyContext = createContext(null)
 
-/**
- * ⬇️ ВРЕМЕННЫЙ БАЗОВЫЙ БАЛАНС
- * позже заменишь на user.balance,
- * но ТОЛЬКО внутри компонента
- */
-
-
+/* ===== STATIC CURRENCIES (UI only) ===== */
 const STATIC_CURRENCIES = [
   { id: 'coins', icon: '/image/Coin-Icon.svg' },
   { id: 'gems', icon: '/image/Coin-Icon-one.svg' },
@@ -18,40 +12,48 @@ const STATIC_CURRENCIES = [
 ]
 
 export function CurrencyProvider({ children }) {
-
-
   const { user } = useUser()
-  const BASE_BALANCE = user?.balance ?? 0
+
+  // 🔹 базовый баланс ВСЕГДА в TON
+  const BASE_BALANCE = Number(user?.balance) || 0
 
   const [rates, setRates] = useState({})
   const [selectedCurrency, setSelectedCurrency] = useState(STATIC_CURRENCIES[0])
   const [hasFreeSpins, setHasFreeSpins] = useState(true)
 
-  // 🔹 получаем курсы с бэка
+  /* ===== LOAD RATES FROM BACKEND ===== */
   useEffect(() => {
     fetch(import.meta.env.VITE_API_URL + '/rates')
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(setRates)
       .catch(() => setRates({}))
   }, [])
 
-  // 🔹 формируем currencyOptions (ТОЧНО КАК У ТЕБЯ БЫЛО)
+  /* ===== CURRENCY OPTIONS (FOR HEADER DROPDOWN) ===== */
   const currencyOptions = useMemo(() => {
     return STATIC_CURRENCIES.map((c) => ({
       ...c,
-      amount: rates[c.id]
-        ? (BASE_BALANCE / rates[c.id]).toFixed(2)
-        : '0.00',
+      rate: rates[c.id] ?? null,
+      amount:
+        rates[c.id] != null
+          ? (BASE_BALANCE / rates[c.id]).toFixed(2)
+          : '—',
     }))
-  }, [rates])
+  }, [rates, BASE_BALANCE])
 
-  // 🔹 поддерживаем selectedCurrency актуальным
+  /* ===== KEEP SELECTED CURRENCY IN SYNC ===== */
   const resolvedSelectedCurrency = useMemo(() => {
     return (
-      currencyOptions.find(c => c.id === selectedCurrency.id) ||
+      currencyOptions.find((c) => c.id === selectedCurrency.id) ||
       currencyOptions[0]
     )
   }, [currencyOptions, selectedCurrency.id])
+
+  /* ===== FORMAT ANY AMOUNT (TON → SELECTED CURRENCY) ===== */
+  const formatAmount = (amount) => {
+    if (!resolvedSelectedCurrency?.rate) return '—'
+    return (Number(amount) / resolvedSelectedCurrency.rate).toFixed(2)
+  }
 
   const value = useMemo(
     () => ({
@@ -60,6 +62,7 @@ export function CurrencyProvider({ children }) {
       setSelectedCurrency,
       hasFreeSpins,
       setHasFreeSpins,
+      formatAmount, // 👈 ВАЖНО
     }),
     [currencyOptions, resolvedSelectedCurrency, hasFreeSpins]
   )

@@ -6,10 +6,21 @@ import BetModal from './BetModal'
 import Header from './Header'
 import { useCurrency } from '../context/CurrencyContext'
 import { useUser } from '../context/UserContext'
+import { getDropById } from '../api/cases'
+import { useEffect } from 'react'
+
+
+
 
 function ProfilePage() {
   const navigate = useNavigate()
-  const { selectedCurrency } = useCurrency()
+  const {
+    currencyOptions,
+    selectedCurrency,
+    setSelectedCurrency,
+    hasFreeSpins,
+    setHasFreeSpins,
+  } = useCurrency()
   const { user } = useUser()
 
   const [isBetModalOpen, setIsBetModalOpen] = useState(false)
@@ -28,16 +39,69 @@ function ProfilePage() {
     refcount,
   } = user
 
+
+  const [inventoryDrops, setInventoryDrops] = useState([])
+  const [loadingInventory, setLoadingInventory] = useState(true)
+  
+  useEffect(() => {
+    if (!inventory?.length) {
+      setInventoryDrops([])
+      setLoadingInventory(false)
+      return
+    }
+  
+    async function loadInventory() {
+      setLoadingInventory(true)
+  
+      try {
+        // 1. получаем уникальные drop_id
+        const uniqueIds = [...new Set(inventory.map(i => i.drop_id))]
+  
+        // 2. загружаем дропы
+        const drops = await Promise.all(
+          uniqueIds.map(id => getDropById(id))
+        )
+  
+        // 3. мапа id → drop
+        const dropMap = Object.fromEntries(
+          drops.map(d => [d.id, d])
+        )
+  
+        // 4. разворачиваем inventory по count
+        const expanded = inventory.flatMap(item =>
+          Array.from({ length: item.count }).map(() => dropMap[item.drop_id])
+        )
+  
+        setInventoryDrops(expanded)
+      } catch (e) {
+        console.error('Failed to load inventory', e)
+        setInventoryDrops([])
+      } finally {
+        setLoadingInventory(false)
+      }
+    }
+  
+    loadInventory()
+  }, [inventory])
+  
+// 👉 только первые 4 подарка для превью
+const inventoryPreview = inventoryDrops.slice(0, 4)
+
   const displayName = firstname || username || 'Guest'
   const avatar =
     url_image ||
     `https://api.dicebear.com/7.x/avataaars/svg?seed=${username || id}`
 
+
+
   /* ===== INVENTORY VIEW (как раньше) ===== */
-  const INVENTORY_SLOTS = 4
-  const inventoryView = Array.from({ length: INVENTORY_SLOTS }).map(
-    (_, i) => inventory?.[i] || null
-  )
+
+
+  const totalInventoryCount = inventory?.reduce(
+    (sum, item) => sum + (item.count || 0),
+    0
+  ) || 0
+  
 
   return (
     <div className="profile-page">
@@ -94,27 +158,43 @@ function ProfilePage() {
       <div className="inventory-section">
         <div className="inventory-header">
           <span className="inventory-title">
-            Инвентарь ({inventory?.length || 0})
+            Инвентарь ({totalInventoryCount})
           </span>
           <button className="sell-all-btn">Продать Все</button>
         </div>
 
         <div className="inventory-items">
           <div className="inventory-gifts">
-            {inventoryView.map((item, index) => (
-              <div key={index} className="inventory-item">
-                <img
-                  src={
-                    item?.icon
-                      ? item.icon
-                      : '/image/mdi_gift (2).svg'
-                  }
-                  alt="gift"
-                  className="inventory-item-icon"
-                />
-              </div>
-            ))}
-          </div>
+  {loadingInventory ? (
+    <span>Загрузка…</span>
+  ) : inventoryPreview.length === 0 ? (
+    <img
+      src="/image/mdi_gift (2).svg"
+      alt="empty"
+      className="inventory-item-icon"
+    />
+  ) : (
+    inventoryPreview.map((item, index) => (
+      <div key={`${item.id}-${index}`} className="inventory-item">
+        {item.icon?.endsWith('.json') ? (
+          <Player
+            autoplay
+            loop
+            src={item.icon}
+            className="inventory-item-lottie"
+          />
+        ) : (
+          <img
+            src={item.icon}
+            alt={item.name}
+            className="inventory-item-icon"
+          />
+        )}
+      </div>
+    ))
+  )}
+</div>
+
 
           <button className="inventory-arrow">
             <span>→</span>
@@ -124,16 +204,17 @@ function ProfilePage() {
 
       {/* ===== WITHDRAW BUTTON ===== */}
       <button
-        className="withdraw-btn gg-btn-glow"
-        onClick={() => setIsBetModalOpen(true)}
-      >
-        Вывести {balance?.toFixed(2)}{' '}
-        <img
-          src={selectedCurrency.icon}
-          alt={selectedCurrency.id}
-          className="diamond-icon"
-        />
-      </button>
+  className="withdraw-btn gg-btn-glow"
+  onClick={() => setIsBetModalOpen(true)}
+>
+Вывести {selectedCurrency.amount}
+  <img
+    src={selectedCurrency.icon}
+    alt={selectedCurrency.id}
+    className="diamond-icon"
+  />
+</button>
+
 
       {/* ===== OPERATIONS (заглушка) ===== */}
       <div className="operations-section">
@@ -145,7 +226,7 @@ function ProfilePage() {
               Пополнений: {user.totalDEP}
             </span>
             <span className="operation-amount">
-              {balance?.toFixed(2)}
+            {selectedCurrency.amount}
               <img
                 src={selectedCurrency.icon}
                 alt={selectedCurrency.id}

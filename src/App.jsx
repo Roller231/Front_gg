@@ -57,6 +57,7 @@ function App() {
 
       // можно сразу подготовить UI
       tg.ready()
+      
       tg.expand()
 
       initUser({
