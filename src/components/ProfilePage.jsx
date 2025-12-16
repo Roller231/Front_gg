@@ -1,13 +1,14 @@
 import './ProfilePage.css'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navigation from './Navigation'
 import BetModal from './BetModal'
+import InventoryModal from './InventoryModal'
 import Header from './Header'
 import { useCurrency } from '../context/CurrencyContext'
 import { useUser } from '../context/UserContext'
+import { useLanguage } from '../context/LanguageContext'
 import { getDropById } from '../api/cases'
-import { useEffect } from 'react'
 
 
 
@@ -22,8 +23,11 @@ function ProfilePage() {
     setHasFreeSpins,
   } = useCurrency()
   const { user } = useUser()
+  const { t, language, changeLanguage, languages, currentLanguage } = useLanguage()
 
   const [isBetModalOpen, setIsBetModalOpen] = useState(false)
+  const [isInventoryModalOpen, setIsInventoryModalOpen] = useState(false)
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false)
 
   if (!user) {
     return <div className="profile-page">Loading...</div>
@@ -87,7 +91,7 @@ function ProfilePage() {
 // 👉 только первые 4 подарка для превью
 const inventoryPreview = inventoryDrops.slice(0, 4)
 
-  const displayName = firstname || username || 'Guest'
+  const displayName = firstname || username || t('common.guest')
   const avatar =
     url_image ||
     `https://api.dicebear.com/7.x/avataaars/svg?seed=${username || id}`
@@ -129,12 +133,33 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
             <span className="rating-value">{refcount}</span>
           </div>
 
-          <div className="info-badge country-badge">
+          <div 
+            className="info-badge country-badge language-selector"
+            onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
+          >
             <img
-              src="/image/twemoji_flag-russia.png"
-              alt="country"
+              src={currentLanguage.flag}
+              alt={currentLanguage.name}
               className="profile-country-flag"
             />
+            {showLanguageDropdown && (
+              <div className="language-dropdown">
+                {languages.map((lang) => (
+                  <div
+                    key={lang.id}
+                    className={`language-option ${language === lang.id ? 'active' : ''}`}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      changeLanguage(lang.id)
+                      setShowLanguageDropdown(false)
+                    }}
+                  >
+                    <img src={lang.flag} alt={lang.name} className="language-flag" />
+                    <span>{lang.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -158,15 +183,15 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
       <div className="inventory-section">
         <div className="inventory-header">
           <span className="inventory-title">
-            Инвентарь ({totalInventoryCount})
+            {t('profile.inventory')} ({totalInventoryCount})
           </span>
-          <button className="sell-all-btn">Продать Все</button>
+          <button className="sell-all-btn">{t('profile.sellAll')}</button>
         </div>
 
         <div className="inventory-items">
           <div className="inventory-gifts">
   {loadingInventory ? (
-    <span>Загрузка…</span>
+    <span>{t('common.loading')}</span>
   ) : inventoryPreview.length === 0 ? (
     <img
       src="/image/mdi_gift (2).svg"
@@ -196,7 +221,7 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
 </div>
 
 
-          <button className="inventory-arrow">
+          <button className="inventory-arrow" onClick={() => setIsInventoryModalOpen(true)}>
             <span>→</span>
           </button>
         </div>
@@ -207,7 +232,7 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
   className="withdraw-btn gg-btn-glow"
   onClick={() => setIsBetModalOpen(true)}
 >
-Вывести {selectedCurrency.amount}
+{t('profile.withdraw')} {selectedCurrency.amount}
   <img
     src={selectedCurrency.icon}
     alt={selectedCurrency.id}
@@ -218,12 +243,12 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
 
       {/* ===== OPERATIONS (заглушка) ===== */}
       <div className="operations-section">
-        <h3 className="operations-title">История Операций</h3>
+        <h3 className="operations-title">{t('profile.operationsHistory')}</h3>
         <div className="operations-list">
           <div className="operation-item">
             <span className="operation-date">—</span>
             <span className="operation-name">
-              Пополнений: {user.totalDEP}
+              {t('profile.deposits')}: {user.totalDEP}
             </span>
             <span className="operation-amount">
             {selectedCurrency.amount}
@@ -241,6 +266,21 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
         isOpen={isBetModalOpen}
         onClose={() => setIsBetModalOpen(false)}
         mode="withdraw"
+      />
+
+      <InventoryModal
+        isOpen={isInventoryModalOpen}
+        onClose={() => setIsInventoryModalOpen(false)}
+        items={inventoryDrops}
+        loading={loadingInventory}
+        onSellItem={(item) => {
+          console.log('Sell item:', item)
+          // TODO: API call to sell item
+        }}
+        onSellAll={() => {
+          console.log('Sell all items')
+          // TODO: API call to sell all
+        }}
       />
 
       <Navigation />

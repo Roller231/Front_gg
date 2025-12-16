@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import './CaseModal.css'
 import './WheelPage.css'
 import { useCurrency } from '../context/CurrencyContext'
+import { useLanguage } from '../context/LanguageContext'
 import DepositModal from './DepositModal'
 import { Player } from '@lottiefiles/react-lottie-player'
 import { getCaseDrops, getDropById } from '../api/cases'
@@ -23,6 +24,7 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
   const [isSpinning, setIsSpinning] = useState(false)
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false)
   const { selectedCurrency, formatAmount } = useCurrency()
+  const { t } = useLanguage()
   const [caseItems, setCaseItems] = useState([])
   const [loadingDrops, setLoadingDrops] = useState(true)
   const { user, setUser } = useUser()
@@ -324,7 +326,7 @@ const canOpenCase = !isPaid || userBalance >= casePrice
         <div className="wheel-result-overlay" onClick={handleResultOk}>
           <div className="wheel-result-modal" onClick={(e) => e.stopPropagation()}>
             <div className="wheel-result-glow"></div>
-            <h2 className="wheel-result-title">Поздравляем!</h2>
+            <h2 className="wheel-result-title">{t('caseModal.congratulations')}</h2>
             <div className="wheel-result-prize">
               <div className="wheel-result-card">
                 <span className="wheel-result-price">
@@ -350,7 +352,7 @@ const canOpenCase = !isPaid || userBalance >= casePrice
               </div>
             </div>
             <button className="wheel-result-close gg-btn-glow" onClick={handleResultOk}>
-              Забрать
+              {t('caseModal.claim')}
             </button>
           </div>
         </div>
@@ -431,7 +433,7 @@ const canOpenCase = !isPaid || userBalance >= casePrice
             {isPaid ? (
               /* Платный кейс */
               <>
-                <div className="case-section-title">ЧТО ВНУТРИ?</div>
+                <div className="case-section-title">{t('caseModal.whatsInside')}</div>
                 <div className="case-items-grid">
                   {caseItems.map((item) => (
                     <div key={item.id} className="case-item-card">
@@ -461,8 +463,8 @@ const canOpenCase = !isPaid || userBalance >= casePrice
 
                 <button className="case-open-button" onClick={handleOpenCase} disabled={!canOpenCase || isSpinning}>
                 {canOpenCase
-    ? 'Открыть'
-    : 'Недостаточно средств'}
+    ? t('caseModal.open')
+    : t('caseModal.notEnoughFunds')}
                 </button>
               </>
             ) : (
@@ -473,15 +475,15 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                     <img src="/image/Vector.png" alt="warning" className="case-info-icon-image" />
                   </div>
                   <p className="case-info-text">
-                    To open this case, you must deposit 3 TON within the last 24 hours
+                    {t('caseModal.depositInfo')}
                   </p>
                 </div>
 
                 <button className="case-deposit-button" onClick={() => setIsDepositModalOpen(true)}>
-                  Deposit funds
+                  {t('caseModal.depositFunds')}
                 </button>
 
-                <div className="case-section-title">WHAT'S INSIDE?</div>
+                <div className="case-section-title">{t('caseModal.whatsInside')}</div>
                 <div className="case-items-grid">
                   {caseItems.map((item) => (
                     <div key={item.id} className="case-item-card">
@@ -510,7 +512,7 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                 </div>
 
                 <button className="case-promo-button">
-                  Activate promo code
+                  {t('caseModal.activatePromo')}
                 </button>
               </>
             )}
@@ -573,7 +575,7 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                 <div className="case-spin-fog case-spin-fog--right"></div>
               </div>
             </div>
-            <div className="case-spin-caption">Ожидаем выпадение...</div>
+            <div className="case-spin-caption">{t('caseModal.waiting')}</div>
           </div>
         ) : null}
       </div>

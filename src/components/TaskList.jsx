@@ -1,7 +1,9 @@
 import './TaskList.css'
 import { useState } from 'react'
+import { useLanguage } from '../context/LanguageContext'
 
 function TaskList() {
+  const { t } = useLanguage()
   const [selectedOption, setSelectedOption] = useState(1)
   const [promoCode, setPromoCode] = useState('')
 
@@ -21,10 +23,10 @@ function TaskList() {
           <span className={`task-check ${selectedOption === 1 ? 'completed' : ''}`}>
             {selectedOption === 1 && '✓'}
           </span>
-          <span className="task-text">Сыграть 10 раз</span>
+          <span className="task-text">{t('tasks.play10Times')}</span>
         </div>
         <button className={`take-btn ${selectedOption === 1 ? 'active' : 'inactive'}`}>
-          Take
+          {t('tasks.take')}
         </button>
       </div>
       
@@ -33,10 +35,10 @@ function TaskList() {
           <span className={`task-check ${selectedOption === 2 ? 'completed' : ''}`}>
             {selectedOption === 2 && '✓'}
           </span>
-          <span className="task-text">Сыграть 10 раз</span>
+          <span className="task-text">{t('tasks.play10Times')}</span>
         </div>
         <button className={`take-btn ${selectedOption === 2 ? 'active' : 'inactive'}`}>
-          Take
+          {t('tasks.take')}
         </button>
       </div>
       
@@ -44,13 +46,13 @@ function TaskList() {
         <div className="promo-input">
           <input
             type="text"
-            placeholder="PROMOCODE"
+            placeholder={t('tasks.promoPlaceholder')}
             value={promoCode}
             onChange={(e) => setPromoCode(e.target.value)}
           />
         </div>
         <button className="apply-btn" onClick={handleApplyPromo}>
-          Apply
+          {t('tasks.apply')}
         </button>
       </div>
     </div>

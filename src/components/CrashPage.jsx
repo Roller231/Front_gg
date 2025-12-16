@@ -4,6 +4,7 @@ import './CrashPage.css'
 import Header from './Header'
 import Navigation from './Navigation'
 import BetModal from './BetModal'
+import { useLanguage } from '../context/LanguageContext'
 
 const MemoHeader = memo(Header)
 const MemoNavigation = memo(Navigation)
@@ -87,6 +88,7 @@ function CrashLine({ multiplier, maxMultiplier }) {
 }
 
 function CrashPage() {
+  const { t } = useLanguage()
   const [gameState, setGameState] = useState('countdown') // 'countdown' | 'preflight' | 'flying' | 'postflight'
   const [countdown, setCountdown] = useState(3)
   const [multiplier, setMultiplier] = useState(1.0)
@@ -340,7 +342,7 @@ function CrashPage() {
             >
               {coefficientHistory.map((item, index) => {
                 const displayValue = item.isPending
-                  ? 'Ожидание...'
+                  ? t('crash.waiting')
                   : item.isLive
                     ? multiplier.toFixed(2)
                     : item.value.toFixed(2)
@@ -361,7 +363,7 @@ function CrashPage() {
 
         {/* Кнопка ставки */}
         <button className="bet-button gg-btn-glow" onClick={() => setIsBetModalOpen(true)}>
-          Сделать ставку
+          {t('crash.placeBet')}
         </button>
 
         {/* Модальное окно ставки */}

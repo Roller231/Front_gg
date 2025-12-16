@@ -15,11 +15,14 @@ import WheelPage from './components/WheelPage'
 import Top20Page from './components/Top20Page'
 
 import { CurrencyProvider } from './context/CurrencyContext'
+import { LanguageProvider, useLanguage } from './context/LanguageContext'
 import { useUser } from './context/UserContext'
 
 /* ================= HOME ================= */
 
 function HomePage() {
+  const { t } = useLanguage()
+  
   return (
     <div className="app home-page">
       <Header />
@@ -29,10 +32,10 @@ function HomePage() {
         <TaskList />
 
         <div className="games-section">
-          <GameCard title="РУЛЕТКА" online={55} />
-          <GameCard title="РУЛЕТКА" online={55} />
-          <GameCard title="PvP" online={597} />
-          <GameCard title="Upgrade" online={597} />
+          <GameCard title={t('home.roulette')} online={55} />
+          <GameCard title={t('home.roulette')} online={55} />
+          <GameCard title={t('home.pvp')} online={597} />
+          <GameCard title={t('home.upgrade')} online={597} />
         </div>
       </main>
 
@@ -85,19 +88,21 @@ function App() {
   }
 
   return (
-    <CurrencyProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/cases" element={<CasesPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/crash" element={<CrashPage />} />
-          <Route path="/partner" element={<PartnerPage />} />
-          <Route path="/wheel" element={<WheelPage />} />
-          <Route path="/top-20" element={<Top20Page />} />
-        </Routes>
-      </BrowserRouter>
-    </CurrencyProvider>
+    <LanguageProvider>
+      <CurrencyProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/cases" element={<CasesPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/crash" element={<CrashPage />} />
+            <Route path="/partner" element={<PartnerPage />} />
+            <Route path="/wheel" element={<WheelPage />} />
+            <Route path="/top-20" element={<Top20Page />} />
+          </Routes>
+        </BrowserRouter>
+      </CurrencyProvider>
+    </LanguageProvider>
   )
 }
 

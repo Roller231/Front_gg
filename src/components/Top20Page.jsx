@@ -3,6 +3,7 @@ import './Top20Page.css'
 import Header from './Header'
 import Navigation from './Navigation'
 import { useCurrency } from '../context/CurrencyContext'
+import { useLanguage } from '../context/LanguageContext'
 
 const currentUser = {
   id: 'me',
@@ -16,6 +17,7 @@ function formatNumber(value) {
 
 function Top20Page() {
   const { selectedCurrency } = useCurrency()
+  const { t } = useLanguage()
 
   const players = useMemo(() => {
     const result = Array.from({ length: 20 }, (_, i) => {
@@ -48,7 +50,7 @@ function Top20Page() {
 
       <main className="main-content top20-content">
         <div className="top20-card">
-          <div className="top20-title">TOP 20</div>
+          <div className="top20-title">{t('top20.title')}</div>
 
           <div className="top20-list">
             {players.map((player) => {
@@ -72,7 +74,7 @@ function Top20Page() {
                   </div>
 
                   <div className="top20-right">
-                    {player.isYou && <span className="top20-you">YOU</span>}
+                    {player.isYou && <span className="top20-you">{t('common.you')}</span>}
                     <div className="top20-score">{formatNumber(player.score)}</div>
                     <img
                       className="top20-currency"

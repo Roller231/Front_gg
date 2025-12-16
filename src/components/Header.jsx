@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import './Header.css'
 import { useCurrency } from '../context/CurrencyContext'
-
+import { useLanguage } from '../context/LanguageContext'
 import { useUser } from '../context/UserContext'
 
 const accountTypes = [
@@ -22,6 +22,7 @@ function Header() {
   const navigate = useNavigate()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const { user } = useUser()
+  const { t } = useLanguage()
 const {
   currencyOptions,
   selectedCurrency,
@@ -154,7 +155,7 @@ const {
       {isModalOpen && (
         <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
           <div className="balance-modal" onClick={(e) => e.stopPropagation()}>
-            <h2 className="modal-title">Баланс</h2>
+            <h2 className="modal-title">{t('header.balance')}</h2>
             
             <div className="account-cards">
               {/* Account Type Card */}
@@ -167,7 +168,7 @@ const {
                 }}
               >
                 <div className="account-label">
-                  Счет • {selectedAccount.name}
+                  {t('header.account')} • {selectedAccount.name}
                   <span className={`account-arrow ${showAccountDropdown ? 'open' : ''}`}>⌄</span>
                 </div>
                 <div className="account-balance">
@@ -236,7 +237,7 @@ const {
             
             <div className="bonus-card">
               <div className="bonus-info">
-                <div className="bonus-label">Бонусный счет</div>
+                <div className="bonus-label">{t('header.bonusAccount')}</div>
                 <div className="bonus-balance">
                   <span className="account-icon">💎</span>
                   <span>1.22</span>
@@ -252,7 +253,7 @@ const {
     {/* Notification */}
       {showNotification && (
         <div className="notification">
-          Бонус активирован!
+          {t('header.bonusActivated')}
         </div>
       )}
     </header>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import Header from './Header'
 import Navigation from './Navigation'
 import { useCurrency } from '../context/CurrencyContext'
+import { useLanguage } from '../context/LanguageContext'
 import './PartnerPage.css'
 
 // Моковые данные для приглашенных друзей
@@ -17,6 +18,7 @@ const mockFriends = [
 function PartnerPage() {
   const navigate = useNavigate()
   const { selectedCurrency } = useCurrency()
+  const { t } = useLanguage()
   const [promoCode, setPromoCode] = useState('')
   const [savedPromoCode, setSavedPromoCode] = useState('')
   const [isCreatingPromo, setIsCreatingPromo] = useState(false)
@@ -51,7 +53,7 @@ function PartnerPage() {
 
   const handleInvite = () => {
     // Открыть Telegram для отправки приглашения
-    const shareText = 'Присоединяйся к GGCat и зарабатывай TON!'
+    const shareText = t('partner.shareText')
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`
     window.open(shareUrl, '_blank')
   }
@@ -132,17 +134,17 @@ function PartnerPage() {
       <Header />
       
       <main className="partner-content">
-        <h1 className="partner-title">Партнерская программа</h1>
+        <h1 className="partner-title">{t('partner.title')}</h1>
 
         {/* Invite Section */}
         <div className="invite-section">
           <button className="invite-btn" onClick={handleInvite}>
-            Пригласить
+            {t('partner.invite')}
           </button>
           <button 
             className={`copy-btn ${copied ? 'copied' : ''}`} 
             onClick={handleCopyLink}
-            title="Скопировать ссылку"
+            title={t('partner.copyLink')}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" strokeWidth="2"/>
@@ -152,17 +154,17 @@ function PartnerPage() {
         </div>
 
         <p className="partner-description">
-          Если вы хотите стать партнером и зарабатывать TON, ознакомьтесь с условиями
+          {t('partner.description')}
         </p>
 
         {/* Create Promo Code Section */}
         <div className="promo-section">
-          <h2 className="promo-title">Создать промокод</h2>
+          <h2 className="promo-title">{t('partner.createPromo')}</h2>
 
           {!isCreatingPromo ? (
             savedPromoCode ? (
               <div className="promo-input-wrapper">
-                <label className="promo-label">Ваш промокод:</label>
+                <label className="promo-label">{t('partner.yourPromo')}:</label>
                 <div className="promo-input-container">
                   <input
                     type="text"
@@ -170,7 +172,7 @@ function PartnerPage() {
                     value={savedPromoCode}
                     readOnly
                   />
-                  <button className="promo-edit-btn" onClick={handleEditPromo} title="Изменить промокод">
+                  <button className="promo-edit-btn" onClick={handleEditPromo} title={t('partner.createPromo')}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M12 20H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                       <path d="M16.5 3.5C17.3284 2.67157 18.6716 2.67157 19.5 3.5C20.3284 4.32843 20.3284 5.67157 19.5 6.5L7 19L3 20L4 16L16.5 3.5Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
@@ -179,7 +181,7 @@ function PartnerPage() {
                   <button
                     className={`promo-copy-btn ${promoCopied ? 'copied' : ''}`}
                     onClick={handleCopyPromo}
-                    title="Скопировать промокод"
+                    title={t('partner.copyLink')}
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" strokeWidth="2"/>
@@ -190,17 +192,17 @@ function PartnerPage() {
               </div>
             ) : (
               <button className="create-promo-btn" onClick={handleCreatePromo}>
-                Создать промокод
+                {t('partner.createPromo')}
               </button>
             )
           ) : (
             <div className="promo-input-wrapper">
-              <label className="promo-label">Промокод:</label>
+              <label className="promo-label">{t('partner.promoLabel')}:</label>
               <div className="promo-input-container">
                 <input
                   type="text"
                   className="promo-input"
-                  placeholder="Введите свой промокод"
+                  placeholder={t('partner.enterPromo')}
                   value={promoCode}
                   onChange={(e) => setPromoCode(e.target.value)}
                   autoFocus
@@ -209,13 +211,13 @@ function PartnerPage() {
                   className="promo-confirm-btn"
                   onClick={handleCreatePromo}
                   disabled={!promoCode.trim()}
-                  title="Сохранить"
+                  title={t('common.save')}
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M5 12L10 17L20 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </button>
-                <button className="promo-cancel-btn" onClick={handleCancelPromo} title="Отмена">
+                <button className="promo-cancel-btn" onClick={handleCancelPromo} title={t('common.cancel')}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M6 6L18 18M6 18L18 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
                   </svg>
@@ -228,16 +230,16 @@ function PartnerPage() {
         {/* Invited Friends Section */}
         <div className="friends-section">
           <h2 className="friends-title">
-            Приглашенные друзья
+            {t('partner.invitedFriends')}
             <span className="friends-count">({friends.length})</span>
           </h2>
 
           {friends.length === 0 ? (
             <div className="friends-empty">
               <p className="friends-hint">
-                Друг должен войти в приложение по вашей ссылке, чтобы получить билет
+                {t('partner.friendHint')}
               </p>
-              <p className="friends-empty-text">Пока нет приглашенных друзей</p>
+              <p className="friends-empty-text">{t('partner.noFriends')}</p>
             </div>
           ) : (
             <div className="friends-list">

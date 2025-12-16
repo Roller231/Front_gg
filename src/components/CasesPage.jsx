@@ -7,6 +7,7 @@ import Navigation from './Navigation'
 import CaseModal from './CaseModal'
 
 import { useCurrency } from '../context/CurrencyContext'
+import { useLanguage } from '../context/LanguageContext'
 import { getCases } from '../api/cases'
 import { Player } from '@lottiefiles/react-lottie-player'
 
@@ -21,6 +22,7 @@ import { useWebSocket } from '../hooks/useWebSocket'
 function CasesPage() {
   const navigate = useNavigate()
   const { selectedCurrency, formatAmount } = useCurrency()
+  const { t } = useLanguage()
 
   /* ===== STATE ===== */
   const [cases, setCases] = useState([])
@@ -96,7 +98,7 @@ useEffect(() => {
   }
 
   if (loading) {
-    return <div className="cases-page">Loading cases…</div>
+    return <div className="cases-page">{t('cases.loadingCases')}</div>
   }
 
   return (
@@ -108,7 +110,7 @@ useEffect(() => {
         <div className="live-feed-bar">
           <div className="live-indicator">
             <span className="live-dot"></span>
-            <span className="live-text">Live</span>
+            <span className="live-text">{t('cases.live')}</span>
           </div>
           <div className="live-items-wrapper">
             <div className="live-items-track" style={{ transform: `translateX(${offsetX}px)` }}>
@@ -141,13 +143,13 @@ useEffect(() => {
             className={`cases-tab ${activeTab === 'paid' ? 'active' : ''}`}
             onClick={() => setActiveTab('paid')}
           >
-            Paid
+            {t('cases.paid')}
           </button>
           <button
             className={`cases-tab ${activeTab === 'free' ? 'active' : ''}`}
             onClick={() => setActiveTab('free')}
           >
-            Free
+            {t('cases.free')}
           </button>
         </div>
 
@@ -171,7 +173,7 @@ useEffect(() => {
                 </div>
               ) : (
                 <div className="case-price-badge case-price-badge--free">
-                  FREE
+                  {t('common.free')}
                 </div>
               )}
 

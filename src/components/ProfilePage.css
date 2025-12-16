@@ -108,6 +108,51 @@
   object-fit: contain;
 }
 
+/* Language Selector */
+.language-selector {
+  position: relative;
+  cursor: pointer;
+}
+
+.language-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: #1F0248;
+  border-radius: 12px;
+  padding: 8px;
+  min-width: 140px;
+  z-index: 100;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.language-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+.language-option:hover {
+  background: rgba(139, 92, 246, 0.2);
+}
+
+.language-option.active {
+  background: rgba(139, 92, 246, 0.3);
+}
+
+.language-flag {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
 /* Action Buttons */
 .profile-action-buttons {
   display: flex;
