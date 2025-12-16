@@ -3,6 +3,10 @@ import { useEffect, useRef, useState } from 'react'
 import { Player } from '@lottiefiles/react-lottie-player'
 import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
+import { useUser } from '../context/UserContext'
+import * as usersApi from '../api/users'
+
+
 
 function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll }) {
   const { selectedCurrency } = useCurrency()
@@ -13,6 +17,8 @@ function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll
   const dragStartY = useRef(0)
   const currentTranslateY = useRef(0)
   const isDragging = useRef(false)
+  const { user, setUser } = useUser()
+
 
   useEffect(() => {
     if (isOpen && contentRef.current) {
@@ -21,6 +27,76 @@ function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll
     }
   }, [isOpen])
 
+  const sellItem = async (item) => {
+    if (!user) return
+  
+    const inventory = [...user.inventory]
+    const idx = inventory.findIndex(i => i.drop_id === item.id)
+    if (idx === -1) return
+  
+    inventory[idx] = {
+      ...inventory[idx],
+      count: inventory[idx].count - 1,
+    }
+  
+    if (inventory[idx].count <= 0) {
+      inventory.splice(idx, 1)
+    }
+  
+    const updatedUser = {
+      ...user,
+      balance: Number(user.balance) + Number(item.price || 0),
+      inventory,
+    }
+  
+    setUser(updatedUser)
+  
+    await usersApi.updateUser(user.id, {
+      balance: updatedUser.balance,
+      inventory,
+    })
+  }
+  
+  
+  
+  const sellAllItems = async () => {
+    if (!user || !user.inventory?.length) return
+  
+    // 🧠 мапа дропов по id
+    const itemsById = Object.fromEntries(
+      items.map(item => [item.id, item])
+    )
+  
+    const total = user.inventory.reduce((sum, inv) => {
+      const drop = itemsById[inv.drop_id]
+      if (!drop) return sum
+  
+      return sum + Number(drop.price || 0) * Number(inv.count || 0)
+    }, 0)
+  
+    const nextBalance = Number(user.balance) + total
+  
+    if (!Number.isFinite(nextBalance)) {
+      console.error('Bad balance', { total, user })
+      return
+    }
+  
+    const payload = {
+      balance: nextBalance,
+      inventory: [],
+    }
+  
+    setUser(prev => ({ ...prev, ...payload }))
+  
+    const serverUser = await usersApi.updateUser(user.id, payload)
+    setUser(serverUser)
+  }
+  
+  
+  
+
+  
+  
   const handleDragStart = (e) => {
     isDragging.current = true
     const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY
@@ -89,13 +165,12 @@ function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll
   const handleSellItem = async (item, index) => {
     setSellingId(`${item.id}-${index}`)
     try {
-      if (onSellItem) {
-        await onSellItem(item)
-      }
+      await sellItem(item)
     } finally {
       setSellingId(null)
     }
   }
+  
 
   const handleSellAll = async () => {
     if (onSellAll) {
@@ -103,8 +178,13 @@ function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll
     }
   }
 
-  const totalValue = items?.reduce((sum, item) => sum + (item.price || 0), 0) || 0
-
+  const totalValue = user?.inventory?.reduce((sum, inv) => {
+    const item = items.find(i => i.id === inv.drop_id)
+    if (!item) return sum
+    return sum + Number(item.price || 0) * Number(inv.count || 0)
+  }, 0) || 0
+  
+  
   const getRarityClass = (rarity) => {
     if (!rarity) return ''
     const r = rarity.toLowerCase()
@@ -147,7 +227,7 @@ function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll
         <div className="inventory-modal-actions">
           <button
             className="sell-all-modal-btn"
-            onClick={handleSellAll}
+            onClick={sellAllItems}
             disabled={!items?.length || loading}
           >
             {t('inventory.sellAll')}
@@ -205,14 +285,14 @@ function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll
                     {item.name}
                   </div>
                   <div className="inventory-modal-card-price">
-                    {item.price || 0}
-                    <img src={selectedCurrency?.icon} alt="currency" />
+                  {Number(item.price || 0) * Number(item.count || 1)}
+                  <img src={selectedCurrency?.icon} alt="currency" />
                   </div>
                   <button
                     className="inventory-modal-sell-btn"
                     onClick={() => handleSellItem(item, index)}
                     disabled={sellingId === `${item.id}-${index}`}
-                  >
+                    >
                     {sellingId === `${item.id}-${index}` ? t('inventory.selling') : t('inventory.sell')}
                   </button>
                 </div>
