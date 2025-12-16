@@ -62,9 +62,9 @@ export const translations = {
     // Cases Page
     cases: {
       live: 'Live',
-      paid: 'Paid',
-      free: 'Free',
-      loadingCases: 'Loading cases…',
+      paid: 'Платные',
+      free: 'Бесплатные',
+      loadingCases: 'Загрузка кейсов…',
     },
 
     // Case Modal
@@ -141,6 +141,45 @@ export const translations = {
     // Top 20 Page
     top20: {
       title: 'TOP 20',
+    },
+
+    // Upgrade Page
+    upgrade: {
+      yourItem: 'Ваш предмет',
+      selectItem: 'Выберите предмет',
+      upgradeTarget: 'Цель апгрейда',
+      selectTarget: 'Выберите цель',
+      yourItems: 'Ваши предметы',
+      upgradeTargets: 'Цели для апгрейда',
+      upgrade: 'Прокачать',
+      highChance: 'высокий шанс',
+      mediumChance: 'средний шанс',
+      lowChance: 'низкий шанс',
+      success: 'УСПЕХ!',
+      failed: 'НЕУДАЧА',
+      ok: 'Ок',
+    },
+
+    // PvP Page
+    pvp: {
+      vs: 'VS',
+      victory: 'ПОБЕДА!',
+      defeat: 'ПОРАЖЕНИЕ',
+      draw: 'НИЧЬЯ',
+      attack: 'Атаковать',
+      defend: 'Защищать',
+      head: 'Голова',
+      body: 'Тело',
+      legs: 'Ноги',
+      placeBet: 'Сделать ставку',
+      waiting: 'Ожидание',
+      opponentBet: 'Ставка соперника',
+      yourBet: 'Ваша ставка',
+      nowPlaying: 'Сейчас играют',
+      players: 'игроков',
+      inBattle: 'В бою',
+      autoPickIn: 'Автовыбор через',
+      sec: 'сек',
     },
 
     // Currencies
@@ -309,6 +348,45 @@ export const translations = {
     // Top 20 Page
     top20: {
       title: 'TOP 20',
+    },
+
+    // Upgrade Page
+    upgrade: {
+      yourItem: 'Your Item',
+      selectItem: 'Select item',
+      upgradeTarget: 'Upgrade Target',
+      selectTarget: 'Select target',
+      yourItems: 'Your Items',
+      upgradeTargets: 'Upgrade Targets',
+      upgrade: 'Upgrade',
+      highChance: 'high chance',
+      mediumChance: 'medium chance',
+      lowChance: 'low chance',
+      success: 'SUCCESS!',
+      failed: 'FAILED',
+      ok: 'Ok',
+    },
+
+    // PvP Page
+    pvp: {
+      vs: 'VS',
+      victory: 'VICTORY!',
+      defeat: 'DEFEAT',
+      draw: 'DRAW',
+      attack: 'Attack',
+      defend: 'Defend',
+      head: 'Head',
+      body: 'Body',
+      legs: 'Legs',
+      placeBet: 'Place Bet',
+      waiting: 'Waiting',
+      opponentBet: 'Opponent Bet',
+      yourBet: 'Your Bet',
+      nowPlaying: 'Now Playing',
+      players: 'players',
+      inBattle: 'In Battle',
+      autoPickIn: 'Auto pick in',
+      sec: 'sec',
     },
 
     // Currencies

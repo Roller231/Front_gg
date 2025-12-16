@@ -62,20 +62,32 @@ function Navigation({ activePage = 'home' }) {
       </div>
       <div 
         className={`nav-item ${activePage === 'pvp' ? 'active' : ''}`}
-        onClick={() => navigate('/')}
+        onClick={() => navigate('/pvp')}
       >
-        <div className={`nav-icon-wrapper ${activePage === 'pvp' ? 'icon-active' : ''}`}>
-          <img src="/image/material-symbols_swords-rounded.svg" alt="PvP" className="nav-icon" />
-        </div>
+        {activePage === 'pvp' ? (
+          <div className="nav-icon-wrapper icon-active">
+            <img src="/image/material-symbols_swords-rounded-active.svg" alt="PvP" className="nav-icon" />
+          </div>
+        ) : (
+          <div className="nav-icon-wrapper">
+            <img src="/image/material-symbols_swords-rounded.svg" alt="PvP" className="nav-icon" />
+          </div>
+        )}
         <span className="nav-label">{t('nav.pvp')}</span>
       </div>
       <div 
         className={`nav-item ${activePage === 'upgrade' ? 'active' : ''}`}
-        onClick={() => navigate('/')}
+        onClick={() => navigate('/upgrade')}
       >
-        <div className={`nav-icon-wrapper ${activePage === 'upgrade' ? 'icon-active' : ''}`}>
-          <img src="/image/pajamas_upgrade.svg" alt="Upgrade" className="nav-icon" />
-        </div>
+        {activePage === 'upgrade' ? (
+          <div className="nav-icon-wrapper icon-active">
+            <img src="/image/pajamas_upgrade-active.svg" alt="Upgrade" className="nav-icon" />
+          </div>
+        ) : (
+          <div className="nav-icon-wrapper">
+            <img src="/image/pajamas_upgrade.svg" alt="Upgrade" className="nav-icon" />
+          </div>
+        )}
         <span className="nav-label">{t('nav.upgrade')}</span>
       </div>
     </nav>

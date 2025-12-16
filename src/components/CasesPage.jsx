@@ -33,21 +33,7 @@ function CasesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [liveDrops, setLiveDrops] = useState([])
 
-  const [offsetX, setOffsetX] = useState(0)
-const SPEED = 0.3 // px за тик (настройка скорости)
-
-
-useEffect(() => {
-  let rafId
-
-  const tick = () => {
-    setOffsetX(prev => prev - SPEED)
-    rafId = requestAnimationFrame(tick)
-  }
-
-  rafId = requestAnimationFrame(tick)
-  return () => cancelAnimationFrame(rafId)
-}, [])
+  // Убрали offsetX - используем CSS анимацию для плавности
 
   /* ===== LOAD CASES ===== */
   useEffect(() => {
@@ -64,8 +50,8 @@ useEffect(() => {
     onMessage: (msg) => {
       if (msg.event !== 'drop') return
   
+      // Добавляем новый элемент в начало массива (появляется справа)
       setLiveDrops(prev => [
-        ...prev,
         {
           id: `${msg.data.id}-${Date.now()}`,
           name: msg.data.name,
@@ -73,7 +59,8 @@ useEffect(() => {
           image: msg.data.icon,
           animation: msg.data.icon,
         },
-      ])
+        ...prev,
+      ].slice(0, 50)) // Ограничиваем количество элементов
       
     },
   })
@@ -113,9 +100,9 @@ useEffect(() => {
             <span className="live-text">{t('cases.live')}</span>
           </div>
           <div className="live-items-wrapper">
-            <div className="live-items-track" style={{ transform: `translateX(${offsetX}px)` }}>
-              {/* Дублируем для бесконечной прокрутки */}
-              {[...liveDrops, ...liveDrops].map((drop, idx) => (
+            <div className="live-items-track">
+              {/* Элементы появляются справа и движутся влево */}
+              {liveDrops.map((drop, idx) => (
                 <div key={`${drop.id}-${idx}`} className="live-item">
                   {drop.type === 'animation' && drop.animation ? (
                     <Player

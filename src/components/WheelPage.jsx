@@ -235,7 +235,7 @@ function WheelPage() {
           </div>
           <div className="live-items-wrapper">
             <div className="live-items-track">
-              {[...liveDrops, ...liveDrops].map((drop, idx) => (
+              {liveDrops.map((drop, idx) => (
                 <div key={`${drop.id}-${idx}`} className="live-item">
                   {drop.type === 'animation' && drop.animation ? (
                     <Player

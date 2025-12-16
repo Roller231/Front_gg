@@ -13,6 +13,8 @@ import CasesPage from './components/CasesPage'
 import PartnerPage from './components/PartnerPage'
 import WheelPage from './components/WheelPage'
 import Top20Page from './components/Top20Page'
+import UpgradePage from './components/UpgradePage'
+import PvPPage from './components/PvPPage'
 
 import { CurrencyProvider } from './context/CurrencyContext'
 import { LanguageProvider, useLanguage } from './context/LanguageContext'
@@ -99,6 +101,8 @@ function App() {
             <Route path="/partner" element={<PartnerPage />} />
             <Route path="/wheel" element={<WheelPage />} />
             <Route path="/top-20" element={<Top20Page />} />
+            <Route path="/upgrade" element={<UpgradePage />} />
+            <Route path="/pvp" element={<PvPPage />} />
           </Routes>
         </BrowserRouter>
       </CurrencyProvider>
