@@ -544,7 +544,9 @@
 .reward-amount.text-green {
   color: #7CFC00;
 }
-
+.reward-amount.text-red {
+  color: #ff4d4f;
+}
 .gift-container {
   width: 44px; /* Reserve space for gift */
   height: 44px;
