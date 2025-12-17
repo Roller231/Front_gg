@@ -1,61 +1,49 @@
-/* Оверлей */
+/* Inventory Modal Overlay */
 .inventory-modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  inset: 0;
+  background: rgba(13, 3, 38, 0.95);
   z-index: 1000;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  animation: inventory-overlay-fade-in 0.3s ease-out;
+  padding: 16px;
+  animation: fadeIn 0.2s ease;
 }
 
-@keyframes inventory-overlay-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-/* Контент модала */
-.inventory-modal-content {
-  width: min(420px, calc(100% - 48px));
-  background: #2E2247;
-  border-radius: 24px 24px 0 0;
-  padding: 12px 20px 32px;
-  animation: inventory-modal-slide-up 0.3s ease-out;
-  touch-action: none;
-  user-select: none;
-  min-height: 300px;
-  max-height: 75vh;
+/* Modal Container */
+.inventory-modal {
+  width: 100%;
+  max-width: 400px;
+  max-height: 85vh;
+  background: #291E42;
+  border-radius: 24px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
 }
 
-@keyframes inventory-modal-slide-up {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-/* Ручка для свайпа */
+/* Handle (как в других модалках) */
 .inventory-modal-handle {
   display: flex;
   justify-content: center;
-  padding: 8px 0 16px;
+  padding: 12px 0 6px;
   cursor: grab;
 }
 
 .inventory-modal-handle:active {
   cursor: grabbing;
+}
+
+.inventory-modal-handle:focus-visible {
+  outline: 2px solid rgba(139, 92, 246, 0.8);
+  outline-offset: 2px;
 }
 
 .inventory-modal-handle-bar {
@@ -65,218 +53,304 @@
   border-radius: 2px;
 }
 
-/* Заголовок */
-.inventory-modal-title {
-  font-family: 'Open Sans', sans-serif;
-  font-size: 20px;
-  font-weight: 700;
-  color: #fff;
-  text-align: center;
-  margin: 0 0 20px;
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Сетка подарков */
-.inventory-modal-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  overflow-y: auto;
-  flex: 1;
-  min-height: 0;
-  padding: 4px 8px 4px 4px;
-}
-
-.inventory-modal-summary {
+/* Modal Header */
+.inventory-modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-top: 14px;
-  padding: 12px 14px;
-  background: rgba(31, 2, 72, 0.6);
-  border: 1px solid rgba(139, 92, 246, 0.25);
-  border-radius: 14px;
+  padding: 10px 20px 20px;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
 }
 
-.inventory-modal-summary-label {
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 14px;
-  font-weight: 600;
+.inventory-modal-title {
+  color: var(--white);
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  width: 100%;
 }
 
-.inventory-modal-summary-value {
+.inventory-modal-title span {
+  color: #A07BFF;
+  font-weight: 500;
+}
+
+.inventory-modal-close {
+  width: 40px;
+  height: 40px;
+  background: #1F0248;
+  border: none;
+  border-radius: 12px;
+  color: #B892FF;
+  font-size: 24px;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: var(--white);
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.inventory-modal-close:hover {
+  background: #4A2E78;
+  color: #fff;
+}
+
+/* Sell All Section */
+.inventory-modal-actions {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+}
+
+.sell-all-modal-btn {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #6B3FD8 0%, #8B5CF6 100%);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.inventory-modal-summary-coin {
-  width: 16px;
-  height: 16px;
+.sell-all-modal-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
 }
 
-/* Стилизованный скроллбар */
-.inventory-modal-grid::-webkit-scrollbar {
+.sell-all-modal-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.total-value {
+  color: #A07BFF;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.total-value span {
+  color: #fff;
+  font-weight: 700;
+}
+
+/* Items Grid Container */
+.inventory-modal-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  scrollbar-width: thin;
+  scrollbar-color: #6B3FD8 #1F0248;
+}
+
+.inventory-modal-content::-webkit-scrollbar {
   width: 6px;
 }
 
-.inventory-modal-grid::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 3px;
-}
-
-.inventory-modal-grid::-webkit-scrollbar-thumb {
-  background: rgba(139, 92, 246, 0.5);
-  border-radius: 3px;
-}
-
-.inventory-modal-grid::-webkit-scrollbar-thumb:hover {
-  background: rgba(139, 92, 246, 0.7);
-}
-
-.inventory-modal-grid {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(139, 92, 246, 0.5) rgba(255, 255, 255, 0.05);
-}
-
-/* Элемент инвентаря */
-.inventory-modal-item {
-  position: relative;
+.inventory-modal-content::-webkit-scrollbar-track {
   background: #1F0248;
-  border: 2px dashed rgba(139, 92, 246, 0.4);
+  border-radius: 3px;
+}
+
+.inventory-modal-content::-webkit-scrollbar-thumb {
+  background: #6B3FD8;
+  border-radius: 3px;
+}
+
+/* Items Grid */
+.inventory-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+/* Empty State */
+.inventory-modal-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #A07BFF;
+}
+
+.inventory-modal-empty-icon {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.inventory-modal-empty-text {
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* Item Card (увеличенная версия) */
+.inventory-modal-card {
+  background: #1F0248;
+  border: 2px solid rgba(139, 92, 246, 0.3);
   border-radius: 16px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.inventory-modal-card:hover {
+  border-color: rgba(139, 92, 246, 0.6);
+  transform: translateY(-2px);
+}
+
+/* Rarity colors */
+.inventory-modal-card.rarity-common {
+  border-color: rgba(156, 163, 175, 0.4);
+}
+
+.inventory-modal-card.rarity-rare {
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.inventory-modal-card.rarity-epic {
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+.inventory-modal-card.rarity-legendary {
+  border-color: rgba(251, 191, 36, 0.5);
+}
+
+.inventory-modal-card-image {
+  width: 100%;
   aspect-ratio: 1 / 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 8px;
+}
+
+.inventory-modal-card-icon {
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
+  filter: brightness(1.1);
+}
+
+.inventory-modal-card-lottie {
+  width: 90%;
+  height: 90%;
+}
+
+.inventory-modal-card-name {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.inventory-modal-card-price {
+  color: #A07BFF;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.inventory-modal-card-price img {
+  width: 12px;
+  height: 12px;
+}
+
+/* Sell Button */
+.inventory-modal-sell-btn {
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(139, 92, 246, 0.2);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  border-radius: 10px;
+  color: #B892FF;
+  font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.inventory-modal-item:hover {
-  border-color: rgba(139, 92, 246, 0.8);
-  transform: scale(1.02);
-}
-
-.inventory-modal-item-price {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 4px 8px;
-  border-radius: 8px;
-}
-
-.inventory-modal-coin-icon {
-  width: 14px;
-  height: 14px;
-}
-
-.inventory-modal-item-icon {
-  width: 60%;
-  height: 60%;
-  object-fit: contain;
-  filter: brightness(1.5);
-}
-
-/* Пустой инвентарь */
-.inventory-modal-empty {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 40px 20px;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 16px;
-}
-
-/* Кнопка продать все */
-.inventory-modal-sell-btn {
-  width: 100%;
-  padding: 16px 24px;
-  border: none;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #2C7DF8 0%, #951BF9 100%);
-  color: #fff;
-  font-family: 'Open Sans', sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  margin-top: 20px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 8px 24px rgba(149, 27, 249, 0.3);
-}
-
 .inventory-modal-sell-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(149, 27, 249, 0.4);
+  background: linear-gradient(135deg, #6B3FD8 0%, #8B5CF6 100%);
+  border-color: transparent;
+  color: #fff;
 }
 
 .inventory-modal-sell-btn:active {
-  transform: translateY(0);
+  transform: scale(0.98);
 }
 
-/* Адаптация для мобильных устройств */
-@media (max-width: 430px) {
-  .inventory-modal-content {
-    width: 100%;
-    margin: 0;
-    border-radius: 24px 24px 0 0;
-    padding: 12px 16px 32px;
-  }
-
-  .inventory-modal-title {
-    font-size: 18px;
-    margin-bottom: 16px;
-  }
-
-  .inventory-modal-grid {
-    gap: 10px;
-  }
+/* Loading State */
+.inventory-modal-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #A07BFF;
+  font-size: 16px;
 }
 
-@media (max-width: 375px) {
-  .inventory-modal-content {
-    padding: 12px 12px 28px;
-  }
-
-  .inventory-modal-title {
-    font-size: 17px;
-  }
-
-  .inventory-modal-grid {
-    gap: 8px;
-  }
-
-  .inventory-modal-item-price {
-    font-size: 10px;
-    padding: 3px 6px;
-  }
+.inventory-modal-loading::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  margin-left: 12px;
+  border: 2px solid #A07BFF;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
-@media (max-width: 320px) {
-  .inventory-modal-content {
-    padding: 10px 8px 24px;
-  }
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 
-  .inventory-modal-title {
-    font-size: 16px;
-    margin-bottom: 12px;
+/* Responsive */
+@media (max-width: 380px) {
+  .inventory-modal {
+    max-height: 90vh;
   }
-
+  
   .inventory-modal-grid {
-    gap: 6px;
+    gap: 12px;
   }
-
-  .inventory-modal-sell-btn {
-    padding: 14px 20px;
-    font-size: 15px;
+  
+  .inventory-modal-card {
+    padding: 10px;
+  }
+  
+  .inventory-modal-card-name {
+    font-size: 12px;
   }
 }

@@ -5,6 +5,7 @@ import Header from './Header'
 import Navigation from './Navigation'
 import { useUser } from '../context/UserContext'
 import { useCurrency } from '../context/CurrencyContext'
+import { useLanguage } from '../context/LanguageContext'
 
 const MemoHeader = memo(Header)
 const MemoNavigation = memo(Navigation)
@@ -29,6 +30,7 @@ const targetGifts = [
 function UpgradePage() {
   const { user } = useUser()
   const { selectedCurrency } = useCurrency()
+  const { t } = useLanguage()
   
   const [sourceItem, setSourceItem] = useState(null)
   const [targetItem, setTargetItem] = useState(null)
@@ -135,15 +137,13 @@ function UpgradePage() {
     ctx.fill()
     ctx.restore()
     
-    // 6. Метка 100% сверху (боковые 50% вынесены в HTML)
-    ctx.save()
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)'
-    ctx.font = 'bold 12px Arial'
+    // 6. Метки процентов
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'
+    ctx.font = '10px Arial'
     ctx.textAlign = 'center'
-    ctx.shadowBlur = 8
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.6)'
-    ctx.fillText('100%', centerX, 12)
-    ctx.restore()
+    ctx.fillText('100%', centerX, 15)
+    ctx.fillText('50%', 12, centerY + 4)
+    ctx.fillText('50%', canvas.width - 12, centerY + 4)
   }, [chance])
 
   // Инициализация canvas
@@ -256,32 +256,6 @@ function UpgradePage() {
     }
   }, [])
 
-  const renderConfetti = () => (
-    <div className="gg-confetti" aria-hidden="true">
-      {Array.from({ length: 28 }).map((_, i) => {
-        const x = (i * 37) % 100
-        const hue = (i * 47) % 360
-        const rot = (i * 61) % 360
-        const d = (i * 13) % 30
-        const delay = (i * 7) % 20
-
-        return (
-          <span
-            key={i}
-            className="gg-confetti-piece"
-            style={{
-              '--x': x,
-              '--hue': hue,
-              '--rot': rot,
-              '--d': d,
-              '--delay': delay,
-            }}
-          />
-        )
-      })}
-    </div>
-  )
-
   const currencyIcon = selectedCurrency?.icon || '/image/Coin-Icon.svg'
 
   return (
@@ -297,7 +271,7 @@ function UpgradePage() {
           <div className="upgrade-main-container">
             {/* Левая коробка - исходный предмет */}
             <div className={`upgrade-box upgrade-box-source ${sourceItem ? 'has-item' : ''} ${gameState === 'lose' ? 'losing' : ''}`}>
-              <div className="upgrade-box-label">Ваш предмет</div>
+              <div className="upgrade-box-label">{t('upgrade.yourItem')}</div>
               <div className="upgrade-box-content">
                 {sourceItem ? (
                   <>
@@ -312,7 +286,7 @@ function UpgradePage() {
                     <div className="upgrade-box-arrow">
                       <img src="/image/mdi_gift.svg" alt="gift" className="upgrade-box-gift-icon" />
                     </div>
-                    <span>Выберите предмет</span>
+                    <span>{t('upgrade.selectItem')}</span>
                   </div>
                 )}
               </div>
@@ -328,25 +302,30 @@ function UpgradePage() {
                   className="upgrade-wheel-canvas"
                 />
                 
-                {/* Боковые проценты */}
-                <span className="upgrade-percent-label upgrade-percent-left">50%</span>
-                <span className="upgrade-percent-label upgrade-percent-right">50%</span>
-                
                 {/* Центр с процентом */}
                 <div className={`upgrade-wheel-center ${gameState}`}>
                   <span className={`upgrade-chance-value ${resultText ? (gameState === 'win' ? 'win' : 'lose') : ''}`}>
                     {resultText || `${chance.toFixed(2)}%`}
                   </span>
                   <span className="upgrade-chance-label">
-                    {chance >= 75 ? 'высокий шанс' : chance >= 40 ? 'средний шанс' : 'низкий шанс'}
+                    {chance >= 75 ? t('upgrade.highChance') : chance >= 40 ? t('upgrade.mediumChance') : t('upgrade.lowChance')}
                   </span>
                 </div>
               </div>
+              
+              {/* Кнопка апгрейда */}
+              <button 
+                className={`bet-button gg-btn-glow ${gameState !== 'idle' ? 'disabled' : ''} ${(!sourceItem || !targetItem) ? 'inactive' : ''}`}
+                onClick={handleUpgrade}
+                disabled={gameState !== 'idle' || !sourceItem || !targetItem}
+              >
+                {t('upgrade.upgrade')}
+              </button>
             </div>
 
             {/* Правая коробка - целевой предмет */}
             <div className={`upgrade-box upgrade-box-target ${targetItem ? 'has-item' : ''} ${gameState === 'win' ? 'winning' : ''}`}>
-              <div className="upgrade-box-label">Цель апгрейда</div>
+              <div className="upgrade-box-label">{t('upgrade.upgradeTarget')}</div>
               <div className="upgrade-box-content">
                 {targetItem ? (
                   <>
@@ -361,52 +340,35 @@ function UpgradePage() {
                     <div className="upgrade-box-arrow">
                       <img src="/image/mdi_gift.svg" alt="gift" className="upgrade-box-gift-icon" />
                     </div>
-                    <span>Выберите цель</span>
+                    <span>{t('upgrade.selectTarget')}</span>
                   </div>
                 )}
               </div>
             </div>
           </div>
           
-          {/* Кнопка апгрейда - на всю ширину */}
-          <button 
-            className={`bet-button gg-btn-glow upgrade-full-btn ${gameState !== 'idle' ? 'disabled' : ''} ${(!sourceItem || !targetItem) ? 'inactive' : ''}`}
-            onClick={handleUpgrade}
-            disabled={gameState !== 'idle' || !sourceItem || !targetItem}
-          >
-            Прокачать
-          </button>
-          
           {(gameState === 'win' || gameState === 'lose') && (
             <div className={`wheel-result-overlay ${gameState === 'lose' ? 'wheel-result-overlay--lose' : ''}`} onClick={closeResultModal}>
               <div className={`wheel-result-modal ${gameState === 'lose' ? 'wheel-result-modal--lose' : ''}`} onClick={(e) => e.stopPropagation()}>
-                {gameState === 'win' ? renderConfetti() : null}
                 <div className="wheel-result-glow"></div>
-                <h2 className="wheel-result-title">{gameState === 'win' ? 'УСПЕХ!' : 'НЕУДАЧА'}</h2>
-                <div className="wheel-result-subtitle">
-                  {gameState === 'win'
-                    ? 'Поздравляем, Вы выиграли подарок'
-                    : 'Сделайте еще попытку. Вам обязательно повезет в следующий раз.'}
-                </div>
-                {gameState === 'win' && (
-                  <div className="wheel-result-prize">
-                    <div className="wheel-result-card">
-                      <span className="wheel-result-price">
-                        <img src={currencyIcon} alt="currency" className="wheel-result-coin" />
-                        {targetItem?.price ?? 0}
-                      </span>
-                      <div className="wheel-result-prize-content">
-                        <img
-                          src={targetItem?.image || '/image/case_card1.png'}
-                          alt="prize"
-                          className="wheel-result-image"
-                        />
-                      </div>
+                <h2 className="wheel-result-title">{gameState === 'win' ? t('upgrade.success') : t('upgrade.failed')}</h2>
+                <div className="wheel-result-prize">
+                  <div className="wheel-result-card">
+                    <span className="wheel-result-price">
+                      <img src={currencyIcon} alt="currency" className="wheel-result-coin" />
+                      {(gameState === 'win' ? targetItem?.price : sourceItem?.price) ?? 0}
+                    </span>
+                    <div className="wheel-result-prize-content">
+                      <img
+                        src={(gameState === 'win' ? targetItem?.image : sourceItem?.image) || '/image/case_card1.png'}
+                        alt="prize"
+                        className="wheel-result-image"
+                      />
                     </div>
                   </div>
-                )}
+                </div>
                 <button className="wheel-result-close gg-btn-glow" onClick={closeResultModal}>
-                  Ок
+                  {t('upgrade.ok')}
                 </button>
               </div>
             </div>
@@ -415,7 +377,7 @@ function UpgradePage() {
 
         {/* Выбор предметов - Ваши предметы */}
         <div className="upgrade-selection-section">
-          <h3 className="upgrade-section-title">Ваши предметы</h3>
+          <h3 className="upgrade-section-title">{t('upgrade.yourItems')}</h3>
           <div className="upgrade-gifts-grid">
             {gifts.map((gift) => (
               <div 
@@ -435,7 +397,7 @@ function UpgradePage() {
 
         {/* Выбор целевых предметов */}
         <div className="upgrade-selection-section">
-          <h3 className="upgrade-section-title">Цели для апгрейда</h3>
+          <h3 className="upgrade-section-title">{t('upgrade.upgradeTargets')}</h3>
           <div className="upgrade-gifts-grid">
             {targetGifts.map((gift) => (
               <div 

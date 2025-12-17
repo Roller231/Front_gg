@@ -1,12 +1,27 @@
 import { useState, useEffect, useRef } from 'react'
 import { useCurrency } from '../context/CurrencyContext'
+import { useLanguage } from '../context/LanguageContext'
 import './WheelPage.css'
 import Header from './Header'
 import Navigation from './Navigation'
 import { Player } from '@lottiefiles/react-lottie-player'
 import BetModal from './BetModal'
-import { liveDrops } from '../data/liveDrops'
 
+// Mock data for live drops (same as CasesPage)
+const liveDrops = [
+  { id: 'drop-1', type: 'image', image: '/image/case_card1.png', name: 'Gift 1' },
+  { id: 'drop-2', type: 'image', image: '/image/case_card2.png', name: 'Gift 2' },
+  { id: 'drop-3', type: 'image', image: '/image/case_card3.png', name: 'Gift 3' },
+  { id: 'drop-4', type: 'image', image: '/image/case_card4.png', name: 'Gift 4' },
+  { id: 'drop-5', type: 'image', image: '/image/case_card1.png', name: 'Gift 1' },
+  { id: 'drop-6', type: 'image', image: '/image/case_card2.png', name: 'Gift 2' },
+  { id: 'drop-7', type: 'image', image: '/image/case_card3.png', name: 'Gift 3' },
+  { id: 'drop-8', type: 'image', image: '/image/case_card4.png', name: 'Gift 4' },
+  { id: 'drop-9', type: 'animation', animation: '/animation/sticker.json', name: 'Sticker' },
+  { id: 'drop-10', type: 'image', image: '/image/case_card2.png', name: 'Gift 2' },
+  { id: 'drop-11', type: 'image', image: '/image/case_card3.png', name: 'Gift 3' },
+  { id: 'drop-12', type: 'image', image: '/image/case_card4.png', name: 'Gift 4' },
+]
 
 // Wheel prizes - 10 segments with case card images and one Lottie animation
 const wheelPrizes = [
@@ -26,6 +41,7 @@ const NUM_LIGHTS = 32 // Number of lights around the wheel
 
 function WheelPage() {
   const { selectedCurrency, hasFreeSpins } = useCurrency()
+  const { t } = useLanguage()
   const [rotation, setRotation] = useState(0)
   const [isSpinning, setIsSpinning] = useState(false)
   const [showResult, setShowResult] = useState(false)
@@ -215,11 +231,11 @@ function WheelPage() {
         <div className="live-feed-bar">
           <div className="live-indicator">
             <span className="live-dot"></span>
-            <span className="live-text">Live</span>
+            <span className="live-text">{t('cases.live')}</span>
           </div>
           <div className="live-items-wrapper">
             <div className="live-items-track">
-              {[...liveDrops, ...liveDrops].map((drop, idx) => (
+              {liveDrops.map((drop, idx) => (
                 <div key={`${drop.id}-${idx}`} className="live-item">
                   {drop.type === 'animation' && drop.animation ? (
                     <Player
@@ -402,18 +418,18 @@ function WheelPage() {
 
           {/* Buttons */}
           <div className="wheel-buttons-container">
-            <div className="wheel-bet-hint">Выше ставка - больше ценность лута</div>
+            <div className="wheel-bet-hint">{t('wheel.betHint')}</div>
             <button 
               className={`wheel-spin-btn gg-btn-glow ${isSpinning ? 'wheel-spin-btn--disabled' : ''}`}
               onClick={hasFreeSpins ? handleSpin : handleOpenDeposit}
               disabled={isSpinning}
             >
               <span className="wheel-spin-btn-text">
-                {hasFreeSpins ? 'Крутить' : 'Пополнить баланс'}
+                {hasFreeSpins ? t('wheel.spin') : t('wheel.topUpBalance')}
               </span>
             </button>
             <button className="wheel-prizes-btn" onClick={handleOpenPrizes}>
-              Список призов
+              {t('wheel.prizesList')}
             </button>
           </div>
         </div>
@@ -423,7 +439,7 @@ function WheelPage() {
           <div className="wheel-result-overlay" onClick={closeResult}>
             <div className="wheel-result-modal" onClick={e => e.stopPropagation()}>
               <div className="wheel-result-glow"></div>
-              <h2 className="wheel-result-title">Поздравляем!</h2>
+              <h2 className="wheel-result-title">{t('wheel.congratulations')}</h2>
               <div className="wheel-result-prize">
                 <div className="wheel-result-card">
                   <span className="wheel-result-price">
@@ -445,7 +461,7 @@ function WheelPage() {
                 </div>
               </div>
               <button className="wheel-result-close gg-btn-glow" onClick={closeResult}>
-                Забрать
+                {t('wheel.claim')}
               </button>
             </div>
           </div>
@@ -470,7 +486,7 @@ function WheelPage() {
                 <div className="prizes-modal-handle">
                   <div className="prizes-modal-handle-bar"></div>
                 </div>
-                <h2 className="prizes-modal-title">Список призов</h2>
+                <h2 className="prizes-modal-title">{t('wheel.prizesList')}</h2>
               </div>
               <div className="prizes-modal-body">
                 <div className="prizes-grid">

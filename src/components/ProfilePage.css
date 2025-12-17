@@ -13,101 +13,7 @@
   padding: 10px 0;
   background: transparent;
   border: none;
-  margin-bottom: 12px;
-}
-
-/* Level Progress Bar */
-.level-progress-section {
-  margin: 0 -16px 16px -16px;
-  padding: 0 16px;
-}
-
-.level-progress-container {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-}
-
-.level-badge {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-weight: 700;
-  font-size: 16px;
-}
-
-.level-current {
-  background: linear-gradient(135deg, #6B3FD8 0%, #8B5CF6 100%);
-  color: var(--white);
-  box-shadow: 0 4px 15px rgba(107, 63, 216, 0.4);
-}
-
-.level-next {
-  background: #1F0248;
-  color: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(139, 92, 246, 0.3);
-}
-
-.level-number {
-  line-height: 1;
-}
-
-.level-progress-bar {
-  flex: 1;
-  height: 12px;
-  background: #1F0248;
-  border-radius: 999px;
-  overflow: hidden;
-  position: relative;
-}
-
-.level-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #6B3FD8 0%, #8B5CF6 50%, #A07BFF 100%);
-  border-radius: 999px;
-  transition: width 0.5s ease;
-  position: relative;
-}
-
-.level-progress-fill::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.2) 50%,
-    transparent 100%
-  );
-  animation: level-shine 2s ease-in-out infinite;
-}
-
-@keyframes level-shine {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-.level-progress-info {
-  text-align: center;
-  margin-top: 8px;
-}
-
-.level-xp-text {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 12px;
-  font-weight: 500;
+  margin-bottom: 16px;
 }
 
 .profile-avatar-container {
@@ -159,11 +65,12 @@
 
 .rating-badge {
   gap: 2px;
+  cursor: pointer;
+
+  /* 👇 важно */
+  padding: 8px;
 }
 
- .rating-badge {
-  cursor: pointer;
- }
 
  .rating-badge:hover {
   transform: translateY(-1px);
@@ -181,9 +88,21 @@
 
 .rating-value {
   color: var(--white);
-  font-size: 13px;
   font-weight: 700;
+
+  /* 🔥 адаптивный размер */
+  font-size: clamp(10px, 2.6vw, 13px);
+
+  line-height: 1;
+  max-width: 100%;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  text-align: center;
 }
+
 
 .country-badge {
   font-size: 24px;
@@ -199,6 +118,51 @@
 .profile-country-flag {
   width: 24px;
   height: 24px;
+  object-fit: contain;
+}
+
+/* Language Selector */
+.language-selector {
+  position: relative;
+  cursor: pointer;
+}
+
+.language-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: #1F0248;
+  border-radius: 12px;
+  padding: 8px;
+  min-width: 140px;
+  z-index: 100;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.language-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+.language-option:hover {
+  background: rgba(139, 92, 246, 0.2);
+}
+
+.language-option.active {
+  background: rgba(139, 92, 246, 0.3);
+}
+
+.language-flag {
+  width: 20px;
+  height: 20px;
   object-fit: contain;
 }
 
@@ -317,48 +281,34 @@
 }
 
 .inventory-gifts {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
   gap: 10px;
-  align-items: center;
+  width: 100%;
 }
 
+
 .inventory-item {
-  width: 70px;
-  height: 70px;
+  width: 100%;
+  aspect-ratio: 1 / 1; /* 🔥 всегда квадрат */
   background: rgba(31, 2, 72, 1);
   border: 2px dashed rgba(139, 92, 246, 0.4);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
+  overflow: hidden;
 }
 
-.inventory-item-price {
-  position: absolute;
-  top: 6px;
-  left: 6px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--white);
-  background: rgba(0, 0, 0, 0.25);
-  padding: 2px 6px;
-  border-radius: 8px;
-}
-
-.inventory-item-coin-icon {
-  width: 12px;
-  height: 12px;
-}
 
 .inventory-item-icon {
-  font-size: 28px;
-  opacity: 0.8;
-  filter: brightness(1.5);
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+  opacity: 0.9;
+  filter: brightness(1.2);
 }
+
 
 .inventory-arrow {
   width: 70px;
@@ -381,9 +331,9 @@
 
 /* Responsive inventory for small screens */
 
-/* До 426px: 3 коробки */
+/* До 426px: 4 коробки */
 @media (max-width: 426px) {
-  .inventory-gifts .inventory-item:nth-child(n+4) {
+  .inventory-gifts .inventory-item:nth-child(n+5) {
     display: none;
   }
   

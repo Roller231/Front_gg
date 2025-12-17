@@ -1,5 +1,5 @@
 import './ProfilePage.css'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navigation from './Navigation'
 import BetModal from './BetModal'
@@ -7,14 +7,32 @@ import InventoryModal from './InventoryModal'
 import Header from './Header'
 import { useCurrency } from '../context/CurrencyContext'
 import { useUser } from '../context/UserContext'
+import { useLanguage } from '../context/LanguageContext'
+import { getDropById } from '../api/cases'
+import * as usersApi from '../api/users'
+
+
+
 
 function ProfilePage() {
   const navigate = useNavigate()
-  const { selectedCurrency } = useCurrency()
+  const { 
+    currencyOptions,
+    selectedCurrency,
+    setSelectedCurrency,
+    hasFreeSpins,
+    setHasFreeSpins,
+    formatAmount, // 👈 ДОБАВЬ
+  } = useCurrency()
+  
+  const [top1Balance, setTop1Balance] = useState(0)
+  
   const { user } = useUser()
+  const { t, language, changeLanguage, languages, currentLanguage } = useLanguage()
 
   const [isBetModalOpen, setIsBetModalOpen] = useState(false)
   const [isInventoryModalOpen, setIsInventoryModalOpen] = useState(false)
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false)
 
   if (!user) {
     return <div className="profile-page">Loading...</div>
@@ -30,27 +48,94 @@ function ProfilePage() {
     refcount,
   } = user
 
-  const displayName = firstname || username || 'Guest'
+
+  const [inventoryDrops, setInventoryDrops] = useState([])
+  const [loadingInventory, setLoadingInventory] = useState(true)
+  
+  useEffect(() => {
+    let mounted = true
+  
+    async function loadTop1Balance() {
+      try {
+        const res = await usersApi.getUsers()
+        const users = Array.isArray(res) ? res : (res?.users ?? [])
+  
+        if (!users.length) return
+  
+        const maxBalance = Math.max(
+          ...users.map(u => Number(u.balance) || 0)
+        )
+  
+        if (mounted) setTop1Balance(maxBalance)
+      } catch (e) {
+        console.error('Failed to load top1 balance', e)
+      }
+    }
+  
+    loadTop1Balance()
+    return () => (mounted = false)
+  }, [])
+  
+
+  useEffect(() => {
+    if (!inventory?.length) {
+      setInventoryDrops([])
+      setLoadingInventory(false)
+      return
+    }
+  
+    async function loadInventory() {
+      setLoadingInventory(true)
+  
+      try {
+        // 1. получаем уникальные drop_id
+        const uniqueIds = [...new Set(inventory.map(i => i.drop_id))]
+  
+        // 2. загружаем дропы
+        const drops = await Promise.all(
+          uniqueIds.map(id => getDropById(id))
+        )
+  
+        // 3. мапа id → drop
+        const dropMap = Object.fromEntries(
+          drops.map(d => [d.id, d])
+        )
+  
+        // 4. разворачиваем inventory по count
+        const expanded = inventory.flatMap(item =>
+          Array.from({ length: item.count }).map(() => dropMap[item.drop_id])
+        )
+  
+        setInventoryDrops(expanded)
+      } catch (e) {
+        console.error('Failed to load inventory', e)
+        setInventoryDrops([])
+      } finally {
+        setLoadingInventory(false)
+      }
+    }
+  
+    loadInventory()
+  }, [inventory])
+  
+// 👉 только первые 4 подарка для превью
+const inventoryPreview = inventoryDrops.slice(0, 4)
+
+  const displayName = firstname || username || t('common.guest')
   const avatar =
     url_image ||
     `https://api.dicebear.com/7.x/avataaars/svg?seed=${username || id}`
 
-  /* ===== INVENTORY VIEW (только 3 последних подарка) ===== */
-  const INVENTORY_SLOTS = 3
-  const inventoryList = Array.isArray(inventory) ? inventory.slice().reverse() : []
-  const inventoryView = Array.from({ length: INVENTORY_SLOTS }).map(
-    (_, i) => inventoryList[i] || null
-  )
 
-  const getItemPriceLabel = (item) => {
-    const raw = item?.price ?? item?.cost ?? item?.value ?? item?.amount
-    const num = typeof raw === 'number' ? raw : Number(raw)
-    if (Number.isFinite(num)) return num.toFixed(2)
-    return '0.00'
-  }
 
-  const getItemImageSrc = (item) =>
-    item?.icon || item?.image || item?.url || item?.url_image || '/image/mdi_gift (2).svg'
+  /* ===== INVENTORY VIEW (как раньше) ===== */
+
+
+  const totalInventoryCount = inventory?.reduce(
+    (sum, item) => sum + (item.count || 0),
+    0
+  ) || 0
+  
 
   return (
     <div className="profile-page">
@@ -75,39 +160,39 @@ function ProfilePage() {
             onClick={() => navigate('/top-20')}
           >
             <span className="rating-icon">👑</span>
-            <span className="rating-value">{refcount}</span>
+            <span className="rating-value">
+  {formatAmount(top1Balance)}
+</span>
           </div>
 
-          <div className="info-badge country-badge">
+          <div 
+            className="info-badge country-badge language-selector"
+            onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
+          >
             <img
-              src="/image/twemoji_flag-russia.png"
-              alt="country"
+              src={currentLanguage.flag}
+              alt={currentLanguage.name}
               className="profile-country-flag"
             />
+            {showLanguageDropdown && (
+              <div className="language-dropdown">
+                {languages.map((lang) => (
+                  <div
+                    key={lang.id}
+                    className={`language-option ${language === lang.id ? 'active' : ''}`}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      changeLanguage(lang.id)
+                      setShowLanguageDropdown(false)
+                    }}
+                  >
+                    <img src={lang.flag} alt={lang.name} className="language-flag" />
+                    <span>{lang.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        </div>
-      </div>
-
-      {/* ===== LEVEL PROGRESS BAR ===== */}
-      <div className="level-progress-section">
-        <div className="level-progress-container">
-          <div className="level-badge level-current">
-            <span className="level-number">{user.level || 1}</span>
-          </div>
-          <div className="level-progress-bar">
-            <div 
-              className="level-progress-fill" 
-              style={{ width: `${user.levelProgress || 35}%` }}
-            />
-          </div>
-          <div className="level-badge level-next">
-            <span className="level-number">{(user.level || 1) + 1}</span>
-          </div>
-        </div>
-        <div className="level-progress-info">
-          <span className="level-xp-text">
-            {user.currentXP || 350} / {user.nextLevelXP || 1000} XP
-          </span>
         </div>
       </div>
 
@@ -130,40 +215,45 @@ function ProfilePage() {
       <div className="inventory-section">
         <div className="inventory-header">
           <span className="inventory-title">
-            Инвентарь ({inventory?.length || 0})
+            {t('profile.inventory')} ({totalInventoryCount})
           </span>
-          <button className="sell-all-btn">Продать Все</button>
+          <button className="sell-all-btn">{t('profile.sellAll')}</button>
         </div>
 
         <div className="inventory-items">
           <div className="inventory-gifts">
-            {inventoryView.map((item, index) => (
-              <div key={index} className="inventory-item">
-                {item && (
-                  <div className="inventory-item-price">
-                    <img
-                      src={selectedCurrency?.icon || '/image/Coin-Icon.svg'}
-                      alt={selectedCurrency?.id || 'currency'}
-                      className="inventory-item-coin-icon"
-                    />
-                    <span>{getItemPriceLabel(item)}</span>
-                  </div>
-                )}
-                <img
-                  src={
-                    getItemImageSrc(item)
-                  }
-                  alt="gift"
-                  className="inventory-item-icon"
-                />
-              </div>
-            ))}
-          </div>
+  {loadingInventory ? (
+    <span>{t('common.loading')}</span>
+  ) : inventoryPreview.length === 0 ? (
+    <img
+      src="/image/mdi_gift (2).svg"
+      alt="empty"
+      className="inventory-item-icon"
+    />
+  ) : (
+    inventoryPreview.map((item, index) => (
+      <div key={`${item.id}-${index}`} className="inventory-item">
+        {item.icon?.endsWith('.json') ? (
+          <Player
+            autoplay
+            loop
+            src={item.icon}
+            className="inventory-item-lottie"
+          />
+        ) : (
+          <img
+            src={item.icon}
+            alt={item.name}
+            className="inventory-item-icon"
+          />
+        )}
+      </div>
+    ))
+  )}
+</div>
 
-          <button 
-            className="inventory-arrow"
-            onClick={() => setIsInventoryModalOpen(true)}
-          >
+
+          <button className="inventory-arrow" onClick={() => setIsInventoryModalOpen(true)}>
             <span>→</span>
           </button>
         </div>
@@ -171,28 +261,29 @@ function ProfilePage() {
 
       {/* ===== WITHDRAW BUTTON ===== */}
       <button
-        className="withdraw-btn gg-btn-glow"
-        onClick={() => setIsBetModalOpen(true)}
-      >
-        Вывести {balance?.toFixed(2)}{' '}
-        <img
-          src={selectedCurrency.icon}
-          alt={selectedCurrency.id}
-          className="diamond-icon"
-        />
-      </button>
+  className="withdraw-btn gg-btn-glow"
+  onClick={() => setIsBetModalOpen(true)}
+>
+{t('profile.withdraw')} {selectedCurrency.amount}
+  <img
+    src={selectedCurrency.icon}
+    alt={selectedCurrency.id}
+    className="diamond-icon"
+  />
+</button>
+
 
       {/* ===== OPERATIONS (заглушка) ===== */}
       <div className="operations-section">
-        <h3 className="operations-title">История Операций</h3>
+        <h3 className="operations-title">{t('profile.operationsHistory')}</h3>
         <div className="operations-list">
           <div className="operation-item">
             <span className="operation-date">—</span>
             <span className="operation-name">
-              Пополнений: {user.totalDEP}
+              {t('profile.deposits')}: {user.totalDEP}
             </span>
             <span className="operation-amount">
-              {balance?.toFixed(2)}
+            {selectedCurrency.amount}
               <img
                 src={selectedCurrency.icon}
                 alt={selectedCurrency.id}
@@ -212,7 +303,16 @@ function ProfilePage() {
       <InventoryModal
         isOpen={isInventoryModalOpen}
         onClose={() => setIsInventoryModalOpen(false)}
-        inventory={inventoryList}
+        items={inventoryDrops}
+        loading={loadingInventory}
+        onSellItem={(item) => {
+          console.log('Sell item:', item)
+          // TODO: API call to sell item
+        }}
+        onSellAll={() => {
+          console.log('Sell all items')
+          // TODO: API call to sell all
+        }}
       />
 
       <Navigation />

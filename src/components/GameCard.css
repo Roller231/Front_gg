@@ -1,549 +1,59 @@
 .game-card {
   background-color: var(--dark-bg);
   border-radius: 16px;
-  padding: 0;
-  min-height: 165px;
+  padding: 16px;
+  min-height: 140px;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.game-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(149, 27, 249, 0.3);
-}
-
-/* === Cosmic Backgrounds === */
-.game-card--cases {
-  background: linear-gradient(135deg, #1a0a2e 0%, #16082a 50%, #0d0619 100%);
-  border: 1px solid rgba(139, 92, 246, 0.3);
-}
-
-.game-card--roulette {
-  background: 
-    radial-gradient(ellipse at 30% 20%, rgba(88, 28, 135, 0.6) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 80%, rgba(59, 7, 100, 0.5) 0%, transparent 50%),
-    linear-gradient(135deg, #1a0a2e 0%, #0f0420 100%);
-  border: 1px solid rgba(139, 92, 246, 0.3);
-}
-
-.game-card--pvp {
-  background: 
-    radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 50%, rgba(239, 68, 68, 0.3) 0%, transparent 50%),
-    linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-  border: 1px solid rgba(139, 92, 246, 0.3);
-}
-
-.game-card--upgrade {
-  background: linear-gradient(135deg, #1a0a2e 0%, #16082a 50%, #0d0619 100%);
-  border: 1px solid rgba(139, 92, 246, 0.3);
-}
-
-/* Stars effect */
-.game-card--cases::before,
-.game-card--roulette::before,
-.game-card--pvp::before,
-.game-card--upgrade::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    radial-gradient(1px 1px at 20px 30px, white, transparent),
-    radial-gradient(1px 1px at 40px 70px, rgba(255,255,255,0.8), transparent),
-    radial-gradient(1px 1px at 50px 120px, rgba(255,255,255,0.6), transparent),
-    radial-gradient(1px 1px at 90px 40px, white, transparent),
-    radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.7), transparent),
-    radial-gradient(1px 1px at 160px 20px, white, transparent);
-  pointer-events: none;
-  z-index: 0;
 }
 
 .game-header {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
-  padding: 6px 12px;
-  border-radius: 20px;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 16px;
+  border-radius: 16px 0 32px 0;
   align-self: flex-start;
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  z-index: 10;
+  margin-left: -16px;
+  margin-top: -16px;
+  width: 140px;
+  height: 36px;
 }
 
 .online-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   background-color: #76DA19;
   border-radius: 50%;
-  box-shadow: 0 0 8px #76DA19;
-  animation: pulse-dot 2s ease-in-out infinite;
-}
-
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; box-shadow: 0 0 8px #76DA19; }
-  50% { opacity: 0.7; box-shadow: 0 0 12px #76DA19; }
 }
 
 .online-count {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--white);
   letter-spacing: 0.5px;
   white-space: nowrap;
 }
 
-.game-card-visual {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-}
-
 .game-content {
   display: flex;
   align-items: flex-end;
   justify-content: flex-start;
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  z-index: 10;
+  margin-top: auto;
 }
 
 .game-title {
   color: var(--white);
   font-family: 'Open Sans', sans-serif;
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   line-height: 130%;
-  letter-spacing: 0.5px;
+  letter-spacing: -0.41px;
   text-transform: uppercase;
   text-align: left;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-  margin: 0;
-}
-
-/* === Cases Layout: Mini Roulette Left + Case Image Right === */
-.game-card-cases-layout {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  width: 100%;
-  height: 100%;
-  padding: 0 10px;
-  gap: 10px;
-}
-
-.game-card-mini-roulette {
-  position: relative;
-  width: 165px;
-  height: 66px;
-  overflow: hidden;
-  border-radius: 8px;
-  background: rgba(42, 31, 78, 0.6);
-  border: 1px solid rgba(139, 92, 246, 0.3);
-  flex-shrink: 0;
-}
-
-.game-card-mini-roulette-track {
-  display: flex;
-  flex-direction: row;
-  gap: 4px;
-  padding: 4px;
-  animation: scroll-roulette-horizontal 10s linear infinite;
-}
-
-@keyframes scroll-roulette-horizontal {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-.game-card-mini-roulette-item {
-  min-width: 51px;
-  width: 51px;
-  height: 51px;
-  background: rgba(42, 31, 78, 0.8);
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.game-card-mini-roulette-image {
-  width: 33px;
-  height: 33px;
-  object-fit: contain;
-}
-
-.game-card-mini-roulette-animation {
-  width: 33px !important;
-  height: 33px !important;
-}
-
-.game-card-mini-roulette-fade {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 33px;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.game-card-mini-roulette-fade--left {
-  left: 0;
-  background: linear-gradient(90deg, #1a0a2e 0%, transparent 100%);
-}
-
-.game-card-mini-roulette-fade--right {
-  right: 0;
-  background: linear-gradient(270deg, #1a0a2e 0%, transparent 100%);
-}
-
-.game-card-case-image {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.game-card-case-image img {
-  width: 120px;
-  height: 120px;
-  object-fit: contain;
-  filter: drop-shadow(0 4px 12px rgba(139, 92, 246, 0.4));
-  animation: case-float 3s ease-in-out infinite;
-}
-
-@keyframes case-float {
-  0%, 100% { transform: translateY(0) rotate(-5deg); }
-  50% { transform: translateY(-5px) rotate(5deg); }
-}
-
-@keyframes cat-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
-
-/* === Crash/Roulette Content === */
-.game-card-crash {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-  z-index: 1;
-}
-
-/* Moon image at top-left */
-.game-card-moon {
-  position: absolute;
-  top: -40px;
-  left: -20px;
-  width: 130px;
-  height: 130px;
-  object-fit: contain;
-  opacity: 0.9;
-  z-index: 0;
-  filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5));
-}
-
-/* Growing wavy line (bottom-left to top-right) */
-.game-card-wave-line {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-}
-
-.game-card-wave-path {
-  fill: none;
-  stroke: rgba(139, 92, 246, 0.8);
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.7));
-  animation: wave-grow 2.5s ease-in-out infinite;
-}
-
-@keyframes wave-grow {
-  0%, 100% {
-    d: path("M0,95 C50,90 100,70 150,40 Q175,25 200,10");
-  }
-  50% {
-    d: path("M0,93 C50,88 100,68 150,38 Q175,22 200,8");
-  }
-}
-
-/* Flying cat - bigger and moved left */
-.game-card-flying-cat {
-  width: 180px !important;
-  height: 180px !important;
-  position: absolute;
-  right: 55px;
-  top: 50%;
-  left: auto;
-  transform: translateY(-50%);
-  z-index: 2;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
-}
-
-/* Multiplier */
-.game-card-crash-multiplier {
-  position: absolute;
-  right: 15px;
-  bottom: 35px;
-  display: flex;
-  align-items: baseline;
-  gap: 2px;
-  z-index: 3;
-}
-
-.crash-multiplier-x {
-  font-size: 18px;
-  font-weight: 900;
-  background: linear-gradient(180deg, #FFAF4D 0%, #FFF7A7 50%, #FFAF4D 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
-}
-
-.crash-multiplier-value {
-  font-size: 32px;
-  font-weight: 900;
-  background: linear-gradient(180deg, #FFAF4D 0%, #FFF7A7 50%, #FFAF4D 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
-}
-
-/* === PvP Content === */
-.game-card-pvp {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 5px;
-  padding: 0 15px 0 0;
-}
-
-.pvp-cat {
-  width: 90px;
-  height: 90px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.pvp-cat img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
-}
-
-.pvp-cat--left {
-  animation: pvp-float 2s ease-in-out infinite;
-}
-
-.pvp-cat--right {
-  animation: pvp-float 2s ease-in-out infinite 0.5s;
-}
-
-@keyframes pvp-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
-.game-card-vs {
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  font-size: 40px;
-  font-weight: 900;
-  font-style: italic;
-}
-
-.game-card-vs-v {
-  color: #E74C3C;
-  transform: translateY(-8px);
-  text-shadow: 
-    0 0 5px #E74C3C,
-    0 0 10px #E74C3C,
-    0 0 20px #E74C3C,
-    0 0 40px #E74C3C;
-}
-
-.game-card-vs-s {
-  color: #5DADE2;
-  text-shadow: 
-    0 0 5px #5DADE2,
-    0 0 10px #5DADE2,
-    0 0 20px #5DADE2,
-    0 0 40px #5DADE2;
-}
-
-
-
-/* === Upgrade Content === */
-.game-card-upgrade {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 0 15px;
-}
-
-.game-card-upgrade-box {
-  width: 70px;
-  height: 70px;
-  background: rgba(30, 20, 50, 0.8);
-  border: 1px solid rgba(139, 92, 246, 0.4);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px;
-}
-
-.game-card-upgrade-box--target {
-  border-color: rgba(187, 253, 68, 0.5);
-  box-shadow: 0 0 10px rgba(187, 253, 68, 0.2);
-}
-
-.game-card-upgrade-item {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.game-card-upgrade-wheel {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  flex-shrink: 0;
-}
-
-.game-card-upgrade-svg {
-  width: 100%;
-  height: 100%;
-}
-
-.game-card-upgrade-arrow {
-  position: absolute;
-  bottom: 0px;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-bottom: 10px solid #BBFD44;
-  transform: translateX(-50%);
-  filter: drop-shadow(0 0 5px #BBFD44);
-  z-index: 2;
-  animation: arrow-pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes arrow-pulse {
-  0%, 100% { filter: drop-shadow(0 0 5px #BBFD44); }
-  50% { filter: drop-shadow(0 0 10px #BBFD44); }
-}
-
-.game-card-upgrade-center {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 70px;
-  height: 70px;
-  background: rgba(20, 20, 30, 0.95);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.game-card-upgrade-percent {
-  font-size: 16px;
-  font-weight: 900;
-  background: linear-gradient(180deg, #BBFD44 0%, #ffcc00 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* === Responsive === */
-@media (max-width: 430px) {
-  .game-card {
-    min-height: 150px;
-    padding: 12px;
-  }
-
-  .game-header {
-    padding: 5px 10px;
-  }
-
-  .online-count {
-    font-size: 10px;
-  }
-
-  .game-title {
-    font-size: 14px;
-  }
-
-  .game-card-roulette-item {
-    min-width: 45px;
-    height: 45px;
-  }
-
-  .game-card-roulette-image {
-    width: 35px;
-    height: 35px;
-  }
-
-  .game-card-space-cat {
-    width: 70px !important;
-    height: 70px !important;
-  }
-
-  .multiplier-value {
-    font-size: 20px;
-  }
-
-  .pvp-cat {
-    width: 50px;
-    height: 50px;
-  }
-
-  .upgrade-arrow {
-    width: 50px;
-    height: 50px;
-  }
+  align-self: flex-start;
+  margin-left: 16px;
 }

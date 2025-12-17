@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import './BetModal.css'
 import { useCurrency } from '../context/CurrencyContext'
+import { useLanguage } from '../context/LanguageContext'
 
 // Примеры подарков (с эмодзи как заглушки)
 const gifts = [
@@ -10,7 +11,8 @@ const gifts = [
   { id: 4, name: 'Шлем', image: '/image/case_card4.png', price: 0.5 },
 ]
 
-function BetModal({ isOpen, onClose, mode = 'bet', onSubmit }) {
+function BetModal({ isOpen, onClose, mode = 'bet' }) {
+  const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState('coins') // 'gifts' | 'coins'
   const [betAmount, setBetAmount] = useState('100')
   const [selectedGift, setSelectedGift] = useState(null)
@@ -114,30 +116,8 @@ function BetModal({ isOpen, onClose, mode = 'bet', onSubmit }) {
   const currencyAmountLabel = selectedCurrency?.amount || '0'
 
   const isWithdrawMode = mode === 'withdraw'
-  const titleText = isWithdrawMode ? 'Вывести' : 'Сделать ставку'
-  const primaryButtonText = isWithdrawMode ? 'Вывести' : 'Сделать ставку'
-
-  const handleCoinsSubmit = () => {
-    if (typeof onSubmit !== 'function') return
-    onSubmit({
-      type: 'coins',
-      amount: betAmount,
-      currency: selectedCurrency,
-    })
-  }
-
-  const handleGiftsSubmit = () => {
-    if (typeof onSubmit !== 'function') return
-    if (!selectedGift) return
-
-    const gift = gifts.find(g => g.id === selectedGift) || null
-    onSubmit({
-      type: 'gift',
-      giftId: selectedGift,
-      gift,
-      currency: selectedCurrency,
-    })
-  }
+  const titleText = isWithdrawMode ? t('betModal.withdraw') : t('betModal.placeBet')
+  const primaryButtonText = isWithdrawMode ? t('betModal.withdraw') : t('betModal.placeBet')
 
   if (!isOpen) return null
 
@@ -171,13 +151,13 @@ function BetModal({ isOpen, onClose, mode = 'bet', onSubmit }) {
             className={`bet-modal-tab ${activeTab === 'gifts' ? 'active' : ''}`}
             onClick={() => setActiveTab('gifts')}
           >
-            Подарки
+            {t('betModal.gifts')}
           </button>
           <button 
             className={`bet-modal-tab ${activeTab === 'coins' ? 'active' : ''}`}
             onClick={() => setActiveTab('coins')}
           >
-            Монеты
+            {t('betModal.coins')}
           </button>
         </div>
 
@@ -186,8 +166,8 @@ function BetModal({ isOpen, onClose, mode = 'bet', onSubmit }) {
           <div className={`bet-tab-panel ${activeTab === 'coins' ? 'active' : ''}`}>
             <div className="bet-modal-coins-content">
               <div className="bet-amount-header">
-                <span className="bet-amount-label">Сумма ставки</span>
-                <span className="bet-balance">Баланс: {currencyAmountLabel}</span>
+                <span className="bet-amount-label">{t('betModal.betAmount')}</span>
+                <span className="bet-balance">{t('betModal.balance')}: {currencyAmountLabel}</span>
               </div>
               
               <div className="bet-amount-input-wrapper">
@@ -206,7 +186,7 @@ function BetModal({ isOpen, onClose, mode = 'bet', onSubmit }) {
                 </div>
               </div>
 
-              <button className="bet-submit-button" onClick={handleCoinsSubmit}>
+              <button className="bet-submit-button">
                 {primaryButtonText}
               </button>
             </div>
@@ -240,8 +220,8 @@ function BetModal({ isOpen, onClose, mode = 'bet', onSubmit }) {
                 ))}
               </div>
 
-              <button className="bet-submit-button gifts-submit" onClick={handleGiftsSubmit}>
-                Выбрать
+              <button className="bet-submit-button gifts-submit">
+                {t('betModal.select')}
               </button>
             </div>
           </div>
