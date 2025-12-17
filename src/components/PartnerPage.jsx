@@ -3,72 +3,42 @@ import { useNavigate } from 'react-router-dom'
 import Header from './Header'
 import Navigation from './Navigation'
 import { useCurrency } from '../context/CurrencyContext'
-import { useLanguage } from '../context/LanguageContext'
 import './PartnerPage.css'
-import { useUser } from '../context/UserContext'
-import {
-  createReferralPromo,
-  updateReferralPromo,
-  getMyReferralPromo,
-  getReferralActivations
-} from '../api/promo'
-
-
 
 // Моковые данные для приглашенных друзей
-
+const mockFriends = [
+  { id: 1, name: 'UserName', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1', earnings: 9000 },
+  { id: 2, name: 'UserName', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user2', earnings: 8000 },
+  { id: 3, name: 'UserName', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user3', earnings: 7000 },
+  { id: 4, name: 'UserName', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user4', earnings: 6000 },
+  { id: 5, name: 'UserName', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user5', earnings: 12000 },
+]
 
 function PartnerPage() {
   const navigate = useNavigate()
   const { selectedCurrency } = useCurrency()
-  const { t } = useLanguage()
   const [promoCode, setPromoCode] = useState('')
   const [savedPromoCode, setSavedPromoCode] = useState('')
   const [isCreatingPromo, setIsCreatingPromo] = useState(false)
-  const [friends, setFriends] = useState([])
+  const [friends] = useState(mockFriends)
   const [copied, setCopied] = useState(false)
   const [promoCopied, setPromoCopied] = useState(false)
-  const { user } = useUser()
-  const [loadingFriends, setLoadingFriends] = useState(true)
-  
 
-  const inviteLink = user?.refLink || ''
+  const promoStorageKey = 'ggcat_partner_promo_code'
+
+  const inviteLink = 'https://t.me/ggcat_bot?start=ref123456'
 
   useEffect(() => {
-    if (!user) return
-  
-    const loadFriends = async () => {
-      try {
-        const res = await getReferralActivations(user.id)
-        setFriends(res.users || [])
-      } catch (e) {
-        console.error('Failed to load referral activations', e)
-      } finally {
-        setLoadingFriends(false)
+    try {
+      const storedPromo = localStorage.getItem(promoStorageKey)
+      if (storedPromo) {
+        setSavedPromoCode(storedPromo)
       }
+    } catch (err) {
+      console.error('Failed to read promo code from storage:', err)
     }
-  
-    loadFriends()
-  }, [user])
-  
-  useEffect(() => {
-    if (!user) return
-  
-    const loadMyPromo = async () => {
-      try {
-        const res = await getMyReferralPromo(user.id)
-  
-        if (res.exists) {
-          setSavedPromoCode(res.code)
-        }
-      } catch (e) {
-        console.error('Failed to load referral promo', e)
-      }
-    }
-  
-    loadMyPromo()
-  }, [user])
-  
+  }, [])
+
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(inviteLink)
@@ -81,7 +51,7 @@ function PartnerPage() {
 
   const handleInvite = () => {
     // Открыть Telegram для отправки приглашения
-    const shareText = t('partner.shareText')
+    const shareText = 'Присоединяйся к GGCat и зарабатывай TON!'
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`
     window.open(shareUrl, '_blank')
   }
@@ -109,27 +79,28 @@ function PartnerPage() {
     }
   }
 
-  const handleCreatePromo = async () => {
-    if (!promoCode.trim() || !user) return
-  
-    try {
-      if (!savedPromoCode) {
-        // СОЗДАНИЕ
-        const res = await createReferralPromo(user.id, promoCode.trim())
-        setSavedPromoCode(res.code)
-      } else {
-        // ОБНОВЛЕНИЕ
-        const res = await updateReferralPromo(user.id, promoCode.trim())
-        setSavedPromoCode(res.code)
+  const handleCreatePromo = () => {
+    if (!isCreatingPromo) {
+      setIsCreatingPromo(true)
+      if (savedPromoCode) {
+        setPromoCode(savedPromoCode)
       }
-  
+    } else if (promoCode.trim()) {
+      const nextPromo = promoCode.trim()
+      // TODO: отправить промокод на сервер
+      console.log('Creating promo code:', nextPromo)
+
+      setSavedPromoCode(nextPromo)
+      try {
+        localStorage.setItem(promoStorageKey, nextPromo)
+      } catch (err) {
+        console.error('Failed to save promo code to storage:', err)
+      }
+
       setIsCreatingPromo(false)
       setPromoCode('')
-    } catch (e) {
-      alert(e.message || 'Promo error')
     }
   }
-  
 
   const handleCancelPromo = () => {
     setIsCreatingPromo(false)
@@ -153,27 +124,25 @@ function PartnerPage() {
   }
 
   const formatNumber = (num) => {
-    if (num === null || num === undefined) return '0'
-    return Number(num).toLocaleString('ru-RU')
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
   }
-  
 
   return (
     <div className="partner-page">
       <Header />
       
       <main className="partner-content">
-        <h1 className="partner-title">{t('partner.title')}</h1>
+        <h1 className="partner-title">Партнерская программа</h1>
 
         {/* Invite Section */}
         <div className="invite-section">
           <button className="invite-btn" onClick={handleInvite}>
-            {t('partner.invite')}
+            Пригласить
           </button>
           <button 
             className={`copy-btn ${copied ? 'copied' : ''}`} 
             onClick={handleCopyLink}
-            title={t('partner.copyLink')}
+            title="Скопировать ссылку"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" strokeWidth="2"/>
@@ -183,17 +152,17 @@ function PartnerPage() {
         </div>
 
         <p className="partner-description">
-          {t('partner.description')}
+          Если вы хотите стать партнером и зарабатывать TON, ознакомьтесь с условиями
         </p>
 
         {/* Create Promo Code Section */}
         <div className="promo-section">
-          <h2 className="promo-title">{t('partner.createPromo')}</h2>
+          <h2 className="promo-title">Создать промокод</h2>
 
           {!isCreatingPromo ? (
             savedPromoCode ? (
               <div className="promo-input-wrapper">
-                <label className="promo-label">{t('partner.yourPromo')}:</label>
+                <label className="promo-label">Ваш промокод:</label>
                 <div className="promo-input-container">
                   <input
                     type="text"
@@ -201,7 +170,7 @@ function PartnerPage() {
                     value={savedPromoCode}
                     readOnly
                   />
-                  <button className="promo-edit-btn" onClick={handleEditPromo} title={t('partner.createPromo')}>
+                  <button className="promo-edit-btn" onClick={handleEditPromo} title="Изменить промокод">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M12 20H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                       <path d="M16.5 3.5C17.3284 2.67157 18.6716 2.67157 19.5 3.5C20.3284 4.32843 20.3284 5.67157 19.5 6.5L7 19L3 20L4 16L16.5 3.5Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
@@ -210,7 +179,7 @@ function PartnerPage() {
                   <button
                     className={`promo-copy-btn ${promoCopied ? 'copied' : ''}`}
                     onClick={handleCopyPromo}
-                    title={t('partner.copyLink')}
+                    title="Скопировать промокод"
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" strokeWidth="2"/>
@@ -220,21 +189,18 @@ function PartnerPage() {
                 </div>
               </div>
             ) : (
-<button
-  className="create-promo-btn"
-  onClick={() => setIsCreatingPromo(true)}
->
-                {t('partner.createPromo')}
+              <button className="create-promo-btn" onClick={handleCreatePromo}>
+                Создать промокод
               </button>
             )
           ) : (
             <div className="promo-input-wrapper">
-              <label className="promo-label">{t('partner.promoLabel')}:</label>
+              <label className="promo-label">Промокод:</label>
               <div className="promo-input-container">
                 <input
                   type="text"
                   className="promo-input"
-                  placeholder={t('partner.enterPromo')}
+                  placeholder="Введите свой промокод"
                   value={promoCode}
                   onChange={(e) => setPromoCode(e.target.value)}
                   autoFocus
@@ -243,13 +209,13 @@ function PartnerPage() {
                   className="promo-confirm-btn"
                   onClick={handleCreatePromo}
                   disabled={!promoCode.trim()}
-                  title={t('common.save')}
+                  title="Сохранить"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M5 12L10 17L20 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </button>
-                <button className="promo-cancel-btn" onClick={handleCancelPromo} title={t('common.cancel')}>
+                <button className="promo-cancel-btn" onClick={handleCancelPromo} title="Отмена">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M6 6L18 18M6 18L18 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
                   </svg>
@@ -262,16 +228,16 @@ function PartnerPage() {
         {/* Invited Friends Section */}
         <div className="friends-section">
           <h2 className="friends-title">
-            {t('partner.invitedFriends')}
+            Приглашенные друзья
             <span className="friends-count">({friends.length})</span>
           </h2>
 
           {friends.length === 0 ? (
             <div className="friends-empty">
               <p className="friends-hint">
-                {t('partner.friendHint')}
+                Друг должен войти в приложение по вашей ссылке, чтобы получить билет
               </p>
-              <p className="friends-empty-text">{t('partner.noFriends')}</p>
+              <p className="friends-empty-text">Пока нет приглашенных друзей</p>
             </div>
           ) : (
             <div className="friends-list">
@@ -281,8 +247,8 @@ function PartnerPage() {
                   <img src={friend.avatar} alt={friend.name} className="friend-avatar" />
                   <span className="friend-name">{friend.name}</span>
                   <span className="friend-earnings">
-                  {formatNumber(friend.totalDEP)}
-                  <img src={selectedCurrency?.icon || '/image/Coin-Icon.svg'} alt={selectedCurrency?.id || 'TON'} className="ton-icon" />
+                    {formatNumber(friend.earnings)}
+                    <img src={selectedCurrency?.icon || '/image/Coin-Icon.svg'} alt={selectedCurrency?.id || 'TON'} className="ton-icon" />
                   </span>
                 </div>
               ))}

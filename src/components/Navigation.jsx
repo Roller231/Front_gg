@@ -1,12 +1,10 @@
 import { useNavigate } from 'react-router-dom'
 import './Navigation.css'
 import { useCurrency } from '../context/CurrencyContext'
-import { useLanguage } from '../context/LanguageContext'
 
 function Navigation({ activePage = 'home' }) {
   const navigate = useNavigate()
   const { hasFreeSpins } = useCurrency()
-  const { t } = useLanguage()
 
   return (
     <nav className={`navigation ${hasFreeSpins ? '' : 'navigation--flat'}`}>
@@ -23,7 +21,7 @@ function Navigation({ activePage = 'home' }) {
             <img src="/image/mdi_gift.svg" alt="Cases" className="nav-icon" />
           </div>
         )}
-        <span className="nav-label">{t('nav.cases')}</span>
+        <span className="nav-label">Cases</span>
       </div>
       <div 
         className={`nav-item ${activePage === 'crash' ? 'active' : ''}`}
@@ -38,7 +36,7 @@ function Navigation({ activePage = 'home' }) {
             <img src="/image/ion_rocket.svg" alt="Crash" className="nav-icon" />
           </div>
         )}
-        <span className="nav-label">{t('nav.crash')}</span>
+        <span className="nav-label">Crash</span>
       </div>
       <div 
         className={`nav-item center-item ${activePage === 'wheel' ? 'active' : ''}`}
@@ -58,7 +56,7 @@ function Navigation({ activePage = 'home' }) {
             <img src="/image/Baraban_Off.svg" alt="Рулетка" className="nav-icon" />
           </div>
         )}
-        {!hasFreeSpins && <span className="nav-label">{t('nav.roulette')}</span>}
+        {!hasFreeSpins && <span className="nav-label">Рулетка</span>}
       </div>
       <div 
         className={`nav-item ${activePage === 'pvp' ? 'active' : ''}`}
@@ -73,7 +71,7 @@ function Navigation({ activePage = 'home' }) {
             <img src="/image/material-symbols_swords-rounded.svg" alt="PvP" className="nav-icon" />
           </div>
         )}
-        <span className="nav-label">{t('nav.pvp')}</span>
+        <span className="nav-label">PvP</span>
       </div>
       <div 
         className={`nav-item ${activePage === 'upgrade' ? 'active' : ''}`}
@@ -88,7 +86,7 @@ function Navigation({ activePage = 'home' }) {
             <img src="/image/pajamas_upgrade.svg" alt="Upgrade" className="nav-icon" />
           </div>
         )}
-        <span className="nav-label">{t('nav.upgrade')}</span>
+        <span className="nav-label">Upgrade</span>
       </div>
     </nav>
   )

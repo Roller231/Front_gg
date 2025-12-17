@@ -3,59 +3,44 @@ import './Top20Page.css'
 import Header from './Header'
 import Navigation from './Navigation'
 import { useCurrency } from '../context/CurrencyContext'
-import { useLanguage } from '../context/LanguageContext'
-import { useEffect, useState } from 'react'
-import { useUser } from '../context/UserContext'
-import * as usersApi from '../api/users'
 
-
-
+const currentUser = {
+  id: 'me',
+  name: 'Иван Иванов',
+  avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
+}
 
 function formatNumber(value) {
   return new Intl.NumberFormat('ru-RU').format(value).replaceAll('\u00A0', ' ')
 }
 
 function Top20Page() {
-  const { t } = useLanguage()
-  const { user } = useUser()
-  const { selectedCurrency, formatAmount } = useCurrency()
+  const { selectedCurrency } = useCurrency()
 
-  const [players, setPlayers] = useState([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    let mounted = true
-
-    const loadTop20 = async () => {
-      try {
-        const users = await usersApi.getUsers()
-
-        const sorted = [...users]
-          .filter(u => Number(u.balance) > 0)
-          .sort((a, b) => Number(b.balance) - Number(a.balance))
-          .slice(0, 20)
-          .map((u, index) => ({
-            id: u.id,
-            rank: index + 1,
-            name: u.username || u.firstname || 'User',
-            avatar: u.url_image || '/image/default-avatar.png', // 👈 ВОТ ТУТ
-            balance: Number(u.balance) || 0,
-            isYou: Number(user?.id) === Number(u.id),
-          }))
-          
-
-        if (mounted) setPlayers(sorted)
-      } catch (e) {
-        console.error('Failed to load top 20', e)
-      } finally {
-        if (mounted) setLoading(false)
+  const players = useMemo(() => {
+    const result = Array.from({ length: 20 }, (_, i) => {
+      const rank = i + 1
+      return {
+        id: rank,
+        rank,
+        name: 'UserName',
+        avatar: `/image/ava${(i % 4) + 1}.png`,
+        score: 12000 - i * 1000,
       }
+    })
+
+    const youRank = 9
+    result[youRank - 1] = {
+      id: currentUser.id,
+      rank: youRank,
+      name: currentUser.name,
+      avatar: currentUser.avatar,
+      score: 5000,
+      isYou: true,
     }
 
-    loadTop20()
-    return () => (mounted = false)
-  }, [user?.id])
-
+    return result
+  }, [])
 
   return (
     <div className="app top20-page">
@@ -63,7 +48,7 @@ function Top20Page() {
 
       <main className="main-content top20-content">
         <div className="top20-card">
-          <div className="top20-title">{t('top20.title')}</div>
+          <div className="top20-title">TOP 20</div>
 
           <div className="top20-list">
             {players.map((player) => {
@@ -81,22 +66,14 @@ function Top20Page() {
                   <div className="top20-left">
                     <div className="top20-rank">{player.rank}</div>
                     <div className="top20-avatar">
-                    <img
-  src={player.avatar}
-  alt={player.name}
-  onError={(e) => {
-    e.currentTarget.src = '/image/default-avatar.png'
-  }}
-/>
+                      <img src={player.avatar} alt={player.name} />
                     </div>
                     <div className="top20-name">{player.name}</div>
                   </div>
 
                   <div className="top20-right">
-                    {player.isYou && <span className="top20-you">{t('common.you')}</span>}
-                    <div className="top20-score">
-  {formatAmount(player.balance)}
-</div>
+                    {player.isYou && <span className="top20-you">YOU</span>}
+                    <div className="top20-score">{formatNumber(player.score)}</div>
                     <img
                       className="top20-currency"
                       src={selectedCurrency.icon}

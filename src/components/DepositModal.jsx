@@ -1,9 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import './DepositModal.css'
-import { useLanguage } from '../context/LanguageContext'
 
 function DepositModal({ isOpen, onClose }) {
-  const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState('gifts')
   const [selectedCurrency, setSelectedCurrency] = useState(null)
   const [amount, setAmount] = useState('')
@@ -123,7 +121,7 @@ function DepositModal({ isOpen, onClose }) {
         </div>
 
         {/* Заголовок */}
-        <h2 className="deposit-modal-title">{t('deposit.title')}</h2>
+        <h2 className="deposit-modal-title">Пополнение счёта</h2>
 
         {/* Табы */}
         <div className="deposit-modal-tabs">
@@ -131,19 +129,19 @@ function DepositModal({ isOpen, onClose }) {
             className={`deposit-modal-tab ${activeTab === 'gifts' ? 'active' : ''}`}
             onClick={() => setActiveTab('gifts')}
           >
-            {t('deposit.gifts')}
+            Подарки
           </button>
           <button 
             className={`deposit-modal-tab ${activeTab === 'wallet' ? 'active' : ''}`}
             onClick={() => setActiveTab('wallet')}
           >
-            {t('deposit.wallet')}
+            Кошелёк
           </button>
           <button 
             className={`deposit-modal-tab ${activeTab === 'crypto' ? 'active' : ''}`}
             onClick={() => setActiveTab('crypto')}
           >
-            {t('deposit.cryptoBot')}
+            Crypto Bot
           </button>
         </div>
 
@@ -156,25 +154,25 @@ function DepositModal({ isOpen, onClose }) {
                 <div className="deposit-instruction-item">
                   <div className="deposit-instruction-number">1.</div>
                   <div className="deposit-instruction-text">
-                    {t('deposit.instruction1')} <span className="deposit-link">@GiftUpRelayer</span>
+                    Перейдите в профиль <span className="deposit-link">@GiftUpRelayer</span>
                   </div>
                 </div>
                 <div className="deposit-instruction-item">
                   <div className="deposit-instruction-number">2.</div>
                   <div className="deposit-instruction-text">
-                    {t('deposit.instruction2')}
+                    Отправьте любой подарок
                   </div>
                 </div>
                 <div className="deposit-instruction-item">
                   <div className="deposit-instruction-emoji">🎁</div>
                   <div className="deposit-instruction-text">
-                    {t('deposit.instruction3')}
+                    Подарок отобразится в вашем инвентаре
                   </div>
                 </div>
                 <div className="deposit-instruction-item">
                   <div className="deposit-instruction-emoji">‼️</div>
                   <div className="deposit-instruction-text">
-                    {t('deposit.instruction4')}
+                    Убедитесь, что отправляете из своего профиля.
                   </div>
                 </div>
               </div>
@@ -185,10 +183,10 @@ function DepositModal({ isOpen, onClose }) {
           <div className={`deposit-tab-panel ${activeTab === 'wallet' ? 'active' : ''}`}>
             <div className="deposit-wallet-content">
               <div className="deposit-wallet-message">
-                {t('deposit.walletNotConnected')}
+                Кошелёк не подключен.
               </div>
               <button className="deposit-wallet-button">
-                {t('deposit.connectWallet')}
+                Привязать кошелёк
               </button>
             </div>
           </div>
@@ -201,7 +199,7 @@ function DepositModal({ isOpen, onClose }) {
                   type="text"
                   inputMode="decimal"
                   className="deposit-amount-input"
-                  placeholder={t('deposit.amount')}
+                  placeholder="Сумма"
                   value={amount}
                   onChange={(e) => {
                     const value = e.target.value.replace(/[^0-9.]/g, '')
