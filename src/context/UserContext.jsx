@@ -11,12 +11,10 @@ export function UserProvider({ children }) {
 
   const initUser = async ({ tg_id, username, firstname, photo_url }) => {
     try {
-      // 1️⃣ пробуем получить юзера из БД
       const existingUser = await usersApi.getUserByTgId(tg_id)
       setUser(existingUser)
     } catch (err) {
-      // 2️⃣ если не найден — создаём
-      if (String(err.message).includes('404')) {
+      if (err.message === 'User not found') {
         const newUser = await usersApi.createUser({
           tg_id,
           username,
@@ -31,6 +29,7 @@ export function UserProvider({ children }) {
       setLoading(false)
     }
   }
+  
 
   return (
     <UserContext.Provider
