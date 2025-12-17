@@ -65,11 +65,12 @@
 
 .rating-badge {
   gap: 2px;
+  cursor: pointer;
+
+  /* 👇 важно */
+  padding: 8px;
 }
 
- .rating-badge {
-  cursor: pointer;
- }
 
  .rating-badge:hover {
   transform: translateY(-1px);
@@ -87,9 +88,21 @@
 
 .rating-value {
   color: var(--white);
-  font-size: 13px;
   font-weight: 700;
+
+  /* 🔥 адаптивный размер */
+  font-size: clamp(10px, 2.6vw, 13px);
+
+  line-height: 1;
+  max-width: 100%;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  text-align: center;
 }
+
 
 .country-badge {
   font-size: 24px;

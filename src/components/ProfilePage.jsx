@@ -9,19 +9,24 @@ import { useCurrency } from '../context/CurrencyContext'
 import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
 import { getDropById } from '../api/cases'
+import * as usersApi from '../api/users'
 
 
 
 
 function ProfilePage() {
   const navigate = useNavigate()
-  const {
+  const { 
     currencyOptions,
     selectedCurrency,
     setSelectedCurrency,
     hasFreeSpins,
     setHasFreeSpins,
+    formatAmount, // 👈 ДОБАВЬ
   } = useCurrency()
+  
+  const [top1Balance, setTop1Balance] = useState(0)
+  
   const { user } = useUser()
   const { t, language, changeLanguage, languages, currentLanguage } = useLanguage()
 
@@ -47,6 +52,31 @@ function ProfilePage() {
   const [inventoryDrops, setInventoryDrops] = useState([])
   const [loadingInventory, setLoadingInventory] = useState(true)
   
+  useEffect(() => {
+    let mounted = true
+  
+    async function loadTop1Balance() {
+      try {
+        const res = await usersApi.getUsers()
+        const users = Array.isArray(res) ? res : (res?.users ?? [])
+  
+        if (!users.length) return
+  
+        const maxBalance = Math.max(
+          ...users.map(u => Number(u.balance) || 0)
+        )
+  
+        if (mounted) setTop1Balance(maxBalance)
+      } catch (e) {
+        console.error('Failed to load top1 balance', e)
+      }
+    }
+  
+    loadTop1Balance()
+    return () => (mounted = false)
+  }, [])
+  
+
   useEffect(() => {
     if (!inventory?.length) {
       setInventoryDrops([])
@@ -130,7 +160,9 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
             onClick={() => navigate('/top-20')}
           >
             <span className="rating-icon">👑</span>
-            <span className="rating-value">{refcount}</span>
+            <span className="rating-value">
+  {formatAmount(top1Balance)}
+</span>
           </div>
 
           <div 

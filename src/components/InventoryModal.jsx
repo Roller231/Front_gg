@@ -9,7 +9,7 @@ import * as usersApi from '../api/users'
 
 
 function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll }) {
-  const { selectedCurrency } = useCurrency()
+  const { selectedCurrency, formatAmount } = useCurrency()
   const { t } = useLanguage()
   const [sellingId, setSellingId] = useState(null)
 
@@ -233,13 +233,15 @@ function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll
             {t('inventory.sellAll')}
           </button>
           <div className="total-value">
-            {t('inventory.total')}: <span>{totalValue}</span>
-            <img
-              src={selectedCurrency?.icon}
-              alt="currency"
-              style={{ width: 14, height: 14, marginLeft: 4 }}
-            />
-          </div>
+  {t('inventory.total')}:{' '}
+  <span>{formatAmount(totalValue)}</span>
+  <img
+    src={selectedCurrency?.icon}
+    alt="currency"
+    style={{ width: 14, height: 14, marginLeft: 4 }}
+  />
+</div>
+
         </div>
 
         {/* Content */}
@@ -285,9 +287,12 @@ function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll
                     {item.name}
                   </div>
                   <div className="inventory-modal-card-price">
-                  {Number(item.price || 0) * Number(item.count || 1)}
-                  <img src={selectedCurrency?.icon} alt="currency" />
-                  </div>
+  {formatAmount(
+    Number(item.price || 0) * Number(item.count || 1)
+  )}
+  <img src={selectedCurrency?.icon} alt="currency" />
+</div>
+
                   <button
                     className="inventory-modal-sell-btn"
                     onClick={() => handleSellItem(item, index)}

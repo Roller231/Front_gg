@@ -5,15 +5,18 @@ import Navigation from './Navigation'
 import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
 import './PartnerPage.css'
+import { useUser } from '../context/UserContext'
+import {
+  createReferralPromo,
+  updateReferralPromo,
+  getMyReferralPromo,
+  getReferralActivations
+} from '../api/promo'
+
+
 
 // Моковые данные для приглашенных друзей
-const mockFriends = [
-  { id: 1, name: 'UserName', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1', earnings: 9000 },
-  { id: 2, name: 'UserName', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user2', earnings: 8000 },
-  { id: 3, name: 'UserName', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user3', earnings: 7000 },
-  { id: 4, name: 'UserName', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user4', earnings: 6000 },
-  { id: 5, name: 'UserName', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user5', earnings: 12000 },
-]
+
 
 function PartnerPage() {
   const navigate = useNavigate()
@@ -22,25 +25,50 @@ function PartnerPage() {
   const [promoCode, setPromoCode] = useState('')
   const [savedPromoCode, setSavedPromoCode] = useState('')
   const [isCreatingPromo, setIsCreatingPromo] = useState(false)
-  const [friends] = useState(mockFriends)
+  const [friends, setFriends] = useState([])
   const [copied, setCopied] = useState(false)
   const [promoCopied, setPromoCopied] = useState(false)
+  const { user } = useUser()
+  const [loadingFriends, setLoadingFriends] = useState(true)
+  
 
-  const promoStorageKey = 'ggcat_partner_promo_code'
-
-  const inviteLink = 'https://t.me/ggcat_bot?start=ref123456'
+  const inviteLink = user?.refLink || ''
 
   useEffect(() => {
-    try {
-      const storedPromo = localStorage.getItem(promoStorageKey)
-      if (storedPromo) {
-        setSavedPromoCode(storedPromo)
+    if (!user) return
+  
+    const loadFriends = async () => {
+      try {
+        const res = await getReferralActivations(user.id)
+        setFriends(res.users || [])
+      } catch (e) {
+        console.error('Failed to load referral activations', e)
+      } finally {
+        setLoadingFriends(false)
       }
-    } catch (err) {
-      console.error('Failed to read promo code from storage:', err)
     }
-  }, [])
-
+  
+    loadFriends()
+  }, [user])
+  
+  useEffect(() => {
+    if (!user) return
+  
+    const loadMyPromo = async () => {
+      try {
+        const res = await getMyReferralPromo(user.id)
+  
+        if (res.exists) {
+          setSavedPromoCode(res.code)
+        }
+      } catch (e) {
+        console.error('Failed to load referral promo', e)
+      }
+    }
+  
+    loadMyPromo()
+  }, [user])
+  
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(inviteLink)
@@ -81,28 +109,27 @@ function PartnerPage() {
     }
   }
 
-  const handleCreatePromo = () => {
-    if (!isCreatingPromo) {
-      setIsCreatingPromo(true)
-      if (savedPromoCode) {
-        setPromoCode(savedPromoCode)
+  const handleCreatePromo = async () => {
+    if (!promoCode.trim() || !user) return
+  
+    try {
+      if (!savedPromoCode) {
+        // СОЗДАНИЕ
+        const res = await createReferralPromo(user.id, promoCode.trim())
+        setSavedPromoCode(res.code)
+      } else {
+        // ОБНОВЛЕНИЕ
+        const res = await updateReferralPromo(user.id, promoCode.trim())
+        setSavedPromoCode(res.code)
       }
-    } else if (promoCode.trim()) {
-      const nextPromo = promoCode.trim()
-      // TODO: отправить промокод на сервер
-      console.log('Creating promo code:', nextPromo)
-
-      setSavedPromoCode(nextPromo)
-      try {
-        localStorage.setItem(promoStorageKey, nextPromo)
-      } catch (err) {
-        console.error('Failed to save promo code to storage:', err)
-      }
-
+  
       setIsCreatingPromo(false)
       setPromoCode('')
+    } catch (e) {
+      alert(e.message || 'Promo error')
     }
   }
+  
 
   const handleCancelPromo = () => {
     setIsCreatingPromo(false)
@@ -126,8 +153,10 @@ function PartnerPage() {
   }
 
   const formatNumber = (num) => {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+    if (num === null || num === undefined) return '0'
+    return Number(num).toLocaleString('ru-RU')
   }
+  
 
   return (
     <div className="partner-page">
@@ -191,7 +220,10 @@ function PartnerPage() {
                 </div>
               </div>
             ) : (
-              <button className="create-promo-btn" onClick={handleCreatePromo}>
+<button
+  className="create-promo-btn"
+  onClick={() => setIsCreatingPromo(true)}
+>
                 {t('partner.createPromo')}
               </button>
             )
@@ -249,8 +281,8 @@ function PartnerPage() {
                   <img src={friend.avatar} alt={friend.name} className="friend-avatar" />
                   <span className="friend-name">{friend.name}</span>
                   <span className="friend-earnings">
-                    {formatNumber(friend.earnings)}
-                    <img src={selectedCurrency?.icon || '/image/Coin-Icon.svg'} alt={selectedCurrency?.id || 'TON'} className="ton-icon" />
+                  {formatNumber(friend.totalDEP)}
+                  <img src={selectedCurrency?.icon || '/image/Coin-Icon.svg'} alt={selectedCurrency?.id || 'TON'} className="ton-icon" />
                   </span>
                 </div>
               ))}
