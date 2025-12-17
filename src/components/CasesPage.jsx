@@ -1,79 +1,47 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './CasesPage.css'
-
 import Header from './Header'
 import Navigation from './Navigation'
 import CaseModal from './CaseModal'
-
 import { useCurrency } from '../context/CurrencyContext'
-import { useLanguage } from '../context/LanguageContext'
-import { getCases } from '../api/cases'
 import { Player } from '@lottiefiles/react-lottie-player'
+import { liveDrops } from '../data/liveDrops'
 
-import { WS_BASE_URL } from '../config/ws'
-import { useWebSocket } from '../hooks/useWebSocket'
+// Mock data for cases
+const defaultPrices = {
+  coins: '0.5',
+  gems: '15',
+  stars: '25',
+  shields: '3',
+}
 
+const paidCases = [
+  { id: 1, prices: defaultPrices, animation: '/animation/sticker.json', name: 'Case 1' },
+  { id: 2, prices: defaultPrices, image: '/image/case_card2.png', name: 'Case 2' },
+  { id: 3, prices: defaultPrices, image: '/image/case_card3.png', name: 'Case 3' },
+  { id: 4, prices: defaultPrices, image: '/image/case_card4.png', name: 'Case 4' },
+  { id: 5, prices: defaultPrices, animation: '/animation/sticker.json', name: 'Case 5' },
+  { id: 6, prices: defaultPrices, image: '/image/case_card2.png', name: 'Case 6' },
+]
 
-/* ===== LIVE DROPS (пока мок, можно позже заменить WS) ===== */
-
+const freeCases = [
+  { id: 1, animation: '/animation/sticker.json', name: 'Case 1' },
+  { id: 2, image: '/image/case_card2.png', name: 'Case 2' },
+  { id: 3, image: '/image/case_card3.png', name: 'Case 3' },
+  { id: 4, image: '/image/case_card4.png', name: 'Case 4' },
+  { id: 5, animation: '/animation/sticker.json', name: 'Case 5' },
+  { id: 6, image: '/image/case_card2.png', name: 'Case 6' },
+]
 
 
 function CasesPage() {
   const navigate = useNavigate()
-  const { selectedCurrency, formatAmount } = useCurrency()
-  const { t } = useLanguage()
-
-  /* ===== STATE ===== */
-  const [cases, setCases] = useState([])
-  const [loading, setLoading] = useState(true)
-
   const [activeTab, setActiveTab] = useState('paid')
   const [selectedCase, setSelectedCase] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [liveDrops, setLiveDrops] = useState([])
+  const { selectedCurrency } = useCurrency()
 
-  // Убрали offsetX - используем CSS анимацию для плавности
-
-  /* ===== LOAD CASES ===== */
-  useEffect(() => {
-    getCases()
-      .then(setCases)
-      .catch((err) => {
-        console.error('Failed to load cases', err)
-      })
-      .finally(() => setLoading(false))
-  }, [])
-
-
-  useWebSocket(`${WS_BASE_URL}/ws/drops/global`, {
-    onMessage: (msg) => {
-      if (msg.event !== 'drop') return
-  
-      // Добавляем новый элемент в начало массива (появляется справа)
-      setLiveDrops(prev => [
-        {
-          id: `${msg.data.id}-${Date.now()}`,
-          name: msg.data.name,
-          type: msg.data.icon?.endsWith('.json') ? 'animation' : 'image',
-          image: msg.data.icon,
-          animation: msg.data.icon,
-        },
-        ...prev,
-      ].slice(0, 50)) // Ограничиваем количество элементов
-      
-    },
-  })
-  
-  
-
-  /* ===== SPLIT PAID / FREE ===== */
-  const paidCases = cases.filter((c) => Number(c.price) > 0)
-  const freeCases = cases.filter((c) => Number(c.price) === 0)
-
-  const visibleCases = activeTab === 'paid' ? paidCases : freeCases
-
-  /* ===== HANDLERS ===== */
   const handleCaseClick = (caseItem) => {
     setSelectedCase(caseItem)
     setIsModalOpen(true)
@@ -84,8 +52,14 @@ function CasesPage() {
     setSelectedCase(null)
   }
 
-  if (loading) {
-    return <div className="cases-page">{t('cases.loadingCases')}</div>
+  const cases = activeTab === 'paid' ? paidCases : freeCases
+  const selectedCurrencyId = selectedCurrency?.id || 'coins'
+  const selectedCurrencyIcon = selectedCurrency?.icon || '/image/Coin-Icon.svg'
+
+  const getCasePrice = (caseItem) => {
+    if (activeTab !== 'paid') return null
+    const prices = caseItem.prices || {}
+    return prices[selectedCurrencyId] ?? caseItem.price ?? '0'
   }
 
   return (
@@ -93,16 +67,16 @@ function CasesPage() {
       <Header />
 
       <main className="cases-main">
-        {/* ===== LIVE FEED ===== */}
+        {/* Live feed bar */}
         <div className="live-feed-bar">
           <div className="live-indicator">
             <span className="live-dot"></span>
-            <span className="live-text">{t('cases.live')}</span>
+            <span className="live-text">Live</span>
           </div>
           <div className="live-items-wrapper">
             <div className="live-items-track">
-              {/* Элементы появляются справа и движутся влево */}
-              {liveDrops.map((drop, idx) => (
+              {/* Дублируем для бесконечной прокрутки */}
+              {[...liveDrops, ...liveDrops].map((drop, idx) => (
                 <div key={`${drop.id}-${idx}`} className="live-item">
                   {drop.type === 'animation' && drop.animation ? (
                     <Player
@@ -124,55 +98,55 @@ function CasesPage() {
           </div>
         </div>
 
-        {/* ===== TABS ===== */}
+        {/* Tabs */}
         <div className="cases-tabs">
-          <button
+          <button 
             className={`cases-tab ${activeTab === 'paid' ? 'active' : ''}`}
             onClick={() => setActiveTab('paid')}
           >
-            {t('cases.paid')}
+            Paid
           </button>
-          <button
+          <button 
             className={`cases-tab ${activeTab === 'free' ? 'active' : ''}`}
             onClick={() => setActiveTab('free')}
           >
-            {t('cases.free')}
+            Free
           </button>
         </div>
 
-        {/* ===== CASES GRID ===== */}
+        {/* Cases Grid */}
         <div className="cases-grid">
-          {visibleCases.map((caseItem) => (
-            <div
-              key={caseItem.id}
-              className="case-card"
-              onClick={() => handleCaseClick(caseItem)}
-            >
-              {/* PRICE / FREE BADGE */}
-              {Number(caseItem.price) > 0 ? (
-                <div className="case-price-badge">
-                  <img
-                    src={selectedCurrency.icon}
-                    alt={selectedCurrency.id}
-                    className="price-diamond"
+          {cases.map((caseItem) => (
+            <div key={caseItem.id} className="case-card" onClick={() => handleCaseClick(caseItem)}>
+              <div className={`case-price-badge ${activeTab === 'free' ? 'case-price-badge--free' : ''}`}>
+                {activeTab === 'paid' ? (
+                  <>
+                    <img src={selectedCurrencyIcon} alt={selectedCurrencyId} className="price-diamond" />
+                    <span className="price-amount">{getCasePrice(caseItem)}</span>
+                  </>
+                ) : (
+                  <span className="free-badge">FREE</span>
+                )}
+              </div>
+              <div className="case-image-container">
+                {caseItem.animation ? (
+                  <Player
+                    autoplay
+                    loop
+                    src={caseItem.animation}
+                    className="case-item-animation"
                   />
-                  <span>{formatAmount(caseItem.price)}</span>
-                </div>
-              ) : (
-                <div className="case-price-badge case-price-badge--free">
-                  {t('common.free')}
-                </div>
-              )}
-
-              {/* IMAGE */}
-              <img
-                src={caseItem.main_image}
-                alt={caseItem.name}
-                className="case-item-image"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none'
-                }}
-              />
+                ) : (
+                  <img 
+                    src={caseItem.image} 
+                    alt={caseItem.name}
+                    className="case-item-image"
+                    onError={(e) => {
+                      e.target.style.display = 'none'
+                    }}
+                  />
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -180,11 +154,11 @@ function CasesPage() {
 
       <Navigation activePage="cases" />
 
-      <CaseModal
+      <CaseModal 
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         caseData={selectedCase}
-        isPaid={Number(selectedCase?.price) > 0}
+        isPaid={activeTab === 'paid'}
       />
     </div>
   )

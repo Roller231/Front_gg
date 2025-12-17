@@ -2,19 +2,17 @@ import { useState, useRef, useEffect } from 'react'
 import './CaseModal.css'
 import './WheelPage.css'
 import { useCurrency } from '../context/CurrencyContext'
-import { useLanguage } from '../context/LanguageContext'
 import DepositModal from './DepositModal'
 import { Player } from '@lottiefiles/react-lottie-player'
-import { getCaseDrops, getDropById } from '../api/cases'
-import { useUser } from '../context/UserContext'
-import * as usersApi from '../api/users'
-
-
-
-
 
 // Предметы внутри кейса (моковые данные)
-
+const caseItems = [
+  { id: 1, price: 0.1, type: 'image', image: '/image/case_card1.png', name: 'Gift 1' },
+  { id: 2, price: 0.1, type: 'image', image: '/image/case_card2.png', name: 'Gift 2' },
+  { id: 3, price: 0.1, type: 'image', image: '/image/case_card3.png', name: 'Gift 3' },
+  { id: 4, price: 0.1, type: 'image', image: '/image/case_card4.png', name: 'Gift 4' },
+  { id: 5, price: 0.1, type: 'animation', animation: '/animation/sticker.json', name: 'Sticker' },
+]
 
 function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
   const [view, setView] = useState('main') // 'main' | 'spin' | 'result'
@@ -23,18 +21,7 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
   const [spinItems, setSpinItems] = useState([])
   const [isSpinning, setIsSpinning] = useState(false)
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false)
-  const { selectedCurrency, formatAmount } = useCurrency()
-  const { t } = useLanguage()
-  const [caseItems, setCaseItems] = useState([])
-  const [loadingDrops, setLoadingDrops] = useState(true)
-  const { user, setUser } = useUser()
-
-  const casePrice = Number(caseData?.price || 0)
-const userBalance = Number(user?.balance || 0)
-
-const canOpenCase = !isPaid || userBalance >= casePrice
-
-
+  const { selectedCurrency } = useCurrency()
   const [spinOffset, setSpinOffset] = useState(50)
   const [spinPhase, setSpinPhase] = useState('idle') // 'idle' | 'main' | 'settle'
   const spinTrackRef = useRef(null)
@@ -47,63 +34,6 @@ const canOpenCase = !isPaid || userBalance >= casePrice
   const dragStartY = useRef(0)
   const currentTranslateY = useRef(0)
   const isDragging = useRef(false)
-
-
-  function updateInventory(inventory = [], dropId) {
-    const next = [...inventory]
-    const item = next.find(i => i.drop_id === dropId)
-  
-    if (item) {
-      item.count += 1
-    } else {
-      next.push({ drop_id: dropId, count: 1 })
-    }
-  
-    return next
-  }
-  
-  function rollDrop(items) {
-    const total = items.reduce((sum, i) => sum + i.chance, 0)
-    let rand = Math.random() * total
-  
-    for (const item of items) {
-      if (rand < item.chance) return item
-      rand -= item.chance
-    }
-  
-    return items[0]
-  }
-  
-
-  useEffect(() => {
-    if (!isOpen || !caseData?.id) return
-  
-    async function loadCaseDrops() {
-      setLoadingDrops(true)
-  
-      // 1. связи кейса
-      const relations = await getCaseDrops(caseData.id)
-  
-      // 2. сами дропы
-      const drops = await Promise.all(
-        relations.map(async (rel) => {
-          const drop = await getDropById(rel.drop_id)
-          return {
-            ...drop,
-            chance: rel.chance,
-            image: drop.icon, // ✅ ВАЖНО
-      type: drop.icon?.endsWith('.json') ? 'animation' : 'image',
-          }
-        })
-      )
-  
-      setCaseItems(drops)
-      setLoadingDrops(false)
-    }
-  
-    loadCaseDrops()
-  }, [isOpen, caseData?.id])
-  
 
   // Сброс при открытии
   useEffect(() => {
@@ -237,47 +167,18 @@ const canOpenCase = !isPaid || userBalance >= casePrice
   }, [view, isSpinning, spinItems])
 
   // Открытие кейса
-  const handleOpenCase = async () => {
-    if (isSpinning || !caseItems.length) return
-  
-    // ❌ защита на всякий случай
-    if (isPaid && user.balance < casePrice) return
-  
-    // 🔥 СПИСЫВАЕМ БАЛАНС
-    if (isPaid && user) {
-      try {
-        const updatedUser = await usersApi.updateUser(user.id, {
-          balance: user.balance - casePrice,
-        })
-  
-        setUser(updatedUser)
-      } catch (err) {
-        console.error('Failed to deduct balance:', err)
-        return
-      }
-    }
-    const winning = rollDrop(caseItems)
-  
+  const handleOpenCase = () => {
+    if (isSpinning) return
+
+    // Выбираем выигрышный предмет заранее
+    const winningIndex = Math.floor(Math.random() * caseItems.length)
+    const winning = caseItems[winningIndex]
     setWonItem(winning)
-    setWonAmount(winning.price)
-  
-    if (user) {
-      const updatedInventory = updateInventory(
-        user.inventory || [],
-        winning.id
-      )
-  
-      try {
-        const updatedUser = await usersApi.updateUser(user.id, {
-          inventory: updatedInventory,
-        })
-  
-        // 🔥 обновляем контекст
-        setUser(updatedUser)
-      } catch (err) {
-        console.error('Failed to update inventory:', err)
-      }
-    }
+    const winningAmount =
+      typeof winning.price === 'number'
+        ? winning.price
+        : parseFloat(winning.price || '0')
+    setWonAmount(winningAmount)
 
     spinAnimationStartedRef.current = false
     setSpinPhase('idle')
@@ -326,7 +227,7 @@ const canOpenCase = !isPaid || userBalance >= casePrice
         <div className="wheel-result-overlay" onClick={handleResultOk}>
           <div className="wheel-result-modal" onClick={(e) => e.stopPropagation()}>
             <div className="wheel-result-glow"></div>
-            <h2 className="wheel-result-title">{t('caseModal.congratulations')}</h2>
+            <h2 className="wheel-result-title">Поздравляем!</h2>
             <div className="wheel-result-prize">
               <div className="wheel-result-card">
                 <span className="wheel-result-price">
@@ -352,7 +253,7 @@ const canOpenCase = !isPaid || userBalance >= casePrice
               </div>
             </div>
             <button className="wheel-result-close gg-btn-glow" onClick={handleResultOk}>
-              {t('caseModal.claim')}
+              Забрать
             </button>
           </div>
         </div>
@@ -433,13 +334,13 @@ const canOpenCase = !isPaid || userBalance >= casePrice
             {isPaid ? (
               /* Платный кейс */
               <>
-                <div className="case-section-title">{t('caseModal.whatsInside')}</div>
+                <div className="case-section-title">ЧТО ВНУТРИ?</div>
                 <div className="case-items-grid">
                   {caseItems.map((item) => (
                     <div key={item.id} className="case-item-card">
                       <div className="case-item-price">
                         <img src={currencyIcon} alt="currency" className="case-item-coin" />
-                        <span>{formatAmount(item.price)}</span>
+                        <span>{item.price}</span>
                       </div>
                       <div className="case-item-image">
                         {item.type === 'animation' && item.animation ? (
@@ -461,10 +362,8 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                   ))}
                 </div>
 
-                <button className="case-open-button" onClick={handleOpenCase} disabled={!canOpenCase || isSpinning}>
-                {canOpenCase
-    ? t('caseModal.open')
-    : t('caseModal.notEnoughFunds')}
+                <button className="case-open-button" onClick={handleOpenCase}>
+                  Открыть
                 </button>
               </>
             ) : (
@@ -475,21 +374,21 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                     <img src="/image/Vector.png" alt="warning" className="case-info-icon-image" />
                   </div>
                   <p className="case-info-text">
-                    {t('caseModal.depositInfo')}
+                    To open this case, you must deposit 3 TON within the last 24 hours
                   </p>
                 </div>
 
                 <button className="case-deposit-button" onClick={() => setIsDepositModalOpen(true)}>
-                  {t('caseModal.depositFunds')}
+                  Deposit funds
                 </button>
 
-                <div className="case-section-title">{t('caseModal.whatsInside')}</div>
+                <div className="case-section-title">WHAT'S INSIDE?</div>
                 <div className="case-items-grid">
                   {caseItems.map((item) => (
                     <div key={item.id} className="case-item-card">
                       <div className="case-item-price">
                         <img src={currencyIcon} alt="currency" className="case-item-coin" />
-                        <span>{formatAmount(item.price)}</span>
+                        <span>{item.price}</span>
                       </div>
                       <div className="case-item-image">
                         {item.type === 'animation' && item.animation ? (
@@ -512,7 +411,7 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                 </div>
 
                 <button className="case-promo-button">
-                  {t('caseModal.activatePromo')}
+                  Activate promo code
                 </button>
               </>
             )}
@@ -566,7 +465,7 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                       </div>
                       <span className="case-spin-price">
                         <img src={selectedCurrency?.icon || '/image/Coin-Icon.svg'} alt="currency" />
-                        {formatAmount(item.price)}
+                        {item.price}
                       </span>
                     </div>
                   ))}
@@ -575,7 +474,7 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                 <div className="case-spin-fog case-spin-fog--right"></div>
               </div>
             </div>
-            <div className="case-spin-caption">{t('caseModal.waiting')}</div>
+            <div className="case-spin-caption">Ожидаем выпадение...</div>
           </div>
         ) : null}
       </div>

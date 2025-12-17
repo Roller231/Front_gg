@@ -119,6 +119,24 @@
   transform: scaleX(1);
 }
 
+/* Анимация вверх-вниз для котов когда игра неактивна */
+.pvp-cat:not(.fighting):not(.winner):not(.loser) {
+  animation: cat-idle-bounce 2s ease-in-out infinite;
+}
+
+.pvp-cat-left:not(.fighting):not(.winner):not(.loser) {
+  animation-delay: 0s;
+}
+
+.pvp-cat-right:not(.fighting):not(.winner):not(.loser) {
+  animation-delay: 0.5s;
+}
+
+@keyframes cat-idle-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
 .pvp-cat.fighting {
   animation: cat-shake 0.1s ease-in-out infinite;
 }
@@ -539,25 +557,17 @@
   filter: drop-shadow(0 10px 26px rgba(0, 0, 0, 0.35));
 }
 
-/* Заголовок списка игроков */
+/* Заголовок списка игроков - скрыт */
 .players-list-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 4px;
+  display: none;
 }
 
 .players-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--white);
+  display: none;
 }
 
 .players-count {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.5);
+  display: none;
 }
 
 /* Статус PvP */
@@ -596,7 +606,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: none;
 }
 
 .pvp-page .player-info {
