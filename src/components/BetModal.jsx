@@ -1,15 +1,11 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import './BetModal.css'
 import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
-
-// Примеры подарков (с эмодзи как заглушки)
-const gifts = [
-  { id: 1, name: 'Сумка', image: '/image/case_card1.png', price: 0.5 },
-  { id: 2, name: 'Pepe', image: '/image/case_card2.png', price: 0.5 },
-  { id: 3, name: 'Кристаллы', image: '/image/case_card3.png', price: 0.5 },
-  { id: 4, name: 'Шлем', image: '/image/case_card4.png', price: 0.5 },
-]
+import { useCrashSocket } from '../hooks/useCrashSocket'
+import { useUser } from '../context/UserContext'
+import { getUserById } from '../api/users'
+import { getDropById } from '../api/cases'// Примеры подарков (с эмодзи как заглушки)
 
 function BetModal({ isOpen, onClose, mode = 'bet', onSubmit }) {
   const { t } = useLanguage()
@@ -17,6 +13,9 @@ function BetModal({ isOpen, onClose, mode = 'bet', onSubmit }) {
   const [betAmount, setBetAmount] = useState('100')
   const [selectedGift, setSelectedGift] = useState(null)
   const { selectedCurrency } = useCurrency()
+  const { user, setUser } = useUser()
+  const { send, connected } = useCrashSocket(() => {})
+
   
   // Для свайпа
   const modalRef = useRef(null)
@@ -24,15 +23,46 @@ function BetModal({ isOpen, onClose, mode = 'bet', onSubmit }) {
   const dragStartY = useRef(0)
   const currentTranslateY = useRef(0)
   const isDragging = useRef(false)
-
-  // Сброс позиции при открытии
+  const [drops, setDrops] = useState([])
+  const [loadingDrops, setLoadingDrops] = useState(false)
+  const [dropsMap, setDropsMap] = useState({})
+  // Сброс позиции при открытииconst [dropsMap, setDropsMap] = useState({})
   useEffect(() => {
     if (isOpen && contentRef.current) {
       contentRef.current.style.transform = 'translateY(0)'
       currentTranslateY.current = 0
     }
   }, [isOpen])
-
+  useEffect(() => {
+    if (!isOpen || !user?.inventory?.length) return
+  
+    let cancelled = false
+  
+    const loadDrops = async () => {
+      const result = {}
+  
+      for (const inv of user.inventory) {
+        try {
+          const drop = await getDropById(inv.drop_id)
+          result[inv.drop_id] = drop
+        } catch (e) {
+          console.error('Failed to load drop', inv.drop_id, e)
+        }
+      }
+  
+      if (!cancelled) {
+        setDropsMap(result)
+      }
+    }
+  
+    loadDrops()
+  
+    return () => {
+      cancelled = true
+    }
+  }, [isOpen, user])
+  
+  
   // Начало свайпа/drag
   const handleDragStart = (e) => {
     isDragging.current = true
@@ -43,7 +73,36 @@ function BetModal({ isOpen, onClose, mode = 'bet', onSubmit }) {
       contentRef.current.style.transition = 'none'
     }
   }
-
+  const refreshUser = async () => {
+    if (!user?.id) return
+  
+    try {
+      const freshUser = await getUserById(user.id)
+      setUser(freshUser) // 🔥 обновляет ВЕСЬ APP
+    } catch (e) {
+      console.error('Failed to refresh user', e)
+    }
+  }
+  
+  const inventoryGifts = useMemo(() => {
+    if (!user?.inventory?.length) return []
+  
+    return user.inventory
+      .map(inv => {
+        const drop = dropsMap[inv.drop_id]
+        if (!drop || inv.count <= 0) return null
+  
+        return {
+          ...drop,
+          count: inv.count,
+        }
+      })
+      .filter(Boolean)
+  }, [user, dropsMap])
+  
+  
+  
+  
   // Движение свайпа/drag
   const handleDragMove = (e) => {
     if (!isDragging.current) return
@@ -119,27 +178,50 @@ function BetModal({ isOpen, onClose, mode = 'bet', onSubmit }) {
   const titleText = isWithdrawMode ? t('betModal.withdraw') : t('betModal.placeBet')
   const primaryButtonText = isWithdrawMode ? t('betModal.withdraw') : t('betModal.placeBet')
 
-  const handleCoinsSubmit = () => {
-    if (typeof onSubmit !== 'function') return
-    onSubmit({
-      type: 'coins',
-      amount: betAmount,
-      currency: selectedCurrency,
+  const handleCoinsSubmit = async () => {
+    if (!connected) return
+    if (!user?.id) return
+    if (!selectedCurrency?.rate) return
+  
+    const uiAmount = Number(betAmount)
+    if (!uiAmount || uiAmount <= 0) return
+  
+    // 🔥 КОНВЕРТАЦИЯ В TON
+    const amountInTon = uiAmount * selectedCurrency.rate
+  
+    send({
+      event: 'bet',
+      user_id: user.id,
+      amount: amountInTon, // ✅ ТЕПЕРЬ TON
+      gift: false,
+      gift_id: null,
+      auto_cashout_x: null,
     })
+  
+    await refreshUser()
+    onClose()
   }
+  
+  
+  
 
-  const handleGiftsSubmit = () => {
-    if (typeof onSubmit !== 'function') return
-    if (!selectedGift) return
-
-    const gift = gifts.find(g => g.id === selectedGift) || null
-    onSubmit({
-      type: 'gift',
-      giftId: selectedGift,
-      gift,
-      currency: selectedCurrency,
+  const handleGiftsSubmit = async () => {
+    if (!connected || !user?.id || !selectedGift) return
+  
+    send({
+      event: 'bet',
+      user_id: user.id,
+      amount: 0,
+      gift: true,
+      gift_id: selectedGift,
+      auto_cashout_x: null,
     })
+  
+    await refreshUser()
+    onClose()
   }
+  
+  
 
   if (!isOpen) return null
 
@@ -216,31 +298,29 @@ function BetModal({ isOpen, onClose, mode = 'bet', onSubmit }) {
 
           <div className={`bet-tab-panel ${activeTab === 'gifts' ? 'active' : ''}`}>
             <div className="bet-modal-gifts-content">
-              <div className="gifts-grid">
-                {gifts.map((gift) => (
-                  <div 
-                    key={gift.id} 
-                    className={`gift-card ${selectedGift === gift.id ? 'selected' : ''}`}
-                    onClick={() => setSelectedGift(gift.id)}
-                  >
-                    <div className="gift-price">
-                      <img src={currencyIcon} alt="currency" className="gift-coin-icon" />
-                      <span className="gift-price-value">{gift.price}</span>
-                    </div>
-                    {selectedGift === gift.id && (
-                      <div className="gift-check">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                          <circle cx="10" cy="10" r="10" fill="#00C853"/>
-                          <path d="M6 10L9 13L14 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </div>
-                    )}
-                    <div className="gift-image">
-                      <img src={gift.image} alt={gift.name} className="gift-emoji" />
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="gifts-grid">
+  {inventoryGifts.map(gift => (
+    <div
+      key={gift.id}
+      className={`gift-card ${selectedGift === gift.id ? 'selected' : ''}`}
+      onClick={() => setSelectedGift(gift.id)}
+    >
+      <div className="gift-count">×{gift.count}</div>
+
+      <div className="gift-image">
+        <img src={gift.icon} alt={gift.name} />
+      </div>
+
+      <div className="gift-name">{gift.name}</div>
+
+      {selectedGift === gift.id && (
+        <div className="gift-check">✔</div>
+      )}
+    </div>
+  ))}
+</div>
+
+
 
               <button className="bet-submit-button gifts-submit" onClick={handleGiftsSubmit}>
                 {t('betModal.select')}

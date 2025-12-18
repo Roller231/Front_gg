@@ -91,9 +91,13 @@ const canOpenCase = !isPaid || userBalance >= casePrice
           return {
             ...drop,
             chance: rel.chance,
-            image: drop.icon, // ✅ ВАЖНО
-      type: drop.icon?.endsWith('.json') ? 'animation' : 'image',
+          
+            image: drop.icon,
+            animation: drop.lottie_anim,
+          
+            type: drop.lottie_anim ? 'animation' : 'image',
           }
+          
         })
       )
   
@@ -442,20 +446,21 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                         <span>{formatAmount(item.price)}</span>
                       </div>
                       <div className="case-item-image">
-                        {item.type === 'animation' && item.animation ? (
-                          <Player
-                            autoplay
-                            loop
-                            src={item.animation}
-                            className="case-item-animation"
-                          />
-                        ) : (
-                          <img
-                            src={item.image}
-                            alt={item.name || 'Gift'}
-                            className="case-item-img"
-                          />
-                        )}
+  {item.animation ? (
+    <Player
+      autoplay
+      loop
+      src={item.animation}
+      className="case-item-animation"
+    />
+  ) : (
+    <img
+      src={item.image}
+      alt={item.name || 'Gift'}
+      className="case-item-img"
+    />
+  )}
+
                       </div>
                     </div>
                   ))}
