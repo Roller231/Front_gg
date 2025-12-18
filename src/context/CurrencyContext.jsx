@@ -5,7 +5,7 @@ const CurrencyContext = createContext(null)
 
 /* ===== STATIC CURRENCIES (UI only) ===== */
 const STATIC_CURRENCIES = [
-  { id: 'coins', icon: '/image/Coin-Icon.svg' },
+  { id: 'coins', icon: '/image/ton_symbol.svg' },
   { id: 'gems', icon: '/image/Coin-Icon-one.svg' },
   { id: 'stars', icon: '/image/Coin-Icon-two.svg' },
   { id: 'shields', icon: '/image/Coin-Icon-three.svg' },

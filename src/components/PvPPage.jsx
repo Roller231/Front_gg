@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, memo } from 'react'
 import './PvPPage.css'
+import './WheelPage.css'
 import Header from './Header'
 import Navigation from './Navigation'
 import BetModal from './BetModal'
@@ -34,6 +35,7 @@ function PvPPage() {
   const [gameState, setGameState] = useState('waiting') // 'waiting' | 'countdown' | 'fighting' | 'result'
   const [countdown, setCountdown] = useState(3)
   const [isBetModalOpen, setIsBetModalOpen] = useState(false)
+  const [isResultModalOpen, setIsResultModalOpen] = useState(false)
   const [isWaitingForOpponent, setIsWaitingForOpponent] = useState(false)
   const [myBet, setMyBet] = useState(null)
   const [opponentBet, setOpponentBet] = useState(null)
@@ -90,15 +92,11 @@ function PvPPage() {
     }
   }, [gameState, countdown])
 
-  // Автоматический перезапуск после результата
   useEffect(() => {
-    if (gameState === 'result') {
-      const timer = setTimeout(() => {
-        restartGame()
-      }, 3000)
-      return () => clearTimeout(timer)
-    }
-  }, [gameState])
+    if (gameState !== 'result') return
+    if (battleResult !== 'win' && battleResult !== 'lose') return
+    setIsResultModalOpen(true)
+  }, [gameState, battleResult])
 
   const restartGame = useCallback(() => {
     setGameState('waiting')
@@ -106,6 +104,7 @@ function PvPPage() {
     setAttackPart(null)
     setDefendPart(null)
     setBattleResult(null)
+    setIsResultModalOpen(false)
     setIsWaitingForOpponent(false)
     setMyBet(null)
     setOpponentBet(null)
@@ -114,6 +113,36 @@ function PvPPage() {
       url_image: '/image/ava2.png',
     })
   }, [])
+
+  const closeResultModal = useCallback(() => {
+    restartGame()
+  }, [restartGame])
+
+  const renderConfetti = () => (
+    <div className="gg-confetti" aria-hidden="true">
+      {Array.from({ length: 28 }).map((_, i) => {
+        const x = (i * 37) % 100
+        const hue = (i * 47) % 360
+        const rot = (i * 61) % 360
+        const d = (i * 13) % 30
+        const delay = (i * 7) % 20
+
+        return (
+          <span
+            key={i}
+            className="gg-confetti-piece"
+            style={{
+              '--x': x,
+              '--hue': hue,
+              '--rot': rot,
+              '--d': d,
+              '--delay': delay,
+            }}
+          />
+        )
+      })}
+    </div>
+  )
 
   const handleBetSubmit = useCallback((payload) => {
     if (!payload) return
@@ -198,6 +227,7 @@ function PvPPage() {
   const showMatchPanel = Boolean(isWaitingForOpponent || gameState !== 'waiting')
   const displayUsername = user?.username ? `@${user.username}` : user?.firstname ? `@${user.firstname}` : '@Username'
   const displayAvatar = user?.url_image || user?.photo_url || '/image/ava1.png'
+  const currencyIcon = selectedCurrency?.icon || '/image/Coin-Icon.svg'
 
   const isGameInProgress = Boolean(isWaitingForOpponent || gameState === 'countdown' || gameState === 'fighting')
 
@@ -349,6 +379,32 @@ function PvPPage() {
           </div>
         )}
 
+        {/* Кнопка ставки */}
+        <button 
+          className={`bet-button gg-btn-glow ${isWaitingForOpponent ? 'waiting' : ''}`} 
+          onClick={handleBetClick}
+          disabled={isGameInProgress}
+        >
+          {isGameInProgress ? (
+            <span className="waiting-text">
+              <span className="pvp-waiting-spinner" aria-hidden="true" />
+              {t('pvp.waiting')}{waitingDots}
+            </span>
+          ) : (
+            t('pvp.placeBet')
+          )}
+        </button>
+
+        {/* Модальное окно ставки */}
+        <MemoBetModal 
+          isOpen={isBetModalOpen} 
+          onClose={() => setIsBetModalOpen(false)} 
+          onSubmit={(payload) => {
+            handleBetSubmit(payload)
+            setIsBetModalOpen(false)
+          }}
+        />
+
         {/* Выбор атаки и защиты */}
         {gameState === 'waiting' && !isWaitingForOpponent && (
           <div className="pvp-selection-area">
@@ -396,38 +452,53 @@ function PvPPage() {
           <div className="pvp-autopick-hint">{t('pvp.autoPickIn')} {autoPickCountdown} {t('pvp.sec')}</div>
         )}
 
-        {/* Кнопка ставки */}
-        <button 
-          className={`bet-button gg-btn-glow ${isWaitingForOpponent ? 'waiting' : ''}`} 
-          onClick={handleBetClick}
-          disabled={isGameInProgress}
-        >
-          {isGameInProgress ? (
-            <span className="waiting-text">
-              <span className="pvp-waiting-spinner" aria-hidden="true" />
-              {t('pvp.waiting')}{waitingDots}
-            </span>
-          ) : (
-            t('pvp.placeBet')
-          )}
-        </button>
+        {isResultModalOpen && (battleResult === 'win' || battleResult === 'lose') && (
+          <div className="wheel-result-overlay" onClick={closeResultModal}>
+            <div className={`wheel-result-modal ${battleResult === 'lose' ? 'wheel-result-modal--lose' : ''}`} onClick={(e) => e.stopPropagation()}>
+              {battleResult === 'win' ? renderConfetti() : null}
+              <div className="wheel-result-glow"></div>
+              <h2 className="wheel-result-title">{battleResult === 'win' ? t('pvp.victory') : t('pvp.defeat')}</h2>
+              <div className="wheel-result-subtitle">
+                {battleResult === 'win'
+                  ? t('pvp.congratulations')
+                  : t('pvp.tryAgain')}
+              </div>
 
-        {/* Модальное окно ставки */}
-        <MemoBetModal 
-          isOpen={isBetModalOpen} 
-          onClose={() => setIsBetModalOpen(false)} 
-          onSubmit={(payload) => {
-            handleBetSubmit(payload)
-            setIsBetModalOpen(false)
-          }}
-        />
+              {battleResult === 'win' && opponentBet && (
+                <div className="wheel-result-prize">
+                  <div className="wheel-result-card">
+                    <span className="wheel-result-price">
+                      <img src={currencyIcon} alt="currency" className="wheel-result-coin" />
+                      {opponentBet?.type === 'gift' ? (opponentBet?.gift?.price ?? 0) : (opponentBet?.amount ?? 0)}
+                    </span>
+                    <div className="wheel-result-prize-content">
+                      {opponentBet?.type === 'gift' ? (
+                        <img
+                          src={opponentBet?.gift?.image || '/image/case_card1.png'}
+                          alt="prize"
+                          className="wheel-result-image"
+                        />
+                      ) : (
+                        <img
+                          src={currencyIcon}
+                          alt="currency"
+                          className="wheel-result-image"
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <button className="wheel-result-close gg-btn-glow" onClick={closeResultModal}>
+                {t('pvp.ok')}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Список игроков */}
         <div className="players-list">
-          <div className="players-list-header">
-            <span className="players-title">{t('pvp.nowPlaying')}</span>
-            <span className="players-count">{players.length} {t('pvp.players')}</span>
-          </div>
           {players.map(player => (
             <div key={player.id} className="player-row">
               <div className="player-info">

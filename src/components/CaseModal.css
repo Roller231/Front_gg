@@ -578,20 +578,15 @@
 
 .case-spin-marker {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: -35px;
   left: 50%;
   transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  pointer-events: none;
   z-index: 10;
 }
 
 .case-spin-marker-cat {
-  width: 120px;
-  height: 120px;
+  width: 156px;
+  height: 156px;
   object-fit: contain;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
   z-index: 11;

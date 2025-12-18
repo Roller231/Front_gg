@@ -6,22 +6,9 @@ import Header from './Header'
 import Navigation from './Navigation'
 import { Player } from '@lottiefiles/react-lottie-player'
 import BetModal from './BetModal'
+import { WS_BASE_URL } from '../config/ws'
+import { useWebSocket } from '../hooks/useWebSocket'
 
-// Mock data for live drops (same as CasesPage)
-const liveDrops = [
-  { id: 'drop-1', type: 'image', image: '/image/case_card1.png', name: 'Gift 1' },
-  { id: 'drop-2', type: 'image', image: '/image/case_card2.png', name: 'Gift 2' },
-  { id: 'drop-3', type: 'image', image: '/image/case_card3.png', name: 'Gift 3' },
-  { id: 'drop-4', type: 'image', image: '/image/case_card4.png', name: 'Gift 4' },
-  { id: 'drop-5', type: 'image', image: '/image/case_card1.png', name: 'Gift 1' },
-  { id: 'drop-6', type: 'image', image: '/image/case_card2.png', name: 'Gift 2' },
-  { id: 'drop-7', type: 'image', image: '/image/case_card3.png', name: 'Gift 3' },
-  { id: 'drop-8', type: 'image', image: '/image/case_card4.png', name: 'Gift 4' },
-  { id: 'drop-9', type: 'animation', animation: '/animation/sticker.json', name: 'Sticker' },
-  { id: 'drop-10', type: 'image', image: '/image/case_card2.png', name: 'Gift 2' },
-  { id: 'drop-11', type: 'image', image: '/image/case_card3.png', name: 'Gift 3' },
-  { id: 'drop-12', type: 'image', image: '/image/case_card4.png', name: 'Gift 4' },
-]
 
 // Wheel prizes - 10 segments with case card images and one Lottie animation
 const wheelPrizes = [
@@ -59,6 +46,25 @@ function WheelPage() {
   const prizesIsDragging = useRef(false)
 
   const currencyIcon = selectedCurrency?.icon || '/image/Coin-Icon.svg'
+  const [liveDrops, setLiveDrops] = useState([])
+
+  // WebSocket for live drops (same as CasesPage)
+  useWebSocket(`${WS_BASE_URL}/ws/drops/global`, {
+    onMessage: (msg) => {
+      if (msg.event !== 'drop') return
+
+      setLiveDrops(prev => [
+        {
+          id: `${msg.data.id}-${Date.now()}`,
+          name: msg.data.name,
+          type: msg.data.icon?.endsWith('.json') ? 'animation' : 'image',
+          image: msg.data.icon,
+          animation: msg.data.icon,
+        },
+        ...prev,
+      ].slice(0, 50))
+    },
+  })
 
   // Animate lights
   useEffect(() => {

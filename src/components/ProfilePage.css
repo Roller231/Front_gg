@@ -13,7 +13,101 @@
   padding: 10px 0;
   background: transparent;
   border: none;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+}
+
+/* Level Progress Bar */
+.level-progress-section {
+  margin: 0 -16px 16px -16px;
+  padding: 0 16px;
+}
+
+.level-progress-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.level-badge {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.level-current {
+  background: linear-gradient(135deg, #6B3FD8 0%, #8B5CF6 100%);
+  color: var(--white);
+  box-shadow: 0 4px 15px rgba(107, 63, 216, 0.4);
+}
+
+.level-next {
+  background: #1F0248;
+  color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.level-number {
+  line-height: 1;
+}
+
+.level-progress-bar {
+  flex: 1;
+  height: 12px;
+  background: #1F0248;
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.level-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6B3FD8 0%, #8B5CF6 50%, #A07BFF 100%);
+  border-radius: 999px;
+  transition: width 0.5s ease;
+  position: relative;
+}
+
+.level-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 100%
+  );
+  animation: level-shine 2s ease-in-out infinite;
+}
+
+@keyframes level-shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.level-progress-info {
+  text-align: center;
+  margin-top: 8px;
+}
+
+.level-xp-text {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .profile-avatar-container {
@@ -297,7 +391,28 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
   overflow: hidden;
+}
+
+.inventory-item-price {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--white);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+
+.inventory-item-coin-icon {
+  width: 12px;
+  height: 12px;
 }
 
 
@@ -331,9 +446,9 @@
 
 /* Responsive inventory for small screens */
 
-/* До 426px: 4 коробки */
+/* До 426px: 3 коробки */
 @media (max-width: 426px) {
-  .inventory-gifts .inventory-item:nth-child(n+5) {
+  .inventory-gifts .inventory-item:nth-child(n+4) {
     display: none;
   }
   

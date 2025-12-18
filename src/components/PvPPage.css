@@ -119,6 +119,24 @@
   transform: scaleX(1);
 }
 
+/* Анимация вверх-вниз для котов когда игра неактивна */
+.pvp-cat:not(.fighting):not(.winner):not(.loser) {
+  animation: cat-idle-bounce 2s ease-in-out infinite;
+}
+
+.pvp-cat-left:not(.fighting):not(.winner):not(.loser) {
+  animation-delay: 0s;
+}
+
+.pvp-cat-right:not(.fighting):not(.winner):not(.loser) {
+  animation-delay: 0.5s;
+}
+
+@keyframes cat-idle-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
 .pvp-cat.fighting {
   animation: cat-shake 0.1s ease-in-out infinite;
 }

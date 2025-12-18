@@ -13,8 +13,8 @@ import CasesPage from './components/CasesPage'
 import PartnerPage from './components/PartnerPage'
 import WheelPage from './components/WheelPage'
 import Top20Page from './components/Top20Page'
-import UpgradePage from './components/UpgradePage'
 import PvPPage from './components/PvPPage'
+import UpgradePage from './components/UpgradePage'
 
 import { CurrencyProvider } from './context/CurrencyContext'
 import { LanguageProvider, useLanguage } from './context/LanguageContext'
@@ -35,7 +35,7 @@ function HomePage() {
 
         <div className="games-section">
           <GameCard title={t('home.roulette')} online={55} />
-          <GameCard title={t('home.roulette')} online={55} />
+          <GameCard title={t('home.crash')} online={55} />
           <GameCard title={t('home.pvp')} online={597} />
           <GameCard title={t('home.upgrade')} online={597} />
         </div>
@@ -101,8 +101,8 @@ function App() {
             <Route path="/partner" element={<PartnerPage />} />
             <Route path="/wheel" element={<WheelPage />} />
             <Route path="/top-20" element={<Top20Page />} />
-            <Route path="/upgrade" element={<UpgradePage />} />
             <Route path="/pvp" element={<PvPPage />} />
+            <Route path="/upgrade" element={<UpgradePage />} />
           </Routes>
         </BrowserRouter>
       </CurrencyProvider>

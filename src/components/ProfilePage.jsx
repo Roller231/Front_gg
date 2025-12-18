@@ -126,16 +126,27 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
     url_image ||
     `https://api.dicebear.com/7.x/avataaars/svg?seed=${username || id}`
 
-
-
-  /* ===== INVENTORY VIEW (как раньше) ===== */
-
+  /* ===== INVENTORY VIEW ===== */
+  const INVENTORY_SLOTS = 3
+  const inventoryList = Array.isArray(inventory) ? inventory.slice().reverse() : []
+  const inventoryView = Array.from({ length: INVENTORY_SLOTS }).map(
+    (_, i) => inventoryList[i] || null
+  )
 
   const totalInventoryCount = inventory?.reduce(
     (sum, item) => sum + (item.count || 0),
     0
   ) || 0
-  
+
+  const getItemPriceLabel = (item) => {
+    const raw = item?.price ?? item?.cost ?? item?.value ?? item?.amount
+    const num = typeof raw === 'number' ? raw : Number(raw)
+    if (Number.isFinite(num)) return num.toFixed(2)
+    return '0.00'
+  }
+
+  const getItemImageSrc = (item) =>
+    item?.icon || item?.image || item?.url || item?.url_image || '/image/mdi_gift (2).svg'
 
   return (
     <div className="profile-page">
@@ -196,6 +207,29 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
         </div>
       </div>
 
+      {/* ===== LEVEL PROGRESS BAR ===== */}
+      <div className="level-progress-section">
+        <div className="level-progress-container">
+          <div className="level-badge level-current">
+            <span className="level-number">{user.level || 1}</span>
+          </div>
+          <div className="level-progress-bar">
+            <div 
+              className="level-progress-fill" 
+              style={{ width: `${user.levelProgress || 35}%` }}
+            />
+          </div>
+          <div className="level-badge level-next">
+            <span className="level-number">{(user.level || 1) + 1}</span>
+          </div>
+        </div>
+        <div className="level-progress-info">
+          <span className="level-xp-text">
+            {user.currentXP || 350} / {user.nextLevelXP || 1000} XP
+          </span>
+        </div>
+      </div>
+
       {/* ===== BONUS BANNER ===== */}
       <img
         src="/image/19.png"
@@ -222,36 +256,35 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
 
         <div className="inventory-items">
           <div className="inventory-gifts">
-  {loadingInventory ? (
-    <span>{t('common.loading')}</span>
-  ) : inventoryPreview.length === 0 ? (
-    <img
-      src="/image/mdi_gift (2).svg"
-      alt="empty"
-      className="inventory-item-icon"
-    />
-  ) : (
-    inventoryPreview.map((item, index) => (
-      <div key={`${item.id}-${index}`} className="inventory-item">
-        {item.icon?.endsWith('.json') ? (
-          <Player
-            autoplay
-            loop
-            src={item.icon}
-            className="inventory-item-lottie"
-          />
-        ) : (
-          <img
-            src={item.icon}
-            alt={item.name}
-            className="inventory-item-icon"
-          />
-        )}
-      </div>
-    ))
-  )}
-</div>
-
+            {loadingInventory ? (
+              <span>{t('common.loading')}</span>
+            ) : inventoryPreview.length === 0 ? (
+              <img
+                src="/image/mdi_gift (2).svg"
+                alt="empty"
+                className="inventory-item-icon"
+              />
+            ) : (
+              inventoryPreview.map((item, index) => (
+                <div key={`${item.id}-${index}`} className="inventory-item">
+                  {item.icon?.endsWith('.json') ? (
+                    <Player
+                      autoplay
+                      loop
+                      src={item.icon}
+                      className="inventory-item-lottie"
+                    />
+                  ) : (
+                    <img
+                      src={item.icon}
+                      alt={item.name}
+                      className="inventory-item-icon"
+                    />
+                  )}
+                </div>
+              ))
+            )}
+          </div>
 
           <button className="inventory-arrow" onClick={() => setIsInventoryModalOpen(true)}>
             <span>→</span>
@@ -307,11 +340,9 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
         loading={loadingInventory}
         onSellItem={(item) => {
           console.log('Sell item:', item)
-          // TODO: API call to sell item
         }}
         onSellAll={() => {
           console.log('Sell all items')
-          // TODO: API call to sell all
         }}
       />
 

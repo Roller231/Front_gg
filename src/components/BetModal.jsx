@@ -11,7 +11,7 @@ const gifts = [
   { id: 4, name: 'Шлем', image: '/image/case_card4.png', price: 0.5 },
 ]
 
-function BetModal({ isOpen, onClose, mode = 'bet' }) {
+function BetModal({ isOpen, onClose, mode = 'bet', onSubmit }) {
   const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState('coins') // 'gifts' | 'coins'
   const [betAmount, setBetAmount] = useState('100')
@@ -119,6 +119,28 @@ function BetModal({ isOpen, onClose, mode = 'bet' }) {
   const titleText = isWithdrawMode ? t('betModal.withdraw') : t('betModal.placeBet')
   const primaryButtonText = isWithdrawMode ? t('betModal.withdraw') : t('betModal.placeBet')
 
+  const handleCoinsSubmit = () => {
+    if (typeof onSubmit !== 'function') return
+    onSubmit({
+      type: 'coins',
+      amount: betAmount,
+      currency: selectedCurrency,
+    })
+  }
+
+  const handleGiftsSubmit = () => {
+    if (typeof onSubmit !== 'function') return
+    if (!selectedGift) return
+
+    const gift = gifts.find(g => g.id === selectedGift) || null
+    onSubmit({
+      type: 'gift',
+      giftId: selectedGift,
+      gift,
+      currency: selectedCurrency,
+    })
+  }
+
   if (!isOpen) return null
 
   return (
@@ -186,7 +208,7 @@ function BetModal({ isOpen, onClose, mode = 'bet' }) {
                 </div>
               </div>
 
-              <button className="bet-submit-button">
+              <button className="bet-submit-button" onClick={handleCoinsSubmit}>
                 {primaryButtonText}
               </button>
             </div>
@@ -220,7 +242,7 @@ function BetModal({ isOpen, onClose, mode = 'bet' }) {
                 ))}
               </div>
 
-              <button className="bet-submit-button gifts-submit">
+              <button className="bet-submit-button gifts-submit" onClick={handleGiftsSubmit}>
                 {t('betModal.select')}
               </button>
             </div>

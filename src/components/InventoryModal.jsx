@@ -6,19 +6,16 @@ import { useLanguage } from '../context/LanguageContext'
 import { useUser } from '../context/UserContext'
 import * as usersApi from '../api/users'
 
-
-
 function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll }) {
   const { selectedCurrency, formatAmount } = useCurrency()
   const { t } = useLanguage()
   const [sellingId, setSellingId] = useState(null)
-
+  const modalRef = useRef(null)
   const contentRef = useRef(null)
   const dragStartY = useRef(0)
   const currentTranslateY = useRef(0)
   const isDragging = useRef(false)
   const { user, setUser } = useUser()
-
 
   useEffect(() => {
     if (isOpen && contentRef.current) {
@@ -57,12 +54,9 @@ function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll
     })
   }
   
-  
-  
   const sellAllItems = async () => {
     if (!user || !user.inventory?.length) return
   
-    // 🧠 мапа дропов по id
     const itemsById = Object.fromEntries(
       items.map(item => [item.id, item])
     )
@@ -91,22 +85,19 @@ function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll
     const serverUser = await usersApi.updateUser(user.id, payload)
     setUser(serverUser)
   }
-  
-  
-  
 
-  
-  
+  // Начало свайпа/drag
   const handleDragStart = (e) => {
     isDragging.current = true
     const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY
     dragStartY.current = clientY - currentTranslateY.current
-
+    
     if (contentRef.current) {
       contentRef.current.style.transition = 'none'
     }
   }
 
+  // Движение свайпа/drag
   const handleDragMove = (e) => {
     if (!isDragging.current) return
 
@@ -125,6 +116,7 @@ function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll
     }
   }
 
+  // Конец свайпа/drag
   const handleDragEnd = () => {
     if (!isDragging.current) return
     isDragging.current = false
@@ -145,6 +137,7 @@ function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll
     }
   }
 
+  // Обработчики для mouse events на document
   useEffect(() => {
     const handleMouseMove = (e) => handleDragMove(e)
     const handleMouseUp = () => handleDragEnd()
@@ -170,7 +163,6 @@ function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll
       setSellingId(null)
     }
   }
-  
 
   const handleSellAll = async () => {
     if (onSellAll) {
@@ -183,8 +175,7 @@ function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll
     if (!item) return sum
     return sum + Number(item.price || 0) * Number(inv.count || 0)
   }, 0) || 0
-  
-  
+
   const getRarityClass = (rarity) => {
     if (!rarity) return ''
     const r = rarity.toLowerCase()
@@ -233,15 +224,14 @@ function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll
             {t('inventory.sellAll')}
           </button>
           <div className="total-value">
-  {t('inventory.total')}:{' '}
-  <span>{formatAmount(totalValue)}</span>
-  <img
-    src={selectedCurrency?.icon}
-    alt="currency"
-    style={{ width: 14, height: 14, marginLeft: 4 }}
-  />
-</div>
-
+            {t('inventory.total')}:{' '}
+            <span>{formatAmount(totalValue)}</span>
+            <img
+              src={selectedCurrency?.icon}
+              alt="currency"
+              style={{ width: 14, height: 14, marginLeft: 4 }}
+            />
+          </div>
         </div>
 
         {/* Content */}
@@ -287,17 +277,14 @@ function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll
                     {item.name}
                   </div>
                   <div className="inventory-modal-card-price">
-  {formatAmount(
-    Number(item.price || 0) * Number(item.count || 1)
-  )}
-  <img src={selectedCurrency?.icon} alt="currency" />
-</div>
-
+                    {formatAmount(Number(item.price || 0) * Number(item.count || 1))}
+                    <img src={selectedCurrency?.icon} alt="currency" />
+                  </div>
                   <button
                     className="inventory-modal-sell-btn"
                     onClick={() => handleSellItem(item, index)}
                     disabled={sellingId === `${item.id}-${index}`}
-                    >
+                  >
                     {sellingId === `${item.id}-${index}` ? t('inventory.selling') : t('inventory.sell')}
                   </button>
                 </div>

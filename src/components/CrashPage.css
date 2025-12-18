@@ -226,6 +226,22 @@
   pointer-events: none;
   z-index: 2;
   transition: transform 0.1s ease-out;
+  animation: catShake 0.15s ease-in-out infinite;
+}
+
+@keyframes catShake {
+  0%, 100% {
+    transform: translate(-50%, -50%);
+  }
+  25% {
+    transform: translate(calc(-50% + 1px), calc(-50% - 0.5px));
+  }
+  50% {
+    transform: translate(calc(-50% - 0.5px), calc(-50% + 1px));
+  }
+  75% {
+    transform: translate(calc(-50% + 0.5px), calc(-50% + 0.5px));
+  }
 }
 
 @keyframes pulse {
@@ -548,8 +564,8 @@
   color: #ff4d4f;
 }
 .gift-container {
-  width: 44px; /* Reserve space for gift */
-  height: 44px;
+  width: 88px; /* Reserve space for gift */
+  height: 88px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -558,8 +574,8 @@
 }
 
 .gift-icon {
-  width: 44px;
-  height: 44px;
+  width: 88px;
+  height: 88px;
   object-fit: contain;
   display: block;
   animation: crash-gift-swap 220ms ease;

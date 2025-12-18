@@ -10,6 +10,7 @@ import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
 import { getCases } from '../api/cases'
 import { Player } from '@lottiefiles/react-lottie-player'
+import { liveDrops } from '../data/liveDrops'
 
 import { WS_BASE_URL } from '../config/ws'
 import { useWebSocket } from '../hooks/useWebSocket'

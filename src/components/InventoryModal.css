@@ -1,3 +1,57 @@
+/* Оверлей */
+.inventory-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: inventory-overlay-fade-in 0.3s ease-out;
+}
+
+@keyframes inventory-overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Контент модала */
+.inventory-modal-content {
+  width: min(420px, calc(100% - 48px));
+  background: #2E2247;
+  border-radius: 24px 24px 0 0;
+  padding: 12px 20px 32px;
+  animation: inventory-modal-slide-up 0.3s ease-out;
+  touch-action: none;
+  user-select: none;
+  min-height: 300px;
+  max-height: 75vh;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes inventory-modal-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Ручка для свайпа */
+.inventory-modal-handle {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 16px;
+}
 /* Inventory Modal Overlay */
 .inventory-modal-overlay {
   position: fixed;
@@ -205,7 +259,7 @@
   text-align: center;
 }
 
-/* Item Card (увеличенная версия) */
+/* Item Card */
 .inventory-modal-card {
   background: #1F0248;
   border: 2px solid rgba(139, 92, 246, 0.3);

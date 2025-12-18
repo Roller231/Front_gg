@@ -27,6 +27,9 @@
   gap: 12px;
   padding: 8px 16px;
   margin-bottom: 0;
+  position: relative;
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 65%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 0%, black 65%, transparent 100%);
 }
 
 .wheel-page .live-indicator {
@@ -383,14 +386,14 @@
 /* Buttons container */
 .wheel-buttons-container {
   width: 100%;
-  padding: 20px 16px;
+  padding: 0 16px 20px;
   display: flex;
   flex-direction: column;
   gap: 12px;
   background: transparent;
   position: relative;
   z-index: 30;
-  margin-top: -80px;
+  margin-top: -125px;
   isolation: isolate;
 }
 
@@ -406,6 +409,7 @@
 }
 
 .wheel-bet-hint {
+  margin-top: 0;
   margin-bottom: 12px;
   text-align: center;
   font-size: 14px;
@@ -487,8 +491,8 @@
   }
 
   .wheel-buttons-container {
-    margin-top: -88px;
-    padding: 14px 16px calc(70px + 16px);
+    margin-top: -137px;
+    padding: 0 16px calc(70px + 16px);
     gap: 10px;
   }
 
@@ -521,8 +525,8 @@
   }
 
   .wheel-buttons-container {
-    margin-top: -110px;
-    padding: 10px 16px calc(70px + 14px);
+    margin-top: -172px;
+    padding: 0 16px calc(70px + 14px);
     gap: 8px;
   }
 
@@ -640,6 +644,52 @@
   margin-bottom: 20px;
   position: relative;
   z-index: 2;
+}
+
+.wheel-result-subtitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.35;
+  margin: -12px 0 18px;
+  position: relative;
+  z-index: 2;
+}
+
+.gg-confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.gg-confetti-piece {
+  position: absolute;
+  top: -12px;
+  left: calc(var(--x) * 1%);
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  background: hsl(var(--hue) 92% 60%);
+  opacity: 0.95;
+  transform: translateY(-12px) rotate(calc(var(--rot) * 1deg));
+  animation: gg-confetti-fall calc(1.6s + (var(--d) * 0.03s)) linear infinite;
+  animation-delay: calc(var(--delay) * 0.08s);
+}
+
+@keyframes gg-confetti-fall {
+  0% {
+    transform: translateY(-16px) rotate(calc(var(--rot) * 1deg));
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(380px) rotate(calc((var(--rot) + 520) * 1deg));
+    opacity: 0;
+  }
 }
 
 .wheel-result-prize {

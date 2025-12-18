@@ -29,11 +29,11 @@ export const translations = {
 
     // Navigation
     nav: {
-      cases: 'Cases',
-      crash: 'Crash',
+      cases: 'Кейсы',
+      crash: 'Ракетка',
       roulette: 'Рулетка',
       pvp: 'PvP',
-      upgrade: 'Upgrade',
+      upgrade: 'Апгрейд',
     },
 
     // Profile Page
@@ -192,6 +192,7 @@ export const translations = {
     // Home Page
     home: {
       roulette: 'РУЛЕТКА',
+      crash: 'РАКЕТКА',
       pvp: 'PvP',
       upgrade: 'Upgrade',
       online: 'ОНЛАЙН',
@@ -399,6 +400,7 @@ export const translations = {
     // Home Page
     home: {
       roulette: 'ROULETTE',
+      crash: 'CRASH',
       pvp: 'PvP',
       upgrade: 'Upgrade',
       online: 'ONLINE',
