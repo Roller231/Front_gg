@@ -7,7 +7,13 @@ import { useUser } from '../context/UserContext'
 import { getUserById } from '../api/users'
 import { getDropById } from '../api/cases'// Примеры подарков (с эмодзи как заглушки)
 
-function BetModal({ isOpen, onClose, mode = 'bet', onSubmit }) {
+function BetModal({
+  isOpen,
+  onClose,
+  game = 'crash',
+  mode = 'bet',
+  canBet = true,
+}) {
   const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState('coins') // 'gifts' | 'coins'
   const [betAmount, setBetAmount] = useState('100')
@@ -33,49 +39,52 @@ function BetModal({ isOpen, onClose, mode = 'bet', onSubmit }) {
       currentTranslateY.current = 0
     }
   }, [isOpen])
+
+  const sendBet = ({ amount, gift, giftId }) => {
+    if (!connected || !user?.id) return
+  
+    switch (game) {
+      case 'crash':
+        send({
+          event: 'bet',
+          user_id: user.id,
+          amount,
+          gift,
+          gift_id: giftId,
+          auto_cashout_x: null,
+        })
+        break
+  
+      case 'dice':
+        send({
+          event: 'dice_bet',
+          user_id: user.id,
+          amount,
+          chance: 50,
+        })
+        break
+  
+      case 'roulette':
+        send({
+          event: 'roulette_bet',
+          user_id: user.id,
+          amount,
+          color: 'red',
+        })
+        break
+  
+      default:
+        console.warn('Unknown game', game)
+    }
+  }
+
   useEffect(() => {
     if (!isOpen || !user?.inventory?.length) return
   
     let cancelled = false
   
 
-    const sendBet = ({ amount, gift, giftId }) => {
-      if (!connected || !user?.id) return
-    
-      switch (game) {
-        case 'crash':
-          send({
-            event: 'bet',
-            user_id: user.id,
-            amount,
-            gift,
-            gift_id: giftId,
-            auto_cashout_x: null,
-          })
-          break
-    
-        case 'dice':
-          send({
-            event: 'dice_bet',
-            user_id: user.id,
-            amount,
-            chance: 50,
-          })
-          break
-    
-        case 'roulette':
-          send({
-            event: 'roulette_bet',
-            user_id: user.id,
-            amount,
-            color: 'red',
-          })
-          break
-    
-        default:
-          console.warn('Unknown game', game)
-      }
-    }
+
     
 
     const loadDrops = async () => {
@@ -323,9 +332,14 @@ function BetModal({ isOpen, onClose, mode = 'bet', onSubmit }) {
                 </div>
               </div>
 
-              <button className="bet-submit-button" onClick={handleCoinsSubmit}>
-                {primaryButtonText}
-              </button>
+              <button
+  className={`bet-submit-button ${!canBet ? 'disabled' : ''}`}
+  onClick={handleCoinsSubmit}
+  disabled={!canBet}
+>
+  {canBet ? primaryButtonText : t('crash.betsClosed')}
+</button>
+
             </div>
           </div>
 
@@ -355,9 +369,14 @@ function BetModal({ isOpen, onClose, mode = 'bet', onSubmit }) {
 
 
 
-              <button className="bet-submit-button gifts-submit" onClick={handleGiftsSubmit}>
-                {t('betModal.select')}
-              </button>
+<button
+  className={`bet-submit-button gifts-submit ${!canBet ? 'disabled' : ''}`}
+  onClick={handleGiftsSubmit}
+  disabled={!canBet}
+>
+  {canBet ? t('betModal.select') : t('crash.betsClosed')}
+</button>
+
             </div>
           </div>
         </div>

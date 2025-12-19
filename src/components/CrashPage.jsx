@@ -9,6 +9,7 @@ import { useCrashSocket } from "../hooks/useCrashSocket";
 import { getCrashBetsByRound, getCrashBotById } from '../api/crash'
 import { getUserById } from '../api/users'
 import { getDropById } from '../api/cases'
+import { useUser } from '../context/UserContext'
 
 const MemoHeader = memo(Header)
 const MemoNavigation = memo(Navigation)
@@ -101,16 +102,41 @@ function CrashPage() {
   const catLottieRef = useRef(null)
   const [giftIconIndex, setGiftIconIndex] = useState(0)
   const [bets, setBets] = useState({});
+  const { user, setUser } = useUser();
+    const roundIdRef = useRef(null);
+  const canBet = gameState === 'countdown' && countdown > 0
 
-  const roundIdRef = useRef(null);
+
+  const [players, setPlayers] = useState([])
+
+  const myActiveBet = useMemo(() => {
+    if (!user?.id) return null
+  
+    return players.find(
+      p => p.userId === user.id && p.cashoutX === null
+    )
+  }, [players, user])
+  
+  const canCashout = gameState === 'flying' && Boolean(myActiveBet)
 
   const usersCacheRef = useRef(new Map())
   const botsCacheRef = useRef(new Map())
   const betsReqIdRef = useRef(0)
   const canPlaceBet = gameState === 'countdown' && countdown > 0
 
-const [players, setPlayers] = useState([])
 const dropsCacheRef = useRef(new Map())
+
+
+const handleCashout = () => {
+  if (!canCashout || !myActiveBet || !user?.id) return
+
+  send({
+    event: 'cashout',
+    user_id: user.id, // 🔥 ВАЖНО
+  })
+}
+
+
 
 const loadBets = useCallback(async (roundId) => {
   if (!roundId) return // ⬅️ защита от undefined
@@ -180,15 +206,17 @@ const loadBets = useCallback(async (roundId) => {
 
           return {
             id: bet.id,
+            userId: bet.user_id, // 🔥 ВАЖНО
             name,
             avatar,
             betAmount: Number(bet.amount),
             autoCashoutX: bet.auto_cashout_x,
             cashoutX: bet.cashout_multiplier,
             gift: !!bet.gift,
-            giftId: bet.gift_id ?? null, // ✅
+            giftId: bet.gift_id ?? null,
             giftIcon,
           }
+          
           
           
           
@@ -236,6 +264,36 @@ useEffect(() => {
         }
       
         loadBets(msg.round_id)
+        break
+      }
+      case "cashout": {
+        // обновляем игроков
+        setPlayers(prev =>
+          prev.map(p =>
+            p.userId === msg.user_id
+              ? { ...p, cashoutX: msg.multiplier }
+              : p
+          )
+        )
+      
+        // 🔥 ЕСЛИ ЭТО НАШ ЮЗЕР — ОБНОВЛЯЕМ БАЛАНС
+        if (msg.user_id === user?.id) {
+          getUserById(user.id)
+            .then(freshUser => {
+              setUser(freshUser)
+            })
+            .catch(err => {
+              console.error('Failed to refresh user after cashout', err)
+            })
+        }
+      
+        break
+      }
+      case "bet_placed": {
+        // сразу перезагружаем ставки текущего раунда
+        if (roundIdRef.current) {
+          loadBets(roundIdRef.current)
+        }
         break
       }
       
@@ -577,12 +635,26 @@ useEffect(() => {
 
         {/* Кнопка ставки */}
         <button
-  className={`bet-button gg-btn-glow ${!canPlaceBet ? 'disabled' : ''}`}
-  onClick={() => canPlaceBet && setIsBetModalOpen(true)}
-  disabled={!canPlaceBet}
+  className={`bet-button gg-btn-glow ${
+    canCashout ? 'cashout' : !canBet ? 'disabled' : ''
+  }`}
+  onClick={() => {
+    if (canCashout) {
+      handleCashout()
+    } else if (canBet) {
+      setIsBetModalOpen(true)
+    }
+  }}
+  disabled={!canBet && !canCashout}
 >
-  {canPlaceBet ? t('crash.placeBet') : t('crash.betsClosed')}
+  {canCashout
+    ? `${t('crash.cashout')} x${multiplier.toFixed(2)}`
+    : canBet
+      ? t('crash.placeBet')
+      : t('crash.betsClosed')}
 </button>
+
+
 
 
         {/* Модальное окно ставки */}
@@ -590,7 +662,10 @@ useEffect(() => {
   isOpen={isBetModalOpen}
   onClose={() => setIsBetModalOpen(false)}
   game="crash"
+  mode="bet"
+  canBet={canBet}
 />
+
 
 
         {/* Список игроков */}

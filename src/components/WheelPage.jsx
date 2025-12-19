@@ -474,7 +474,12 @@ function WheelPage() {
         )}
 
         {/* Bet Modal */}
-        <BetModal isOpen={showCrashModal} onClose={closeDepositModal} mode="deposit" />
+        <BetModal
+  isOpen={showCrashModal}
+  onClose={closeDepositModal}
+  game="wheel"
+  mode="deposit"
+/>
 
         {/* Prizes Modal */}
         {showPrizesModal && (
