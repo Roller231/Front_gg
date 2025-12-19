@@ -84,6 +84,7 @@ export const translations = {
     crash: {
       placeBet: 'Сделать ставку',
       waiting: 'Ожидание...',
+      betsClosed: 'Ставки закрыты',
     },
 
     // Wheel Page
@@ -292,6 +293,8 @@ export const translations = {
     crash: {
       placeBet: 'Place Bet',
       waiting: 'Waiting...',
+      betsClosed: 'Bets Closed',
+
     },
 
     // Wheel Page

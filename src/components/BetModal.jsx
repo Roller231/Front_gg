@@ -38,6 +38,46 @@ function BetModal({ isOpen, onClose, mode = 'bet', onSubmit }) {
   
     let cancelled = false
   
+
+    const sendBet = ({ amount, gift, giftId }) => {
+      if (!connected || !user?.id) return
+    
+      switch (game) {
+        case 'crash':
+          send({
+            event: 'bet',
+            user_id: user.id,
+            amount,
+            gift,
+            gift_id: giftId,
+            auto_cashout_x: null,
+          })
+          break
+    
+        case 'dice':
+          send({
+            event: 'dice_bet',
+            user_id: user.id,
+            amount,
+            chance: 50,
+          })
+          break
+    
+        case 'roulette':
+          send({
+            event: 'roulette_bet',
+            user_id: user.id,
+            amount,
+            color: 'red',
+          })
+          break
+    
+        default:
+          console.warn('Unknown game', game)
+      }
+    }
+    
+
     const loadDrops = async () => {
       const result = {}
   
@@ -179,47 +219,40 @@ function BetModal({ isOpen, onClose, mode = 'bet', onSubmit }) {
   const primaryButtonText = isWithdrawMode ? t('betModal.withdraw') : t('betModal.placeBet')
 
   const handleCoinsSubmit = async () => {
-    if (!connected) return
-    if (!user?.id) return
     if (!selectedCurrency?.rate) return
   
     const uiAmount = Number(betAmount)
     if (!uiAmount || uiAmount <= 0) return
   
-    // 🔥 КОНВЕРТАЦИЯ В TON
     const amountInTon = uiAmount * selectedCurrency.rate
   
-    send({
-      event: 'bet',
-      user_id: user.id,
-      amount: amountInTon, // ✅ ТЕПЕРЬ TON
+    sendBet({
+      amount: amountInTon,
       gift: false,
-      gift_id: null,
-      auto_cashout_x: null,
+      giftId: null,
     })
   
     await refreshUser()
     onClose()
   }
+  
   
   
   
 
   const handleGiftsSubmit = async () => {
-    if (!connected || !user?.id || !selectedGift) return
+    if (!selectedGift) return
   
-    send({
-      event: 'bet',
-      user_id: user.id,
+    sendBet({
       amount: 0,
       gift: true,
-      gift_id: selectedGift,
-      auto_cashout_x: null,
+      giftId: selectedGift,
     })
   
     await refreshUser()
     onClose()
   }
+  
   
   
 

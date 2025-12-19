@@ -107,11 +107,13 @@ function CrashPage() {
   const usersCacheRef = useRef(new Map())
   const botsCacheRef = useRef(new Map())
   const betsReqIdRef = useRef(0)
+  const canPlaceBet = gameState === 'countdown' && countdown > 0
 
 const [players, setPlayers] = useState([])
 const dropsCacheRef = useRef(new Map())
 
 const loadBets = useCallback(async (roundId) => {
+  if (!roundId) return // ⬅️ защита от undefined
   const reqId = ++betsReqIdRef.current
 
   try {
@@ -220,26 +222,86 @@ useEffect(() => {
 
   const { send, connected } = useCrashSocket((msg) => {
     switch (msg.event) {
-      case "new_round":
+      case "new_round": {
         roundIdRef.current = msg.round_id
         setGameState("countdown")
-        setCountdown(msg.bet_phase_seconds)
-        loadBets(msg.round_id)   // ✅ сразу загрузили
-        break
       
+        if (msg.betting_ends_at) {
+          const now = Date.now() / 1000
+          const left = Math.max(
+            0,
+            Math.ceil(msg.betting_ends_at - now)
+          )
+          setCountdown(left)
+        }
+      
+        loadBets(msg.round_id)
+        break
+      }
+      
+      
+      case "state": {
+        if (msg.round_id) {
+          roundIdRef.current = msg.round_id
+          loadBets(msg.round_id)
+        }
+      
+        if (msg.phase === "betting") {
+          setGameState("countdown")
+      
+          if (msg.betting_ends_at) {
+            const now = Date.now() / 1000
+            const left = Math.max(
+              0,
+              Math.ceil(msg.betting_ends_at - now)
+            )
+            setCountdown(left)
+          }
+        }
+      
+        if (msg.phase === "running") {
+          setGameState("flying")
+          setMultiplier(msg.multiplier ?? 1)
+        }
+      
+        if (msg.phase === "crashed") {
+          setGameState("postflight")
+        }
+      
+        break
+      }
       
   
-        case "round_start":
+        case "round_start": {
           setGameState("flying")
-          loadBets(roundIdRef.current)
+        
+          if (msg.round_id) {
+            roundIdRef.current = msg.round_id
+            loadBets(msg.round_id)
+          }
+        
           break
+        }
+        
         
   
-      case "tick":
-        setMultiplier(msg.multiplier);
-        break;
-  
+        case "tick": {
+          // ⬅️ если зашли в середине раунда
+          if (!roundIdRef.current && msg.round_id) {
+            roundIdRef.current = msg.round_id
+            loadBets(msg.round_id)
+          }
+        
+          if (gameState !== "flying") {
+            setGameState("flying")
+          }
+        
+          setMultiplier(msg.multiplier)
+          break
+        }
+        
       case "crash":
+        loadBets(msg.round_id)   // ✅ сразу загрузили
         setMultiplier(msg.multiplier); // ✅ финальное значение
         setGameState("postflight");
         break;
@@ -462,17 +524,22 @@ useEffect(() => {
               </>
             )}
 
-            {gameState === 'postflight' && (
-              <>
-                <Player
-                  autoplay
-                  loop={false}
-                  keepLastFrame
-                  src="/animation/vzryv2__.json"
-                  className="lottie-postflight"
-                />
-              </>
-            )}
+{gameState === 'postflight' && (
+  <Player
+    autoplay
+    loop={false}
+    keepLastFrame
+    src="/animation/vzryv2__.json"
+    className="lottie-postflight"
+    onEvent={(event) => {
+      if (event === 'complete') {
+        // 👇 просто убираем анимацию после окончания
+        setGameState('postflight-done')
+      }
+    }}
+  />
+)}
+
           </div>
 
           {gameState !== 'countdown' && (
@@ -509,15 +576,22 @@ useEffect(() => {
         </div>
 
         {/* Кнопка ставки */}
-        <button className="bet-button gg-btn-glow" onClick={() => setIsBetModalOpen(true)}>
-          {t('crash.placeBet')}
-        </button>
+        <button
+  className={`bet-button gg-btn-glow ${!canPlaceBet ? 'disabled' : ''}`}
+  onClick={() => canPlaceBet && setIsBetModalOpen(true)}
+  disabled={!canPlaceBet}
+>
+  {canPlaceBet ? t('crash.placeBet') : t('crash.betsClosed')}
+</button>
+
 
         {/* Модальное окно ставки */}
-        <BetModal 
-          isOpen={isBetModalOpen} 
-          onClose={() => setIsBetModalOpen(false)} 
-        />
+        <BetModal
+  isOpen={isBetModalOpen}
+  onClose={() => setIsBetModalOpen(false)}
+  game="crash"
+/>
+
 
         {/* Список игроков */}
         <div className="players-list">
