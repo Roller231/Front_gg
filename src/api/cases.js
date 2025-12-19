@@ -9,3 +9,7 @@ export const getCaseDrops = (caseId) =>
 
 export const getDropById = (id) =>
   apiFetch(`/drops/${id}`)
+
+export async function getAllDrops() {
+  return apiFetch('/drops')
+}

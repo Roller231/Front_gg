@@ -8,21 +8,11 @@ import { Player } from '@lottiefiles/react-lottie-player'
 import BetModal from './BetModal'
 import { WS_BASE_URL } from '../config/ws'
 import { useWebSocket } from '../hooks/useWebSocket'
-
-
+import { getDropById, getAllDrops } from '../api/cases'
+import { rouletteFreeSpin } from '../api/roulette'
+import { useUser } from '../context/UserContext'
 // Wheel prizes - 10 segments with case card images and one Lottie animation
-const wheelPrizes = [
-  { id: 1, type: 'purple', contentType: 'image', image: '/image/case_card1.png', price: 0.1 },
-  { id: 2, type: 'blue', contentType: 'image', image: '/image/case_card2.png', price: 0.2 },
-  { id: 3, type: 'purple', contentType: 'image', image: '/image/case_card3.png', price: 0.5 },
-  { id: 4, type: 'blue', contentType: 'image', image: '/image/case_card4.png', price: 0.3 },
-  { id: 5, type: 'purple', contentType: 'animation', animation: '/animation/sticker.json', price: 1.0 },
-  { id: 6, type: 'blue', contentType: 'image', image: '/image/case_card2.png', price: 0.2 },
-  { id: 7, type: 'purple', contentType: 'image', image: '/image/case_card3.png', price: 0.5 },
-  { id: 8, type: 'blue', contentType: 'image', image: '/image/case_card4.png', price: 0.3 },
-  { id: 9, type: 'purple', contentType: 'image', image: '/image/case_card1.png', price: 0.1 },
-  { id: 10, type: 'blue', contentType: 'image', image: '/image/case_card2.png', price: 0.2 },
-]
+
 
 const NUM_LIGHTS = 32 // Number of lights around the wheel
 
@@ -37,6 +27,148 @@ function WheelPage() {
   const [showCrashModal, setShowCrashModal] = useState(false)
   const [showPrizesModal, setShowPrizesModal] = useState(false)
   const wheelRef = useRef(null)
+  const [wheelPrizes, setWheelPrizes] = useState([])
+  const [allDrops, setAllDrops] = useState([])
+  const { user } = useUser()
+
+  const handleFreeSpin = async () => {
+    if (isSpinning || !user?.id) return
+  
+    try {
+      setIsSpinning(true)
+  
+      const result = await rouletteFreeSpin({
+        userId: user.id,
+      })
+  
+      // ⬇️ ВАЖНО: именно сюда приходит честный drop_id
+      await handleBetResult(result)
+    } catch (e) {
+      console.error('Free spin failed', e)
+      setIsSpinning(false)
+    }
+  }
+  
+  const spinToSegment = (prizes, targetSegment) => {
+    if (!prizes.length) return
+  
+    setIsSpinning(true)
+    setShowResult(false)
+  
+    const segmentAngle = 360 / prizes.length
+    const fullRotations = 6 * 360
+  
+    const desiredFinalPosition =
+      (360 - (targetSegment * segmentAngle + segmentAngle / 2)) % 360
+  
+    const currentPosition = ((rotation % 360) + 360) % 360
+    let rotationNeeded = desiredFinalPosition - currentPosition
+    rotationNeeded = ((rotationNeeded % 360) + 360) % 360
+  
+    const newRotation = rotation + fullRotations + rotationNeeded
+  
+    setRotation(newRotation)
+    setWonPrize(prizes[targetSegment])
+  
+    setTimeout(() => {
+      setIsSpinning(false)
+      setShowResult(true)
+    }, 6000)
+  }
+  
+  const handleBetResult = async (result) => {
+    if (!result?.drop_id) {
+      console.error('No drop_id in result', result)
+      return
+    }
+  
+    try {
+      const drop = await getDropById(result.drop_id)
+  
+      const winDrop = {
+        id: drop.id,
+        price: drop.price,
+        image: drop.icon,
+        animation: drop.lottie_anim,
+        contentType: drop.lottie_anim ? 'animation' : 'image',
+        type: drop.rarity === 'epic' ? 'purple' : 'blue',
+      }
+  
+      const prizes = buildWheelPrizes(winDrop)
+      setWheelPrizes(prizes)
+  
+      const targetSegment = prizes.findIndex(p => p.id === winDrop.id)
+  
+      spinToSegment(prizes, targetSegment)
+    } catch (e) {
+      console.error('Failed to load drop', e)
+    }
+  }
+  
+  const buildInitialWheel = () => {
+    const TOTAL = 10
+    if (!allDrops.length) return []
+  
+    const prizes = []
+  
+    while (prizes.length < TOTAL) {
+      const r = allDrops[Math.floor(Math.random() * allDrops.length)]
+  
+      prizes.push({
+        id: Math.random(),
+        price: r.price,
+        image: r.icon,
+        animation: r.lottie_anim,
+        contentType: r.lottie_anim ? 'animation' : 'image',
+        type: r.rarity === 'epic' ? 'purple' : 'blue',
+      })
+    }
+  
+    return prizes
+  }
+  useEffect(() => {
+    if (!allDrops.length) return
+  
+    // если колесо ещё пустое — инициализируем
+    if (!wheelPrizes.length) {
+      const initialPrizes = buildInitialWheel()
+      setWheelPrizes(initialPrizes)
+    }
+  }, [allDrops])
+  
+  
+  const buildWheelPrizes = (winDrop) => {
+    const TOTAL = 10
+  
+    if (!allDrops.length) return [winDrop]
+  
+    // убираем выигрыш из возможных филлеров
+    const fillers = allDrops.filter(d => d.id !== winDrop.id)
+  
+    const prizes = []
+  
+    // 1️⃣ выигрыш
+    prizes.push(winDrop)
+  
+    // 2️⃣ добиваем случайными дропами с бэка
+    while (prizes.length < TOTAL) {
+      const r = fillers[Math.floor(Math.random() * fillers.length)]
+  
+      prizes.push({
+        id: Math.random(), // уникальный id для React
+        price: r.price,
+        image: r.icon,
+        animation: r.lottie_anim,
+        contentType: r.lottie_anim ? 'animation' : 'image',
+        type: r.rarity === 'epic' ? 'purple' : 'blue',
+      })
+    }
+  
+    // 3️⃣ перемешиваем
+    return prizes.sort(() => Math.random() - 0.5)
+  }
+  
+  
   
   // Для свайпа prizes modal
   const prizesModalRef = useRef(null)
@@ -65,7 +197,27 @@ function WheelPage() {
       ].slice(0, 50))
     },
   })
-
+  useEffect(() => {
+    let cancelled = false
+  
+    const loadDrops = async () => {
+      try {
+        const drops = await getAllDrops()
+        if (!cancelled) {
+          setAllDrops(drops)
+        }
+      } catch (e) {
+        console.error('Failed to load drops', e)
+      }
+    }
+  
+    loadDrops()
+  
+    return () => {
+      cancelled = true
+    }
+  }, [])
+  
   // Animate lights
   useEffect(() => {
     const interval = setInterval(() => {
@@ -425,15 +577,16 @@ function WheelPage() {
           {/* Buttons */}
           <div className="wheel-buttons-container">
             <div className="wheel-bet-hint">{t('wheel.betHint')}</div>
-            <button 
-              className={`wheel-spin-btn gg-btn-glow ${isSpinning ? 'wheel-spin-btn--disabled' : ''}`}
-              onClick={hasFreeSpins ? handleSpin : handleOpenDeposit}
-              disabled={isSpinning}
-            >
-              <span className="wheel-spin-btn-text">
-                {hasFreeSpins ? t('wheel.spin') : t('wheel.topUpBalance')}
-              </span>
-            </button>
+            <button
+  className={`wheel-spin-btn gg-btn-glow ${isSpinning ? 'wheel-spin-btn--disabled' : ''}`}
+  disabled={isSpinning}
+  onClick={hasFreeSpins ? handleFreeSpin : handleOpenDeposit}
+>
+  <span className="wheel-spin-btn-text">
+    {hasFreeSpins ? t('wheel.spin') : t('wheel.topUpBalance')}
+  </span>
+</button>
+
             <button className="wheel-prizes-btn" onClick={handleOpenPrizes}>
               {t('wheel.prizesList')}
             </button>
@@ -474,11 +627,11 @@ function WheelPage() {
         )}
 
         {/* Bet Modal */}
-        <BetModal
+<BetModal
   isOpen={showCrashModal}
   onClose={closeDepositModal}
-  game="wheel"
-  mode="deposit"
+  game="roulette"
+  onResult={handleBetResult}
 />
 
         {/* Prizes Modal */}
