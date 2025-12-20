@@ -248,13 +248,13 @@
 }
 
 .case-item-card {
-  background: #2A1F4E;
+  background: transparent;
   border-radius: 12px;
   padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 1px solid rgba(139, 92, 246, 0.2);
+  border: none;
   aspect-ratio: 1 / 1;
   position: relative;
   overflow: hidden;
@@ -340,7 +340,8 @@
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
-  margin-top: 8px;
+  margin-top: 0;
+  margin-bottom: 8px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: 0 8px 24px rgba(149, 27, 249, 0.3);
 }

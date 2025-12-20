@@ -62,7 +62,7 @@ function UpgradePage() {
     const ctx = canvas.getContext('2d')
     const centerX = canvas.width / 2
     const centerY = canvas.height / 2
-    const radius = 70
+    const radius = 85
     // Угол на каждую сторону от нижней точки (PI/2).
     // При 50% halfAngle = PI/2 (до боковых меток 50%), при 100% halfAngle = PI (до верхней метки 100%).
     const halfAngle = (chance / 100) * Math.PI
@@ -244,10 +244,11 @@ function UpgradePage() {
 
   // Cleanup animation on unmount
   useEffect(() => {
-    const interval = setInterval(() => {
-      setLightPhase(prev => (prev + 1) % 4)
-    }, isSpinning ? 80 : 400)
-    return () => clearInterval(interval)
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current)
+      }
+    }
   }, [])
 
   const closeResultModal = useCallback(() => {
@@ -301,42 +302,15 @@ function UpgradePage() {
           <div className="upgrade-game-area-fade" />
           
           <div className="upgrade-main-container">
-            {/* Левая коробка - исходный предмет */}
-            <div className={`upgrade-box upgrade-box-source ${sourceItem ? 'has-item' : ''} ${gameState === 'lose' ? 'losing' : ''}`}>
-              <div className="upgrade-box-label">{t('upgrade.yourItem')}</div>
-              <div className="upgrade-box-content">
-                {sourceItem ? (
-                  <>
-                    <img src={sourceItem.image} alt={sourceItem.name} className="upgrade-item-image" />
-                    <div className="upgrade-item-price">
-                      <img src={currencyIcon} alt="currency" className="upgrade-currency-icon" />
-                      <span>{sourceItem.price}</span>
-                    </div>
-                  </>
-                ) : (
-                  <div className="upgrade-box-empty">
-                    <div className="upgrade-box-arrow">
-                      <img src="/image/mdi_gift.svg" alt="gift" className="upgrade-box-gift-icon" />
-                    </div>
-                    <span>{t('upgrade.selectItem')}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Центр - Колесо шанса */}
+            {/* Колесо шанса - сверху */}
             <div className="upgrade-wheel-container">
               <div className="upgrade-wheel">
                 <canvas 
                   ref={canvasRef} 
-                  width="180" 
-                  height="180" 
+                  width="210" 
+                  height="210" 
                   className="upgrade-wheel-canvas"
                 />
-                
-                {/* Боковые проценты */}
-                <span className="upgrade-percent-label upgrade-percent-left">50%</span>
-                <span className="upgrade-percent-label upgrade-percent-right">50%</span>
                 
                 {/* Центр с процентом */}
                 <div className={`upgrade-wheel-center ${gameState}`}>
@@ -350,16 +324,40 @@ function UpgradePage() {
               </div>
             </div>
 
-            {/* Правая коробка - целевой предмет */}
-            <div className={`upgrade-box upgrade-box-target ${targetItem ? 'has-item' : ''} ${gameState === 'win' ? 'winning' : ''}`}>
-              <div className="upgrade-box-label">{t('upgrade.upgradeTarget')}</div>
-              <div className="upgrade-box-content">
+            {/* Карточки под колесом */}
+            <div className="upgrade-boxes-row">
+              {/* Левая коробка - исходный предмет */}
+              <div className={`upgrade-box upgrade-box-source ${sourceItem ? 'has-item' : ''} ${gameState === 'lose' ? 'losing' : ''}`}>
+                {sourceItem ? (
+                  <>
+                    <img src={sourceItem.image} alt={sourceItem.name} className="upgrade-item-image" />
+                    <div className="upgrade-box-content">
+                      <div className="upgrade-item-price">
+                        <img src={currencyIcon} alt="currency" className="upgrade-currency-icon" />
+                        <span>{sourceItem.price}</span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="upgrade-box-empty">
+                    <div className="upgrade-box-arrow">
+                      <img src="/image/mdi_gift.svg" alt="gift" className="upgrade-box-gift-icon" />
+                    </div>
+                    <span>{t('upgrade.selectItem')}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Правая коробка - целевой предмет */}
+              <div className={`upgrade-box upgrade-box-target ${targetItem ? 'has-item' : ''} ${gameState === 'win' ? 'winning' : ''}`}>
                 {targetItem ? (
                   <>
                     <img src={targetItem.image} alt={targetItem.name} className="upgrade-item-image" />
-                    <div className="upgrade-item-price">
-                      <img src={currencyIcon} alt="currency" className="upgrade-currency-icon" />
-                      <span>{targetItem.price}</span>
+                    <div className="upgrade-box-content">
+                      <div className="upgrade-item-price">
+                        <img src={currencyIcon} alt="currency" className="upgrade-currency-icon" />
+                        <span>{targetItem.price}</span>
+                      </div>
                     </div>
                   </>
                 ) : (

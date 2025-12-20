@@ -61,8 +61,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 520px;
-  height: 520px;
+  width: 780px;
+  height: 780px;
   background: repeating-conic-gradient(
     from 90deg,
     #260057 0deg 7.5deg,
@@ -82,28 +82,38 @@
 /* Основной контейнер */
 .upgrade-main-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   width: 100%;
-  gap: 6px;
+  gap: 0;
   padding: 0;
   box-sizing: border-box;
   position: relative;
   z-index: 2;
 }
 
+/* Контейнер для боковых карточек */
+.upgrade-boxes-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 20px;
+}
+
 /* Коробки для предметов */
 .upgrade-box {
   flex: 0 0 auto;
-  width: 100px;
-  min-height: 68px;
+  width: 190px;
+  min-height: 70px;
   background: rgba(16, 2, 48, 0.7);
   border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  padding: 8px;
+  padding: 8px 10px;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -140,31 +150,26 @@
 }
 
 .upgrade-box-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: rgba(195, 149, 255, 0.9);
-  text-align: center;
-  margin-bottom: 6px;
-  white-space: nowrap;
+  display: none;
 }
 
 .upgrade-box-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  width: 100%;
+  gap: 4px;
 }
 
 .upgrade-box-empty {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   color: rgba(255, 255, 255, 0.4);
   font-size: 11px;
-  text-align: center;
+  text-align: left;
 }
 
 .upgrade-box-arrow {
@@ -192,18 +197,19 @@
 }
 
 .upgrade-item-image {
-  width: 56px;
-  height: 56px;
+  width: 55px;
+  height: 55px;
   object-fit: contain;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+  flex-shrink: 0;
 }
 
 .upgrade-item-price {
   display: flex;
   align-items: center;
   gap: 4px;
-  margin-top: 6px;
-  font-size: 14px;
+  margin-top: 0;
+  font-size: 13px;
   font-weight: 700;
   color: var(--white);
 }
@@ -219,15 +225,15 @@
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  margin-top: -65px;
+  margin-top: 0;
   position: relative;
   z-index: 3;
 }
 
 .upgrade-wheel {
   position: relative;
-  width: 180px;
-  height: 180px;
+  width: 253px;
+  height: 253px;
 }
 
 .upgrade-percent-label {
@@ -324,7 +330,7 @@
 
 .upgrade-page .upgrade-full-btn {
   width: calc(100% - 32px);
-  margin: 20px 16px 0;
+  margin: 30px 16px 0;
   position: relative;
   z-index: 4;
 }
@@ -465,8 +471,8 @@
 }
 
 .upgrade-gift-card {
-  background: rgba(16, 2, 48, 0.6);
-  border: 2px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  border: none;
   border-radius: 12px;
   padding: 0;
   display: flex;
@@ -480,27 +486,27 @@
 }
 
 .upgrade-gift-card:hover {
-  border-color: rgba(149, 27, 249, 0.4);
-  background: rgba(16, 2, 48, 0.8);
+  border-color: transparent;
+  background: transparent;
 }
 
 .upgrade-gift-card.selected {
-  border-color: #951BF9;
-  background: rgba(149, 27, 249, 0.2);
+  border: 2px solid #951BF9;
+  background: transparent;
   box-shadow: 0 0 20px rgba(149, 27, 249, 0.3);
 }
 
 .upgrade-gift-card.target {
-  border-color: rgba(255, 175, 77, 0.2);
+  border-color: transparent;
 }
 
 .upgrade-gift-card.target:hover {
-  border-color: rgba(255, 175, 77, 0.5);
+  border-color: transparent;
 }
 
 .upgrade-gift-card.target.selected {
-  border-color: #FFAF4D;
-  background: rgba(255, 175, 77, 0.2);
+  border: 2px solid #FFAF4D;
+  background: transparent;
   box-shadow: 0 0 20px rgba(255, 175, 77, 0.3);
 }
 
@@ -543,4 +549,26 @@
   max-height: none !important;
   object-fit: contain;
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+/* Адаптив для маленьких экранов */
+@media (max-width: 400px) {
+  .upgrade-box {
+    width: 160px;
+    min-height: 65px;
+    padding: 6px 8px;
+  }
+
+  .upgrade-boxes-row {
+    gap: 8px;
+  }
+
+  .upgrade-item-image {
+    width: 48px;
+    height: 48px;
+  }
+
+  .upgrade-item-price {
+    font-size: 12px;
+  }
 }

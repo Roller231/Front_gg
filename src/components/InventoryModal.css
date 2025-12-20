@@ -59,9 +59,9 @@
   background: rgba(13, 3, 38, 0.95);
   z-index: 1000;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  padding: 16px;
+  padding: 0;
   animation: fadeIn 0.2s ease;
 }
 
@@ -70,17 +70,22 @@
   to { opacity: 1; }
 }
 
+@keyframes inventory-slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
 /* Modal Container */
 .inventory-modal {
   width: 100%;
-  max-width: 400px;
+  max-width: 100%;
   max-height: 85vh;
   background: #291E42;
-  border-radius: 24px;
+  border-radius: 24px 24px 0 0;
   display: flex;
+  animation: inventory-slide-up 0.3s ease-out;
   flex-direction: column;
   overflow: hidden;
-  animation: slideUp 0.3s ease;
 }
 
 /* Handle (как в других модалках) */
@@ -208,9 +213,13 @@
 
 /* Items Grid Container */
 .inventory-modal-content {
+  width: 100%;
   flex: 1;
   overflow-y: auto;
+  background: transparent;
+  border-radius: 0;
   padding: 20px;
+  box-sizing: border-box;
   scrollbar-width: thin;
   scrollbar-color: #6B3FD8 #1F0248;
 }
@@ -232,8 +241,8 @@
 /* Items Grid */
 .inventory-modal-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
 }
 
 /* Empty State */
@@ -262,9 +271,9 @@
 /* Item Card */
 .inventory-modal-card {
   background: #1F0248;
-  border: 2px solid rgba(139, 92, 246, 0.3);
-  border-radius: 16px;
-  padding: 12px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 10px;
+  padding: 6px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -299,7 +308,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .inventory-modal-card-icon {
@@ -316,10 +325,10 @@
 
 .inventory-modal-card-name {
   color: #fff;
-  font-size: 13px;
+  font-size: 10px;
   font-weight: 600;
   text-align: center;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -328,28 +337,28 @@
 
 .inventory-modal-card-price {
   color: #A07BFF;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 500;
-  margin-bottom: 10px;
+  margin-bottom: 4px;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
 .inventory-modal-card-price img {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
 }
 
 /* Sell Button */
 .inventory-modal-sell-btn {
   width: 100%;
-  padding: 8px 12px;
+  padding: 4px 6px;
   background: rgba(139, 92, 246, 0.2);
   border: 1px solid rgba(139, 92, 246, 0.4);
-  border-radius: 10px;
+  border-radius: 6px;
   color: #B892FF;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -392,12 +401,30 @@
 
 /* Responsive */
 @media (max-width: 380px) {
+  .inventory-modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .inventory-modal {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 24px 24px 0 0;
+  }
+
   .inventory-modal {
     max-height: 90vh;
   }
   
+  .inventory-modal-content {
+    width: 100%;
+    padding: 20px 0 32px;
+  }
+  
   .inventory-modal-grid {
-    gap: 12px;
+    gap: 0;
+    margin: 0;
+    padding: 0 16px;
   }
   
   .inventory-modal-card {

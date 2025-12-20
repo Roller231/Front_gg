@@ -21,6 +21,7 @@ import { CurrencyProvider } from './context/CurrencyContext'
 import { LanguageProvider, useLanguage } from './context/LanguageContext'
 import { useUser } from './context/UserContext'
 import { AppDataProvider, useAppData } from './context/AppDataContext'
+import { LiveFeedProvider } from './context/LiveFeedContext'
 
 /* ================= HOME ================= */
 
@@ -40,6 +41,7 @@ function HomePage() {
           <GameCard title={t('home.crash')} online={55} />
           <GameCard title={t('home.pvp')} online={597} />
           <GameCard title={t('home.upgrade')} online={597} />
+          <GameCard title={t('home.wheel')} online={312} />
         </div>
       </main>
 
@@ -123,7 +125,9 @@ function App() {
     <LanguageProvider>
       <CurrencyProvider>
         <AppDataProvider>
-          <AppContent />
+          <LiveFeedProvider>
+            <AppContent />
+          </LiveFeedProvider>
         </AppDataProvider>
       </CurrencyProvider>
     </LanguageProvider>
