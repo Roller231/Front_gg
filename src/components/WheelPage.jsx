@@ -7,7 +7,8 @@ import Navigation from './Navigation'
 import { Player } from '@lottiefiles/react-lottie-player'
 import BetModal from './BetModal'
 import { WS_BASE_URL } from '../config/ws'
-import { useWebSocket } from '../hooks/useWebSocket'
+import { useLiveFeed } from '../context/LiveFeedContext'
+
 import { getDropById, getAllDrops } from '../api/cases'
 import { rouletteFreeSpin, getFreeSpinStatus } from '../api/roulette'
 import { useUser } from '../context/UserContext'
@@ -197,25 +198,10 @@ function WheelPage() {
   const prizesIsDragging = useRef(false)
 
   const currencyIcon = selectedCurrency?.icon || '/image/Coin-Icon.svg'
-  const [liveDrops, setLiveDrops] = useState([])
 
+  const { liveDrops } = useLiveFeed()
   // WebSocket for live drops (same as CasesPage)
-  useWebSocket(`${WS_BASE_URL}/ws/drops/global`, {
-    onMessage: (msg) => {
-      if (msg.event !== 'drop') return
 
-      setLiveDrops(prev => [
-        {
-          id: `${msg.data.id}-${Date.now()}`,
-          name: msg.data.name,
-          type: msg.data.icon?.endsWith('.json') ? 'animation' : 'image',
-          image: msg.data.icon,
-          animation: msg.data.icon,
-        },
-        ...prev,
-      ].slice(0, 50))
-    },
-  })
   useEffect(() => {
     let cancelled = false
   
