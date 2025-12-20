@@ -126,10 +126,15 @@ function UpgradePage() {
     ctx.translate(centerX, centerY)
     ctx.rotate(rotationAngle)
     
+    const pointerGradient = ctx.createLinearGradient(radius - 12, 0, radius + 12, 0)
+    pointerGradient.addColorStop(0, '#FFAF4D')
+    pointerGradient.addColorStop(0.5, '#FFF7A7')
+    pointerGradient.addColorStop(1, '#FFAF4D')
+
     ctx.beginPath()
-    ctx.fillStyle = '#BBFD44'
-    ctx.shadowBlur = 10
-    ctx.shadowColor = '#BBFD44'
+    ctx.fillStyle = pointerGradient
+    ctx.shadowBlur = 12
+    ctx.shadowColor = '#FFAF4D'
     ctx.moveTo(radius - 8, 0)
     ctx.lineTo(radius + 8, -6)
     ctx.lineTo(radius + 8, 6)
@@ -239,11 +244,10 @@ function UpgradePage() {
 
   // Cleanup animation on unmount
   useEffect(() => {
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current)
-      }
-    }
+    const interval = setInterval(() => {
+      setLightPhase(prev => (prev + 1) % 4)
+    }, isSpinning ? 80 : 400)
+    return () => clearInterval(interval)
   }, [])
 
   const closeResultModal = useCallback(() => {
