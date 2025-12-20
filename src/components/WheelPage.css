@@ -706,18 +706,19 @@
   position: relative;
   width: 120px;
   height: 120px;
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+  border: none;
   border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: none;
   overflow: hidden;
   animation: prizeFloat 2s ease-in-out infinite;
 }
 
 .wheel-result-price {
   position: absolute;
-  top: 4px;
-  left: 4px;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 2px;
