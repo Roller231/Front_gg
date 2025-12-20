@@ -15,12 +15,10 @@ import WheelPage from './components/WheelPage'
 import Top20Page from './components/Top20Page'
 import PvPPage from './components/PvPPage'
 import UpgradePage from './components/UpgradePage'
-import Preloader from './components/Preloader'
 
 import { CurrencyProvider } from './context/CurrencyContext'
 import { LanguageProvider, useLanguage } from './context/LanguageContext'
 import { useUser } from './context/UserContext'
-import { AppDataProvider, useAppData } from './context/AppDataContext'
 
 /* ================= HOME ================= */
 
@@ -49,34 +47,6 @@ function HomePage() {
 }
 
 /* ================= APP ================= */
-
-function AppContent() {
-  const { loading: appDataLoading, progress, loadAllData } = useAppData()
-
-  useEffect(() => {
-    loadAllData()
-  }, [loadAllData])
-
-  if (appDataLoading) {
-    return <Preloader progress={progress} />
-  }
-
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/cases" element={<CasesPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/crash" element={<CrashPage />} />
-        <Route path="/partner" element={<PartnerPage />} />
-        <Route path="/wheel" element={<WheelPage />} />
-        <Route path="/top-20" element={<Top20Page />} />
-        <Route path="/pvp" element={<PvPPage />} />
-        <Route path="/upgrade" element={<UpgradePage />} />
-      </Routes>
-    </BrowserRouter>
-  )
-}
 
 function App() {
   const { initUser, loading } = useUser()
@@ -116,15 +86,25 @@ function App() {
 
   // 🔄 пока идёт инициализация пользователя
   if (loading) {
-    return <Preloader progress={0} />
+    return <div className="app">Loading...</div>
   }
 
   return (
     <LanguageProvider>
       <CurrencyProvider>
-        <AppDataProvider>
-          <AppContent />
-        </AppDataProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/cases" element={<CasesPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/crash" element={<CrashPage />} />
+            <Route path="/partner" element={<PartnerPage />} />
+            <Route path="/wheel" element={<WheelPage />} />
+            <Route path="/top-20" element={<Top20Page />} />
+            <Route path="/pvp" element={<PvPPage />} />
+            <Route path="/upgrade" element={<UpgradePage />} />
+          </Routes>
+        </BrowserRouter>
       </CurrencyProvider>
     </LanguageProvider>
   )
