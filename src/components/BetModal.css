@@ -21,6 +21,11 @@
     opacity: 1;
   }
 }
+.bet-submit-button.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  filter: grayscale(0.5);
+}
 
 /* Контент модала */
 .bet-modal-content {
