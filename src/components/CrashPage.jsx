@@ -92,7 +92,7 @@ function CrashLine({ multiplier, maxMultiplier }) {
 function CrashPage() {
   const { t } = useLanguage()
   const [gameState, setGameState] = useState('countdown') // 'countdown' | 'preflight' | 'flying' | 'postflight'
-  const [countdown, setCountdown] = useState(3)
+  const [countdown, setCountdown] = useState(null)
   const [multiplier, setMultiplier] = useState(1.0)
   const [coefficientHistory, setCoefficientHistory] = useState(initialHistory)
   const coeffHistoryRef = useRef(null)
@@ -381,14 +381,16 @@ useEffect(() => {
 
 
   useEffect(() => {
-    if (gameState !== "countdown") return;
+    if (gameState !== 'countdown') return
+    if (countdown === null) return // ⬅️ ВАЖНО
   
     const timer = setInterval(() => {
-      setCountdown(c => Math.max(0, c - 1));
-    }, 1000);
+      setCountdown(c => (c !== null ? Math.max(0, c - 1) : null))
+    }, 1000)
   
-    return () => clearInterval(timer);
-  }, [gameState]);
+    return () => clearInterval(timer)
+  }, [gameState, countdown])
+  
   
   // Обратный отсчёт
 
@@ -545,11 +547,14 @@ useEffect(() => {
           <div className="crash-game-area-fade" />
           {/* Анимации взрывов и полёта кота */}
           <div className="crash-animation-container">
-            {gameState === 'countdown' && (
-              <div className="countdown-display">
-                <span className="countdown-number">{countdown}</span>
-              </div>
-            )}
+          {gameState === 'countdown' && (
+  <div className="countdown-display">
+    <span className="countdown-number">
+      {countdown === null ? '...' : countdown}
+    </span>
+  </div>
+)}
+
 
             {gameState === 'flying' && (
               <>

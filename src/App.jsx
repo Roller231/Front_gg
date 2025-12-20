@@ -22,7 +22,7 @@ import { LanguageProvider, useLanguage } from './context/LanguageContext'
 import { useUser } from './context/UserContext'
 import { AppDataProvider, useAppData } from './context/AppDataContext'
 import { LiveFeedProvider } from './context/LiveFeedContext'
-
+import { FreeSpinProvider, useFreeSpin } from './context/FreeSpinContext'
 /* ================= HOME ================= */
 
 function HomePage() {
@@ -54,10 +54,22 @@ function HomePage() {
 
 function AppContent() {
   const { loading: appDataLoading, progress, loadAllData } = useAppData()
+  const { user } = useUser()
+  const { initToday } = useFreeSpin()
 
+  // глобальная загрузка данных
   useEffect(() => {
     loadAllData()
   }, [loadAllData])
+
+  // 🔥 ИНИЦИАЛИЗАЦИЯ ДНЯ — СТРОГО ПОСЛЕ USER
+  useEffect(() => {
+    if (!user?.id) return
+
+    initToday(user.id)
+  }, [user?.id, initToday])
+
+
 
   if (appDataLoading) {
     return <Preloader progress={progress} />
@@ -79,6 +91,7 @@ function AppContent() {
     </BrowserRouter>
   )
 }
+
 
 function App() {
   const { initUser, loading } = useUser()
@@ -121,17 +134,21 @@ function App() {
     return <Preloader progress={0} />
   }
 
-  return (
-    <LanguageProvider>
-      <CurrencyProvider>
-        <AppDataProvider>
-          <LiveFeedProvider>
-            <AppContent />
-          </LiveFeedProvider>
-        </AppDataProvider>
-      </CurrencyProvider>
-    </LanguageProvider>
-  )
-}
 
-export default App
+    return (
+      <LanguageProvider>
+        <FreeSpinProvider>
+          <CurrencyProvider>
+            <AppDataProvider>
+              <LiveFeedProvider>
+                <AppContent />
+              </LiveFeedProvider>
+            </AppDataProvider>
+          </CurrencyProvider>
+        </FreeSpinProvider>
+      </LanguageProvider>
+    )
+  }
+  
+  export default App
+  
