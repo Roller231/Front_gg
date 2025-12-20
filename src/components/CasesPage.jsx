@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './CasesPage.css'
 
 import Header from './Header'
@@ -7,8 +8,9 @@ import CaseModal from './CaseModal'
 
 import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
-import { useAppData } from '../context/AppDataContext'
+import { getCases } from '../api/cases'
 import { Player } from '@lottiefiles/react-lottie-player'
+import { liveDrops } from '../data/liveDrops'
 
 import { useLiveFeed } from '../context/LiveFeedContext'
 
@@ -18,11 +20,14 @@ import { useLiveFeed } from '../context/LiveFeedContext'
 
 
 function CasesPage() {
+  const navigate = useNavigate()
   const { selectedCurrency, formatAmount } = useCurrency()
   const { t } = useLanguage()
-  const { cases } = useAppData()
 
   /* ===== STATE ===== */
+  const [cases, setCases] = useState([])
+  const [loading, setLoading] = useState(true)
+
   const [activeTab, setActiveTab] = useState('paid')
   const [selectedCase, setSelectedCase] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -45,6 +50,10 @@ function CasesPage() {
   const handleCloseModal = () => {
     setIsModalOpen(false)
     setSelectedCase(null)
+  }
+
+  if (loading) {
+    return <div className="cases-page">{t('cases.loadingCases')}</div>
   }
 
   return (
