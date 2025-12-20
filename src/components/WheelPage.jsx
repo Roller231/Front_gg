@@ -6,8 +6,7 @@ import Header from './Header'
 import Navigation from './Navigation'
 import { Player } from '@lottiefiles/react-lottie-player'
 import BetModal from './BetModal'
-import { WS_BASE_URL } from '../config/ws'
-import { useWebSocket } from '../hooks/useWebSocket'
+import { useLiveFeed } from '../context/LiveFeedContext'
 import { getDropById, getAllDrops } from '../api/cases'
 import { rouletteFreeSpin, getFreeSpinStatus } from '../api/roulette'
 import { useUser } from '../context/UserContext'
@@ -197,25 +196,7 @@ function WheelPage() {
   const prizesIsDragging = useRef(false)
 
   const currencyIcon = selectedCurrency?.icon || '/image/Coin-Icon.svg'
-  const [liveDrops, setLiveDrops] = useState([])
-
-  // WebSocket for live drops (same as CasesPage)
-  useWebSocket(`${WS_BASE_URL}/ws/drops/global`, {
-    onMessage: (msg) => {
-      if (msg.event !== 'drop') return
-
-      setLiveDrops(prev => [
-        {
-          id: `${msg.data.id}-${Date.now()}`,
-          name: msg.data.name,
-          type: msg.data.icon?.endsWith('.json') ? 'animation' : 'image',
-          image: msg.data.icon,
-          animation: msg.data.icon,
-        },
-        ...prev,
-      ].slice(0, 50))
-    },
-  })
+  const { liveDrops } = useLiveFeed()
   useEffect(() => {
     let cancelled = false
   
@@ -679,13 +660,18 @@ function WheelPage() {
                 <h2 className="prizes-modal-title">{t('wheel.prizesList')}</h2>
               </div>
               <div className="prizes-modal-body">
-                <div className="prizes-grid">
-                  {wheelPrizes.map((prize) => (
+                {(() => {
+                  // Sort prizes by price (highest first) and split into 3 groups
+                  const sortedPrizes = [...wheelPrizes].sort((a, b) => b.price - a.price)
+                  const totalPrizes = sortedPrizes.length
+                  const groupSize = Math.ceil(totalPrizes / 3)
+                  
+                  const legendaryPrizes = sortedPrizes.slice(0, groupSize)
+                  const epicPrizes = sortedPrizes.slice(groupSize, groupSize * 2)
+                  const commonPrizes = sortedPrizes.slice(groupSize * 2)
+
+                  const renderPrizeCard = (prize) => (
                     <div key={prize.id} className="prize-card">
-                      <span className="prize-price-badge">
-                        <img src={currencyIcon} alt="currency" className="prize-price-coin" />
-                        {prize.price}
-                      </span>
                       <div className="prize-image">
                         {prize.contentType === 'animation' ? (
                           <Player
@@ -698,9 +684,47 @@ function WheelPage() {
                           <img src={prize.image} alt="prize" className="prize-img" />
                         )}
                       </div>
+                      <span className="prize-price-badge">
+                        <img src={currencyIcon} alt="currency" className="prize-price-coin" />
+                        {prize.price}
+                      </span>
                     </div>
-                  ))}
-                </div>
+                  )
+
+                  return (
+                    <>
+                      {/* Legendary prizes - most expensive */}
+                      {legendaryPrizes.length > 0 && (
+                        <div className="prizes-section">
+                          <h3 className="prizes-section-title prizes-section-legendary">{t('wheel.legendary')}</h3>
+                          <div className="prizes-grid">
+                            {legendaryPrizes.map(renderPrizeCard)}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Epic prizes - medium price */}
+                      {epicPrizes.length > 0 && (
+                        <div className="prizes-section">
+                          <h3 className="prizes-section-title prizes-section-epic">{t('wheel.epic')}</h3>
+                          <div className="prizes-grid">
+                            {epicPrizes.map(renderPrizeCard)}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Common prizes - cheapest */}
+                      {commonPrizes.length > 0 && (
+                        <div className="prizes-section">
+                          <h3 className="prizes-section-title prizes-section-common">{t('wheel.common')}</h3>
+                          <div className="prizes-grid">
+                            {commonPrizes.map(renderPrizeCard)}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )
+                })()}
               </div>
             </div>
           </div>

@@ -437,6 +437,12 @@ const canOpenCase = !isPaid || userBalance >= casePrice
             {isPaid ? (
               /* Платный кейс */
               <>
+                <button className="case-open-button" onClick={handleOpenCase} disabled={!canOpenCase || isSpinning}>
+                {canOpenCase
+    ? t('caseModal.open')
+    : t('caseModal.notEnoughFunds')}
+                </button>
+
                 <div className="case-section-title">{t('caseModal.whatsInside')}</div>
                 <div className="case-items-grid">
                   {caseItems.map((item) => (
@@ -465,12 +471,6 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                     </div>
                   ))}
                 </div>
-
-                <button className="case-open-button" onClick={handleOpenCase} disabled={!canOpenCase || isSpinning}>
-                {canOpenCase
-    ? t('caseModal.open')
-    : t('caseModal.notEnoughFunds')}
-                </button>
               </>
             ) : (
               /* Бесплатный кейс */

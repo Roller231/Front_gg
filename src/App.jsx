@@ -19,6 +19,8 @@ import UpgradePage from './components/UpgradePage'
 import { CurrencyProvider } from './context/CurrencyContext'
 import { LanguageProvider, useLanguage } from './context/LanguageContext'
 import { useUser } from './context/UserContext'
+import { AppDataProvider, useAppData } from './context/AppDataContext'
+import { LiveFeedProvider } from './context/LiveFeedContext'
 
 /* ================= HOME ================= */
 
@@ -38,6 +40,7 @@ function HomePage() {
           <GameCard title={t('home.crash')} online={55} />
           <GameCard title={t('home.pvp')} online={597} />
           <GameCard title={t('home.upgrade')} online={597} />
+          <GameCard title={t('home.wheel')} online={312} />
         </div>
       </main>
 
@@ -92,19 +95,11 @@ function App() {
   return (
     <LanguageProvider>
       <CurrencyProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/cases" element={<CasesPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/crash" element={<CrashPage />} />
-            <Route path="/partner" element={<PartnerPage />} />
-            <Route path="/wheel" element={<WheelPage />} />
-            <Route path="/top-20" element={<Top20Page />} />
-            <Route path="/pvp" element={<PvPPage />} />
-            <Route path="/upgrade" element={<UpgradePage />} />
-          </Routes>
-        </BrowserRouter>
+        <AppDataProvider>
+          <LiveFeedProvider>
+            <AppContent />
+          </LiveFeedProvider>
+        </AppDataProvider>
       </CurrencyProvider>
     </LanguageProvider>
   )

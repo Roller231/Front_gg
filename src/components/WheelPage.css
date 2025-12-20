@@ -9,7 +9,7 @@
   position: relative;
   padding-bottom: 100px;
   overflow: hidden;
-  --wheel-scale: 0.9786;
+  --wheel-scale: 0.8807;
   --wheel-top: 20px;
 }
 
@@ -136,10 +136,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
+  padding-top: 10%;
   position: relative;
   overflow: hidden;
-  padding: 0;
-  padding-top: 20px;
 }
 
 /* Background glow effect */
@@ -167,7 +166,7 @@
   height: 350px;
   overflow: hidden;
   margin-top: auto;
-  transform: translateY(-38px);
+  transform: translateY(-88px);
 }
 
 /* Outer glow ring */
@@ -201,7 +200,7 @@
   position: absolute;
   width: 800px;
   height: 800px;
-  top: var(--wheel-top);
+  top: calc(var(--wheel-top) + 10%);
   left: 50%;
   margin-left: -400px;
   border-radius: 50%;
@@ -272,17 +271,18 @@
   transform-origin: 0 0;
   transform: rotate(var(--segment-angle)) translate(-42px, -258px);
   pointer-events: none;
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+  border: none;
   border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
+  box-shadow: none;
+  overflow: visible;
 }
 
 .wheel-segment-price {
   position: absolute;
-  top: 4px;
-  left: 4px;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 2px;
@@ -365,7 +365,7 @@
 /* Pointer arrow - Teardrop */
 .wheel-pointer-arrow {
   position: absolute;
-  top: 20px;
+  top: calc(20px + 10%);
   left: 50%;
   transform: translateX(-50%) rotate(180deg);
   z-index: 20;
@@ -863,33 +863,54 @@
   scrollbar-width: none; /* Firefox */
 }
 
+.prizes-section {
+  margin-bottom: 20px;
+}
+
+.prizes-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  padding: 0 20px;
+}
+
+.prizes-section-legendary {
+  color: #FFD700;
+}
+
+.prizes-section-epic {
+  color: #A855F7;
+}
+
+.prizes-section-common {
+  color: rgba(255, 255, 255, 0.7);
+}
+
 .prizes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   padding: 0 20px;
 }
 
 .prize-card {
   position: relative;
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+  border: none;
   border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
+  box-shadow: none;
+  overflow: visible;
   transition: all 0.3s ease;
-  aspect-ratio: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
   cursor: pointer;
 }
 
 .prize-price-badge {
-  position: absolute;
-  top: 6px;
-  left: 6px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   font-size: 12px;
   font-weight: 600;
@@ -897,7 +918,7 @@
   background: rgba(0, 0, 0, 0.6);
   padding: 4px 6px;
   border-radius: 8px;
-  z-index: 3;
+  margin-top: 4px;
 }
 
 .prize-price-coin {
@@ -908,13 +929,13 @@
 
 .prize-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
-  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: none;
+  border-color: transparent;
 }
 
 .prize-image {
   width: 100%;
-  flex: 1;
+  aspect-ratio: 1;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -12,8 +12,7 @@ import { getCases } from '../api/cases'
 import { Player } from '@lottiefiles/react-lottie-player'
 import { liveDrops } from '../data/liveDrops'
 
-import { WS_BASE_URL } from '../config/ws'
-import { useWebSocket } from '../hooks/useWebSocket'
+import { useLiveFeed } from '../context/LiveFeedContext'
 
 
 /* ===== LIVE DROPS (пока мок, можно позже заменить WS) ===== */
@@ -32,39 +31,7 @@ function CasesPage() {
   const [activeTab, setActiveTab] = useState('paid')
   const [selectedCase, setSelectedCase] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [liveDrops, setLiveDrops] = useState([])
-
-  // Убрали offsetX - используем CSS анимацию для плавности
-
-  /* ===== LOAD CASES ===== */
-  useEffect(() => {
-    getCases()
-      .then(setCases)
-      .catch((err) => {
-        console.error('Failed to load cases', err)
-      })
-      .finally(() => setLoading(false))
-  }, [])
-
-
-  useWebSocket(`${WS_BASE_URL}/ws/drops/global`, {
-    onMessage: (msg) => {
-      if (msg.event !== 'drop') return
-  
-      // Добавляем новый элемент в начало массива (появляется справа)
-      setLiveDrops(prev => [
-        {
-          id: `${msg.data.id}-${Date.now()}`,
-          name: msg.data.name,
-          type: msg.data.icon?.endsWith('.json') ? 'animation' : 'image',
-          image: msg.data.icon,
-          animation: msg.data.icon,
-        },
-        ...prev,
-      ].slice(0, 50)) // Ограничиваем количество элементов
-      
-    },
-  })
+  const { liveDrops } = useLiveFeed()
   
   
 

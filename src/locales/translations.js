@@ -97,6 +97,9 @@ export const translations = {
       prizesList: 'Список призов',
       congratulations: 'Поздравляем!',
       claim: 'Забрать',
+      legendary: 'Легендарные',
+      epic: 'Эпические',
+      common: 'Обычные',
     },
 
     // Bet Modal
@@ -198,6 +201,7 @@ export const translations = {
       crash: 'РАКЕТКА',
       pvp: 'PvP',
       upgrade: 'Upgrade',
+      wheel: 'Рулетка',
       online: 'ОНЛАЙН',
     },
 
@@ -307,6 +311,9 @@ export const translations = {
       prizesList: 'Prize List',
       congratulations: 'Congratulations!',
       claim: 'Claim',
+      legendary: 'Legendary',
+      epic: 'Epic',
+      common: 'Common',
     },
 
     // Bet Modal
@@ -408,6 +415,7 @@ export const translations = {
       crash: 'CRASH',
       pvp: 'PvP',
       upgrade: 'Upgrade',
+      wheel: 'Wheel',
       online: 'ONLINE',
     },
 
