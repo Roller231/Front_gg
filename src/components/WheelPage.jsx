@@ -6,11 +6,9 @@ import Header from './Header'
 import Navigation from './Navigation'
 import { Player } from '@lottiefiles/react-lottie-player'
 import BetModal from './BetModal'
-import { WS_BASE_URL } from '../config/ws'
 import { useLiveFeed } from '../context/LiveFeedContext'
-
 import { getDropById, getAllDrops } from '../api/cases'
-import { rouletteFreeSpin, getFreeSpinStatus } from '../api/roulette'
+import { rouletteFreeSpin } from '../api/roulette'
 import { useUser } from '../context/UserContext'
 // Wheel prizes - 10 segments with case card images and one Lottie animation
 
@@ -30,8 +28,8 @@ function WheelPage() {
   const wheelRef = useRef(null)
   const [wheelPrizes, setWheelPrizes] = useState([])
   const [allDrops, setAllDrops] = useState([])
-  const { user, setUser } = useUser()
-  const [freeSpinStatus, setFreeSpinStatus] = useState(null)
+  const { user } = useUser()
+
   const handleFreeSpin = async () => {
     if (isSpinning || !user?.id) return
   
@@ -42,32 +40,13 @@ function WheelPage() {
         userId: user.id,
       })
   
+      // ⬇️ ВАЖНО: именно сюда приходит честный drop_id
       await handleBetResult(result)
-      await setUser()
-      // ✅ ОБНОВЛЯЕМ СТАТУС ФРИСПИНА
-      const status = await getFreeSpinStatus(user.id)
-      setFreeSpinStatus(status)
-  
     } catch (e) {
       console.error('Free spin failed', e)
       setIsSpinning(false)
     }
   }
-  
-  useEffect(() => {
-    if (!user?.id) return
-  
-    const loadStatus = async () => {
-      try {
-        const status = await getFreeSpinStatus(user.id)
-        setFreeSpinStatus(status)
-      } catch (e) {
-        console.error('Failed to load free spin status', e)
-      }
-    }
-  
-    loadStatus()
-  }, [user?.id])
   
   const spinToSegment = (prizes, targetSegment) => {
     if (!prizes.length) return
@@ -198,10 +177,7 @@ function WheelPage() {
   const prizesIsDragging = useRef(false)
 
   const currencyIcon = selectedCurrency?.icon || '/image/Coin-Icon.svg'
-
   const { liveDrops } = useLiveFeed()
-  // WebSocket for live drops (same as CasesPage)
-
   useEffect(() => {
     let cancelled = false
   
@@ -585,19 +561,12 @@ function WheelPage() {
             <button
   className={`wheel-spin-btn gg-btn-glow ${isSpinning ? 'wheel-spin-btn--disabled' : ''}`}
   disabled={isSpinning}
-  onClick={
-    freeSpinStatus?.can_free_spin
-      ? handleFreeSpin
-      : handleOpenDeposit
-  }
+  onClick={hasFreeSpins ? handleFreeSpin : handleOpenDeposit}
 >
   <span className="wheel-spin-btn-text">
-    {freeSpinStatus?.can_free_spin
-      ? t('wheel.spin')
-      : t('wheel.makeBet')}
+    {hasFreeSpins ? t('wheel.spin') : t('wheel.topUpBalance')}
   </span>
 </button>
-
 
             <button className="wheel-prizes-btn" onClick={handleOpenPrizes}>
               {t('wheel.prizesList')}
@@ -665,13 +634,18 @@ function WheelPage() {
                 <h2 className="prizes-modal-title">{t('wheel.prizesList')}</h2>
               </div>
               <div className="prizes-modal-body">
-                <div className="prizes-grid">
-                  {wheelPrizes.map((prize) => (
+                {(() => {
+                  // Sort prizes by price (highest first) and split into 3 groups
+                  const sortedPrizes = [...wheelPrizes].sort((a, b) => b.price - a.price)
+                  const totalPrizes = sortedPrizes.length
+                  const groupSize = Math.ceil(totalPrizes / 3)
+                  
+                  const legendaryPrizes = sortedPrizes.slice(0, groupSize)
+                  const epicPrizes = sortedPrizes.slice(groupSize, groupSize * 2)
+                  const commonPrizes = sortedPrizes.slice(groupSize * 2)
+
+                  const renderPrizeCard = (prize) => (
                     <div key={prize.id} className="prize-card">
-                      <span className="prize-price-badge">
-                        <img src={currencyIcon} alt="currency" className="prize-price-coin" />
-                        {prize.price}
-                      </span>
                       <div className="prize-image">
                         {prize.contentType === 'animation' ? (
                           <Player
@@ -684,9 +658,47 @@ function WheelPage() {
                           <img src={prize.image} alt="prize" className="prize-img" />
                         )}
                       </div>
+                      <span className="prize-price-badge">
+                        <img src={currencyIcon} alt="currency" className="prize-price-coin" />
+                        {prize.price}
+                      </span>
                     </div>
-                  ))}
-                </div>
+                  )
+
+                  return (
+                    <>
+                      {/* Legendary prizes - most expensive */}
+                      {legendaryPrizes.length > 0 && (
+                        <div className="prizes-section">
+                          <h3 className="prizes-section-title prizes-section-legendary">{t('wheel.legendary')}</h3>
+                          <div className="prizes-grid">
+                            {legendaryPrizes.map(renderPrizeCard)}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Epic prizes - medium price */}
+                      {epicPrizes.length > 0 && (
+                        <div className="prizes-section">
+                          <h3 className="prizes-section-title prizes-section-epic">{t('wheel.epic')}</h3>
+                          <div className="prizes-grid">
+                            {epicPrizes.map(renderPrizeCard)}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Common prizes - cheapest */}
+                      {commonPrizes.length > 0 && (
+                        <div className="prizes-section">
+                          <h3 className="prizes-section-title prizes-section-common">{t('wheel.common')}</h3>
+                          <div className="prizes-grid">
+                            {commonPrizes.map(renderPrizeCard)}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )
+                })()}
               </div>
             </div>
           </div>
