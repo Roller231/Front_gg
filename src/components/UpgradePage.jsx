@@ -231,10 +231,10 @@ function UpgradePage() {
         
         if (isWin) {
           setGameState('win')
-          setResultText('SUCCESS')
+          setResultText(t('upgrade.success'))
         } else {
           setGameState('lose')
-          setResultText('FAILED')
+          setResultText(t('upgrade.failed'))
         }
       }
     }
