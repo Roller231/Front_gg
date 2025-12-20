@@ -18,7 +18,3 @@ export async function roulettePaidSpin({ userId, amount, giftId }) {
     })
   }
   
-
-  export async function getFreeSpinStatus(userId) {
-    return apiFetch(`/games/free-spin-status?user_id=${userId}`)
-  }
