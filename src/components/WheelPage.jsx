@@ -9,7 +9,7 @@ import BetModal from './BetModal'
 import { WS_BASE_URL } from '../config/ws'
 import { useWebSocket } from '../hooks/useWebSocket'
 import { getDropById, getAllDrops } from '../api/cases'
-import { rouletteFreeSpin } from '../api/roulette'
+import { rouletteFreeSpin, getFreeSpinStatus } from '../api/roulette'
 import { useUser } from '../context/UserContext'
 // Wheel prizes - 10 segments with case card images and one Lottie animation
 
@@ -29,8 +29,8 @@ function WheelPage() {
   const wheelRef = useRef(null)
   const [wheelPrizes, setWheelPrizes] = useState([])
   const [allDrops, setAllDrops] = useState([])
-  const { user } = useUser()
-
+  const { user, setUser } = useUser()
+  const [freeSpinStatus, setFreeSpinStatus] = useState(null)
   const handleFreeSpin = async () => {
     if (isSpinning || !user?.id) return
   
@@ -41,13 +41,32 @@ function WheelPage() {
         userId: user.id,
       })
   
-      // ⬇️ ВАЖНО: именно сюда приходит честный drop_id
       await handleBetResult(result)
+      await setUser()
+      // ✅ ОБНОВЛЯЕМ СТАТУС ФРИСПИНА
+      const status = await getFreeSpinStatus(user.id)
+      setFreeSpinStatus(status)
+  
     } catch (e) {
       console.error('Free spin failed', e)
       setIsSpinning(false)
     }
   }
+  
+  useEffect(() => {
+    if (!user?.id) return
+  
+    const loadStatus = async () => {
+      try {
+        const status = await getFreeSpinStatus(user.id)
+        setFreeSpinStatus(status)
+      } catch (e) {
+        console.error('Failed to load free spin status', e)
+      }
+    }
+  
+    loadStatus()
+  }, [user?.id])
   
   const spinToSegment = (prizes, targetSegment) => {
     if (!prizes.length) return
@@ -580,12 +599,19 @@ function WheelPage() {
             <button
   className={`wheel-spin-btn gg-btn-glow ${isSpinning ? 'wheel-spin-btn--disabled' : ''}`}
   disabled={isSpinning}
-  onClick={hasFreeSpins ? handleFreeSpin : handleOpenDeposit}
+  onClick={
+    freeSpinStatus?.can_free_spin
+      ? handleFreeSpin
+      : handleOpenDeposit
+  }
 >
   <span className="wheel-spin-btn-text">
-    {hasFreeSpins ? t('wheel.spin') : t('wheel.topUpBalance')}
+    {freeSpinStatus?.can_free_spin
+      ? t('wheel.spin')
+      : t('wheel.makeBet')}
   </span>
 </button>
+
 
             <button className="wheel-prizes-btn" onClick={handleOpenPrizes}>
               {t('wheel.prizesList')}
