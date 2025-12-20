@@ -2,11 +2,23 @@ import { useNavigate } from 'react-router-dom'
 import './Navigation.css'
 import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
+import { useEffect, useRef } from 'react'
+import { useUser } from '../context/UserContext'
+import { useFreeSpin } from '../context/FreeSpinContext'
+import { initDay } from '../api/roulette'
+
 
 function Navigation({ activePage = 'home' }) {
   const navigate = useNavigate()
-  const { hasFreeSpins } = useCurrency()
   const { t } = useLanguage()
+  const { user } = useUser()
+  const { canFreeSpin, loading, refreshFreeSpin } = useFreeSpin()
+
+  const hasFreeSpins = canFreeSpin && !loading
+
+  const didInitRef = useRef(false)
+
+
 
   return (
     <nav className={`navigation ${hasFreeSpins ? '' : 'navigation--flat'}`}>

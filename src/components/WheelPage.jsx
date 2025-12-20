@@ -9,7 +9,10 @@ import BetModal from './BetModal'
 import { useLiveFeed } from '../context/LiveFeedContext'
 import { getDropById, getAllDrops } from '../api/cases'
 import { rouletteFreeSpin } from '../api/roulette'
+import { getUserById } from '../api/users'
 import { useUser } from '../context/UserContext'
+import { useFreeSpin } from '../context/FreeSpinContext'
+
 // Wheel prizes - 10 segments with case card images and one Lottie animation
 
 
@@ -28,26 +31,46 @@ function WheelPage() {
   const wheelRef = useRef(null)
   const [wheelPrizes, setWheelPrizes] = useState([])
   const [allDrops, setAllDrops] = useState([])
-  const { user } = useUser()
-
+  const { user, setUser } = useUser()
+  const {
+    canFreeSpin,
+    status: freeSpinStatus,
+    registerPlay,
+    refreshFreeSpin,   
+    loading: freeSpinLoading,
+  } = useFreeSpin()
   const handleFreeSpin = async () => {
-    if (isSpinning || !user?.id) return
+    if (isSpinning || !user?.id || !canFreeSpin) return
   
     try {
       setIsSpinning(true)
   
-      const result = await rouletteFreeSpin({
-        userId: user.id,
-      })
+      // 1) делаем бесплатный спин
+      const result = await rouletteFreeSpin({ userId: user.id })
   
-      // ⬇️ ВАЖНО: именно сюда приходит честный drop_id
+      // 2) крутим колесо и показываем выигрыш
       await handleBetResult(result)
+  
+      // 3) фиксируем игру (важно для daily/promo логики)
+      await registerPlay(user.id)
+  
+      // 4) обновляем юзера (как в TaskList)
+      const freshUser = await getUserById(user.id)
+      setUser(freshUser)
+  
+      // 5) на всякий — принудительно рефрешим статус (как в TaskList)
+      await refreshFreeSpin(user.id)
     } catch (e) {
       console.error('Free spin failed', e)
+    } finally {
       setIsSpinning(false)
     }
   }
   
+  
+  
+
+
   const spinToSegment = (prizes, targetSegment) => {
     if (!prizes.length) return
   
@@ -561,12 +584,19 @@ function WheelPage() {
             <button
   className={`wheel-spin-btn gg-btn-glow ${isSpinning ? 'wheel-spin-btn--disabled' : ''}`}
   disabled={isSpinning}
-  onClick={hasFreeSpins ? handleFreeSpin : handleOpenDeposit}
+  onClick={
+    freeSpinStatus?.can_free_spin
+      ? handleFreeSpin
+      : handleOpenDeposit
+  }
 >
   <span className="wheel-spin-btn-text">
-    {hasFreeSpins ? t('wheel.spin') : t('wheel.topUpBalance')}
+    {freeSpinStatus?.can_free_spin
+      ? t('wheel.spin')
+      : t('wheel.makeBet')}
   </span>
 </button>
+
 
             <button className="wheel-prizes-btn" onClick={handleOpenPrizes}>
               {t('wheel.prizesList')}

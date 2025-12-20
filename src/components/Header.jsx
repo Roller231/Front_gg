@@ -23,6 +23,7 @@ function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const { user } = useUser()
   const { t } = useLanguage()
+
 const {
   currencyOptions,
   selectedCurrency,

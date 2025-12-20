@@ -99,7 +99,9 @@ export const translations = {
       claim: 'Забрать',
       legendary: 'Легендарные',
       epic: 'Эпические',
-      common: 'Обычные',
+      common: 'Обычные',     
+     makeBet:  'Сделать ставку',
+
     },
 
     // Bet Modal
@@ -166,6 +168,10 @@ export const translations = {
       congratulations: 'Поздравляем!',
       tryAgain: 'В следующий раз получится!',
       ok: 'Ок',
+      tryAgain: 'Попробуй ещё раз',
+      congratulations: 'Поздравляем!',
+      makeBet:  'Сделать ставку',
+
     },
 
     // PvP Page
@@ -318,6 +324,8 @@ export const translations = {
       legendary: 'Legendary',
       epic: 'Epic',
       common: 'Common',
+      makeBet:  'Place Bet',
+
     },
 
     // Bet Modal
@@ -384,6 +392,10 @@ export const translations = {
       congratulations: 'Congratulations!',
       tryAgain: 'Better luck next time!',
       ok: 'Ok',
+      tryAgain: 'Try again',
+      congratulations: 'Сongratulations',
+      makeBet:  'Сделать ставку',
+
     },
 
     // PvP Page
