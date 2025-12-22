@@ -21,6 +21,12 @@
   position: relative;
   overflow: hidden;
 }
+.bet-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.6);
+  pointer-events: none;
+}
 
 .pvp-game-area-fade {
   position: absolute;
@@ -31,6 +37,16 @@
   background: linear-gradient(to bottom, transparent 0%, var(--page-bg) 100%);
   z-index: 5;
   pointer-events: none;
+}
+.wheel-result-gift-image {
+  max-width: 120px;      /* нужный размер */
+  max-height: 120px;
+  width: auto;
+  height: auto;
+
+  object-fit: contain;  /* 🔥 ключевая строка */
+  display: block;
+  margin: 0 auto;
 }
 
 .pvp-background {

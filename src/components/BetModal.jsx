@@ -83,7 +83,24 @@ function BetModal({
           giftId,
         })
       },
+      
     },
+
+    pvp: {
+      coins: async ({ amount }) => {
+        return {
+          type: 'coins',
+          amount,
+        }
+      },
+      gifts: async ({ giftId }) => {
+        return {
+          type: 'gift',
+          gift_id: giftId,
+        }
+      },
+    },
+    
   }
   
 
@@ -289,6 +306,18 @@ function BetModal({
     const uiAmount = Number(betAmount)
     if (!uiAmount || uiAmount <= 0) return
   
+    // 🔒 PvP: проверка баланса
+    if (game === 'pvp') {
+      const balance = Number(
+        String(selectedCurrency.amount).replace(/[^0-9.]/g, '')
+      )
+  
+      if (uiAmount > balance) {
+        console.warn('Not enough balance')
+        return
+      }
+    }
+  
     const amountInTon = uiAmount * selectedCurrency.rate
   
     try {
@@ -297,8 +326,12 @@ function BetModal({
   
       const result = await handler({ amount: amountInTon })
   
-      onResult?.(result)   // 👈 ВОТ ЭТО ГЛАВНОЕ
-      await refreshUser()
+      onResult?.(result)
+  
+      if (game !== 'pvp') {
+        await refreshUser()
+      }
+  
       onClose()
     } catch (e) {
       console.error('Coins bet failed', e)
@@ -310,9 +343,19 @@ function BetModal({
   
   
   
+  
 
   const handleGiftsSubmit = async () => {
     if (!selectedGift || !user?.id) return
+  
+    // 🔒 PvP: проверка, есть ли подарок в инвентаре
+    if (game === 'pvp') {
+      const hasGift = inventoryGifts.some(g => g.id === selectedGift)
+      if (!hasGift) {
+        console.warn('Gift not in inventory')
+        return
+      }
+    }
   
     try {
       const handler = betHandlers[game]?.gifts
@@ -321,12 +364,17 @@ function BetModal({
       const result = await handler({ giftId: selectedGift })
   
       onResult?.(result)
-      await refreshUser()
+  
+      if (game !== 'pvp') {
+        await refreshUser()
+      }
+  
       onClose()
     } catch (e) {
       console.error('Gift bet failed', e)
     }
   }
+  
   
   
   
