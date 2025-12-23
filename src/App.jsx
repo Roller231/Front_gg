@@ -39,9 +39,9 @@ function HomePage() {
         <div className="games-section">
           <GameCard title={t('home.roulette')} online={55} />
           <GameCard title={t('home.crash')} online={55} />
+          <GameCard title={t('home.wheel')} online={312} />
           <GameCard title={t('home.pvp')} online={597} />
           <GameCard title={t('home.upgrade')} online={597} />
-          <GameCard title={t('home.wheel')} online={312} />
         </div>
       </main>
 

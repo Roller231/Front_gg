@@ -7,6 +7,7 @@ import { useLanguage } from '../context/LanguageContext'
 import { useEffect, useState } from 'react'
 import { useUser } from '../context/UserContext'
 import * as usersApi from '../api/users'
+import { maskUsername } from '../utils/maskUsername'
 
 
 
@@ -17,7 +18,7 @@ function formatNumber(value) {
 
 function Top20Page() {
   const { t } = useLanguage()
-  const { user } = useUser()
+  const { user, settings } = useUser()
   const { selectedCurrency, formatAmount } = useCurrency()
 
   const [players, setPlayers] = useState([])
@@ -89,7 +90,9 @@ function Top20Page() {
   }}
 />
                     </div>
-                    <div className="top20-name">{player.name}</div>
+                    <div className="top20-name">
+                      {settings?.hideLogin ? maskUsername(player.name) : player.name}
+                    </div>
                   </div>
 
                   <div className="top20-right">

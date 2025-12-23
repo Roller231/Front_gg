@@ -6,6 +6,7 @@ import Navigation from './Navigation'
 import { useUser } from '../context/UserContext'
 import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
+import { vibrate, VIBRATION_PATTERNS } from '../utils/vibration'
 
 const MemoHeader = memo(Header)
 const MemoNavigation = memo(Navigation)
@@ -28,7 +29,7 @@ const targetGifts = [
 ]
 
 function UpgradePage() {
-  const { user } = useUser()
+  const { user, settings } = useUser()
   const { selectedCurrency } = useCurrency()
   const { t } = useLanguage()
   
@@ -175,6 +176,11 @@ function UpgradePage() {
     setGameState('spinning')
     setResultText(null)
     
+    // Вибрация при начале спина
+    if (settings?.vibrationEnabled) {
+      vibrate(VIBRATION_PATTERNS.spin)
+    }
+    
     // Определяем результат
     const randomValue = Math.random() * 100
     const isWin = randomValue <= chance
@@ -232,9 +238,17 @@ function UpgradePage() {
         if (isWin) {
           setGameState('win')
           setResultText(t('upgrade.success'))
+          // Вибрация при победе
+          if (settings?.vibrationEnabled) {
+            vibrate(VIBRATION_PATTERNS.win)
+          }
         } else {
           setGameState('lose')
           setResultText(t('upgrade.failed'))
+          // Вибрация при проигрыше
+          if (settings?.vibrationEnabled) {
+            vibrate(VIBRATION_PATTERNS.lose)
+          }
         }
       }
     }

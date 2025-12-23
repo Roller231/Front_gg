@@ -10,6 +10,7 @@ import { useLiveFeed } from '../context/LiveFeedContext'
 import { getDropById, getAllDrops } from '../api/cases'
 import { rouletteFreeSpin } from '../api/roulette'
 import { useUser } from '../context/UserContext'
+import { vibrate, VIBRATION_PATTERNS } from '../utils/vibration'
 // Wheel prizes - 10 segments with case card images and one Lottie animation
 
 
@@ -28,7 +29,7 @@ function WheelPage() {
   const wheelRef = useRef(null)
   const [wheelPrizes, setWheelPrizes] = useState([])
   const [allDrops, setAllDrops] = useState([])
-  const { user } = useUser()
+  const { user, settings } = useUser()
 
   const handleFreeSpin = async () => {
     if (isSpinning || !user?.id) return
@@ -69,9 +70,18 @@ function WheelPage() {
     setRotation(newRotation)
     setWonPrize(prizes[targetSegment])
   
+    // Вибрация во время спина
+    if (settings?.vibrationEnabled) {
+      vibrate(VIBRATION_PATTERNS.spin)
+    }
+
     setTimeout(() => {
       setIsSpinning(false)
       setShowResult(true)
+      // Вибрация при выигрыше
+      if (settings?.vibrationEnabled) {
+        vibrate(VIBRATION_PATTERNS.win)
+      }
     }, 6000)
   }
   
@@ -385,9 +395,10 @@ function WheelPage() {
                     />
                   ) : (
                     <img
-                      src={drop.image}
+                      src={drop.image || '/image/mdi_gift.svg'}
                       alt={drop.name}
                       className="live-item-image"
+                      onError={(e) => { e.target.src = '/image/mdi_gift.svg' }}
                     />
                   )}
                 </div>
@@ -579,13 +590,31 @@ function WheelPage() {
           <div className="wheel-result-overlay" onClick={closeResult}>
             <div className="wheel-result-modal" onClick={e => e.stopPropagation()}>
               <div className="wheel-result-glow"></div>
+              <div className="gg-confetti" aria-hidden="true">
+                {Array.from({ length: 28 }).map((_, i) => {
+                  const x = (i * 37) % 100
+                  const hue = (i * 47) % 360
+                  const delay = i % 12
+                  const rot = (i * 29) % 360
+                  const d = i % 8
+                  return (
+                    <span
+                      key={i}
+                      className="gg-confetti-piece"
+                      style={{
+                        '--x': x,
+                        '--hue': hue,
+                        '--delay': delay,
+                        '--rot': rot,
+                        '--d': d,
+                      }}
+                    />
+                  )
+                })}
+              </div>
               <h2 className="wheel-result-title">{t('wheel.congratulations')}</h2>
               <div className="wheel-result-prize">
                 <div className="wheel-result-card">
-                  <span className="wheel-result-price">
-                    <img src={currencyIcon} alt="currency" className="wheel-result-coin" />
-                    {wonPrize.price}
-                  </span>
                   <div className="wheel-result-prize-content">
                     {wonPrize.contentType === 'animation' ? (
                       <Player
@@ -599,6 +628,10 @@ function WheelPage() {
                     )}
                   </div>
                 </div>
+                <span className="case-result-price-below">
+                  <img src={currencyIcon} alt="currency" className="wheel-result-coin" />
+                  {wonPrize.price}
+                </span>
               </div>
               <button className="wheel-result-close gg-btn-glow" onClick={closeResult}>
                 {t('wheel.claim')}
@@ -665,12 +698,22 @@ function WheelPage() {
                     </div>
                   )
 
+                  // Get min prices for each category
+                  const legendaryMinPrice = legendaryPrizes.length > 0 ? Math.min(...legendaryPrizes.map(p => p.price)) : 0
+                  const epicMinPrice = epicPrizes.length > 0 ? Math.min(...epicPrizes.map(p => p.price)) : 0
+                  const commonMinPrice = commonPrizes.length > 0 ? Math.min(...commonPrizes.map(p => p.price)) : 0
+
                   return (
                     <>
                       {/* Legendary prizes - most expensive */}
                       {legendaryPrizes.length > 0 && (
                         <div className="prizes-section">
-                          <h3 className="prizes-section-title prizes-section-legendary">{t('wheel.legendary')}</h3>
+                          <h3 className="prizes-section-title prizes-section-legendary">
+                            {t('wheel.legendary')}
+                            <span className="prizes-section-price">
+                              {t('wheel.from')} <img src={currencyIcon} alt="currency" className="prizes-section-price-icon" /> {legendaryMinPrice}
+                            </span>
+                          </h3>
                           <div className="prizes-grid">
                             {legendaryPrizes.map(renderPrizeCard)}
                           </div>
@@ -680,7 +723,12 @@ function WheelPage() {
                       {/* Epic prizes - medium price */}
                       {epicPrizes.length > 0 && (
                         <div className="prizes-section">
-                          <h3 className="prizes-section-title prizes-section-epic">{t('wheel.epic')}</h3>
+                          <h3 className="prizes-section-title prizes-section-epic">
+                            {t('wheel.epic')}
+                            <span className="prizes-section-price">
+                              {t('wheel.from')} <img src={currencyIcon} alt="currency" className="prizes-section-price-icon" /> {epicMinPrice}
+                            </span>
+                          </h3>
                           <div className="prizes-grid">
                             {epicPrizes.map(renderPrizeCard)}
                           </div>
@@ -690,7 +738,12 @@ function WheelPage() {
                       {/* Common prizes - cheapest */}
                       {commonPrizes.length > 0 && (
                         <div className="prizes-section">
-                          <h3 className="prizes-section-title prizes-section-common">{t('wheel.common')}</h3>
+                          <h3 className="prizes-section-title prizes-section-common">
+                            {t('wheel.common')}
+                            <span className="prizes-section-price">
+                              {t('wheel.from')} <img src={currencyIcon} alt="currency" className="prizes-section-price-icon" /> {commonMinPrice}
+                            </span>
+                          </h3>
                           <div className="prizes-grid">
                             {commonPrizes.map(renderPrizeCard)}
                           </div>

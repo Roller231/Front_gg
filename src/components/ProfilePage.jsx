@@ -10,6 +10,7 @@ import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
 import { getDropById } from '../api/cases'
 import * as usersApi from '../api/users'
+import { Player } from '@lottiefiles/react-lottie-player'
 
 
 
@@ -27,7 +28,7 @@ function ProfilePage() {
   
   const [top1Balance, setTop1Balance] = useState(0)
   
-  const { user } = useUser()
+  const { user, settings, updateSettings } = useUser()
   const { t, language, changeLanguage, languages, currentLanguage } = useLanguage()
 
   const [isBetModalOpen, setIsBetModalOpen] = useState(false)
@@ -289,6 +290,39 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
           <button className="inventory-arrow" onClick={() => setIsInventoryModalOpen(true)}>
             <span>→</span>
           </button>
+        </div>
+      </div>
+
+      {/* ===== SETTINGS ===== */}
+      <div className="settings-section">
+        <h3 className="settings-title">{t('profile.settings')}</h3>
+        
+        <div className="settings-list">
+          {/* Скрывать логин */}
+          <div className="settings-item">
+            <span className="settings-label">{t('profile.hideLogin')}</span>
+            <label className="settings-switch">
+              <input 
+                type="checkbox" 
+                checked={!settings?.hideLogin}
+                onChange={(e) => updateSettings({ hideLogin: !e.target.checked })}
+              />
+              <span className="settings-slider"></span>
+            </label>
+          </div>
+
+          {/* Вибрация */}
+          <div className="settings-item">
+            <span className="settings-label">{t('profile.vibration')}</span>
+            <label className="settings-switch">
+              <input 
+                type="checkbox" 
+                checked={settings?.vibrationEnabled}
+                onChange={(e) => updateSettings({ vibrationEnabled: e.target.checked })}
+              />
+              <span className="settings-slider"></span>
+            </label>
+          </div>
         </div>
       </div>
 

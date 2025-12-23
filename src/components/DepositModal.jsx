@@ -156,7 +156,7 @@ function DepositModal({ isOpen, onClose }) {
                 <div className="deposit-instruction-item">
                   <div className="deposit-instruction-number">1.</div>
                   <div className="deposit-instruction-text">
-                    {t('deposit.instruction1')} <span className="deposit-link">@GiftUpRelayer</span>
+                    {t('deposit.instruction1')} <span className="deposit-link">@</span>
                   </div>
                 </div>
                 <div className="deposit-instruction-item">
