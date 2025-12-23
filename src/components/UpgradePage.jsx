@@ -34,6 +34,8 @@ function UpgradePage() {
   const lastIsWinRef = useRef(null)
   const WIN_CENTER = Math.PI / 2
   const WIN_HALF_ANGLE = (chance / 100) * Math.PI
+  const [winItem, setWinItem] = useState(null)
+
   // Рассчёт шанса на основе цен
   useEffect(() => {
     if (sourceItem && targetItem) {
@@ -172,10 +174,18 @@ function UpgradePage() {
     ctx.restore()
   }, [chance])
 
+
+
   // Инициализация canvas
   useEffect(() => {
     drawWheel(Math.PI / 2)
   }, [drawWheel, chance])
+
+  useEffect(() => {
+    // при выборе нового предмета для ставки
+    setTargetItem(null)
+  }, [sourceItem])
+  
 
   const handleSourceSelect = useCallback((gift) => {
     if (gameState !== 'idle') return
@@ -277,6 +287,7 @@ function UpgradePage() {
         if (isWin) {
           setGameState('win')
           setResultText(t('upgrade.success'))
+          setWinItem(targetItem)
         } else {
           setGameState('lose')
           setResultText(t('upgrade.failed'))
@@ -504,11 +515,12 @@ function UpgradePage() {
                         {targetItem?.price ?? 0}
                       </span>
                       <div className="wheel-result-prize-content">
-                        <img
-                          src={targetItem?.image || '/image/case_card1.png'}
-                          alt="prize"
-                          className="wheel-result-image"
-                        />
+                      <img
+  src={winItem?.icon || winItem?.image || '/image/case_card1.png'}
+  alt="prize"
+  className="wheel-result-image"
+/>
+
                       </div>
                     </div>
                   </div>
