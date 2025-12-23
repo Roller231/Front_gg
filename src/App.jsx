@@ -97,19 +97,33 @@ function App() {
   const { initUser, loading } = useUser()
 
   useEffect(() => {
+    initTelegram()
+  }, [])
+
+  useEffect(() => {
     const tg = window.Telegram?.WebApp
-
-    // 👉 если открыто внутри Telegram
-    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-      const tgUser = tg.initDataUnsafe.user
-
-      console.log('Telegram user:', tgUser)
-
-      // можно сразу подготовить UI
-      tg.ready()
-      
+    if (!tg) return
+  
+    tg.ready()
+  
+    // 🔥 ВСЕГДА пытаемся раскрыть
+    tg.expand()
+  
+    // 🔁 повтор при изменении viewport
+    tg.onEvent('viewportChanged', () => {
       tg.expand()
-
+    })
+  
+    // 🔁 повтор при возврате в фокус
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        tg.expand()
+      }
+    })
+  
+    if (tg.initDataUnsafe?.user) {
+      const tgUser = tg.initDataUnsafe.user
+  
       initUser({
         tg_id: String(tgUser.id),
         username: tgUser.username || `tg_${tgUser.id}`,
@@ -117,9 +131,6 @@ function App() {
         photo_url: tgUser.photo_url || null,
       })
     } else {
-      // 👉 fallback (браузер / dev)
-      console.warn('Telegram WebApp not detected, using local user')
-
       initUser({
         tg_id: 'local',
         username: 'localuser',
@@ -128,6 +139,7 @@ function App() {
       })
     }
   }, [])
+  
 
   // 🔄 пока идёт инициализация пользователя
   if (loading) {
