@@ -16,7 +16,7 @@ import Top20Page from './components/Top20Page'
 import PvPPage from './components/PvPPage'
 import UpgradePage from './components/UpgradePage'
 import Preloader from './components/Preloader'
-
+import { initTelegram } from './telegram'
 import { CurrencyProvider } from './context/CurrencyContext'
 import { LanguageProvider, useLanguage } from './context/LanguageContext'
 import { useUser } from './context/UserContext'
