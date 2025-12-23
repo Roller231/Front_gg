@@ -105,6 +105,7 @@ export const translations = {
       epic: 'Эпические',
       common: 'Обычные',
       from: 'от',
+      makeBet: 'Сделать ставку',
     },
 
     // Bet Modal
@@ -173,6 +174,10 @@ export const translations = {
       congratulations: 'Поздравляем!',
       tryAgain: 'В следующий раз получится!',
       ok: 'Ок',
+      tryAgain: 'Попробуй ещё раз',
+      congratulations: 'Поздравляем!',
+      makeBet:  'Сделать ставку',
+
     },
 
     // PvP Page
@@ -330,6 +335,7 @@ export const translations = {
       epic: 'Epic',
       common: 'Common',
       from: 'from',
+      makeBet: 'Place Bet',
     },
 
     // Bet Modal
@@ -398,6 +404,10 @@ export const translations = {
       congratulations: 'Congratulations!',
       tryAgain: 'Better luck next time!',
       ok: 'Ok',
+      tryAgain: 'Try again',
+      congratulations: 'Сongratulations',
+      makeBet:  'Сделать ставку',
+
     },
 
     // PvP Page

@@ -4,6 +4,7 @@ import { useLanguage } from '../context/LanguageContext'
 import { useUser } from '../context/UserContext'
 import { activatePromo } from '../api/promo'
 import { getUserById } from '../api/users'
+import { useFreeSpin } from '../context/FreeSpinContext'
 
 
 function TaskList() {
@@ -13,8 +14,8 @@ function TaskList() {
   const [selectedOption, setSelectedOption] = useState(1)
   const [promoCode, setPromoCode] = useState('')
   const [loading, setLoading] = useState(false)
-
-  const handleSelect = (option) => {
+  const { refreshFreeSpin } = useFreeSpin()
+    const handleSelect = (option) => {
     setSelectedOption(option)
   }
 
@@ -36,7 +37,7 @@ function TaskList() {
   
       // 3️⃣ обновляем UserContext
       setUser(freshUser)
-  
+      await refreshFreeSpin(user.id)
       // 4️⃣ UI feedback
       if (res.type === 'referral') {
         alert(`Referral bonus: +${res.reward}`)
