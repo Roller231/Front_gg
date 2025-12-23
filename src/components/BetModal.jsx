@@ -20,6 +20,8 @@ function BetModal({
   const [activeTab, setActiveTab] = useState('coins') // 'gifts' | 'coins'
   const [betAmount, setBetAmount] = useState('100')
   const [selectedGift, setSelectedGift] = useState(null)
+  const [autoCashout, setAutoCashout] = useState(false)
+  const [autoCashoutMultiplier, setAutoCashoutMultiplier] = useState('2.00')
   const { selectedCurrency } = useCurrency()
   const { user, setUser } = useUser()
   const { send, connected } = useCrashSocket(() => {})
@@ -53,7 +55,7 @@ function BetModal({
           amount,
           gift: false,
           gift_id: null,
-          auto_cashout_x: null,
+          auto_cashout_x: autoCashout ? parseFloat(autoCashoutMultiplier) : null,
         })
       },
       gifts: async ({ giftId }) => {
@@ -63,7 +65,7 @@ function BetModal({
           amount: 0,
           gift: true,
           gift_id: giftId,
-          auto_cashout_x: null,
+          auto_cashout_x: autoCashout ? parseFloat(autoCashoutMultiplier) : null,
         })
       },
     },
@@ -448,13 +450,41 @@ function BetModal({
                 </div>
               </div>
 
+              {game === 'crash' && (
+                <div className="auto-cashout-row">
+                  <div className="auto-cashout-toggle">
+                    <span className="auto-cashout-label">{t('betModal.autoCashout')}</span>
+                    <label className="toggle-switch">
+                      <input
+                        type="checkbox"
+                        checked={autoCashout}
+                        onChange={(e) => setAutoCashout(e.target.checked)}
+                      />
+                      <span className="toggle-slider"></span>
+                    </label>
+                  </div>
+                  {autoCashout && (
+                    <div className="auto-cashout-input-wrapper">
+                      <span className="auto-cashout-x">x</span>
+                      <input
+                        type="text"
+                        className="auto-cashout-input"
+                        value={autoCashoutMultiplier}
+                        onChange={(e) => setAutoCashoutMultiplier(e.target.value.replace(/[^0-9.]/g, ''))}
+                        placeholder="2.00"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
               <button
-  className={`bet-submit-button ${!canBet ? 'disabled' : ''}`}
-  onClick={handleCoinsSubmit}
-  disabled={!canBet}
->
-  {canBet ? primaryButtonText : t('crash.betsClosed')}
-</button>
+                className={`bet-submit-button ${!canBet ? 'disabled' : ''}`}
+                onClick={handleCoinsSubmit}
+                disabled={!canBet}
+              >
+                {canBet ? primaryButtonText : t('crash.betsClosed')}
+              </button>
 
             </div>
           </div>
@@ -462,26 +492,25 @@ function BetModal({
           <div className={`bet-tab-panel ${activeTab === 'gifts' ? 'active' : ''}`}>
             <div className="bet-modal-gifts-content">
             <div className="gifts-grid">
-  {inventoryGifts.map(gift => (
-    <div
-      key={gift.id}
-      className={`gift-card ${selectedGift === gift.id ? 'selected' : ''}`}
-      onClick={() => setSelectedGift(gift.id)}
-    >
-      <div className="gift-count">×{gift.count}</div>
-
-      <div className="gift-image">
-        <img src={gift.icon} alt={gift.name} />
-      </div>
-
-      <div className="gift-name">{gift.name}</div>
-
-      {selectedGift === gift.id && (
-        <div className="gift-check">✔</div>
-      )}
-    </div>
-  ))}
-</div>
+              {inventoryGifts.map(gift => (
+                <div
+                  key={gift.id}
+                  className={`gift-card-wrapper ${selectedGift === gift.id ? 'selected' : ''}`}
+                  onClick={() => setSelectedGift(gift.id)}
+                >
+                  <div className="gift-card-inner">
+                    <div className="gift-count">×{gift.count}</div>
+                    <div className="gift-image">
+                      <img src={gift.icon} alt={gift.name} />
+                    </div>
+                  </div>
+                  <div className="gift-price-below">
+                    <img src={selectedCurrency?.icon || '/image/Coin-Icon.svg'} alt="currency" className="gift-price-icon" />
+                    <span>{gift.price?.toFixed(2) || '0.00'}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
 
 
 

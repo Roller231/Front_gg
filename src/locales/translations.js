@@ -45,6 +45,9 @@ export const translations = {
       withdraw: 'Вывести',
       operationsHistory: 'История Операций',
       deposits: 'Пополнений',
+      settings: 'Настройки',
+      hideLogin: 'Скрывать логин',
+      vibration: 'Вибрация',
     },
 
     // Inventory Modal
@@ -75,9 +78,10 @@ export const translations = {
       congratulations: 'Поздравляем!',
       claim: 'Забрать',
       waiting: 'Ожидаем выпадение...',
-      depositInfo: 'To open this case, you must deposit 3 TON within the last 24 hours',
-      depositFunds: 'Deposit funds',
-      activatePromo: 'Activate promo code',
+      depositInfo: 'Чтобы открыть этот кейс, вы должны пополнить 3 TON за последние 24 часа',
+      depositFunds: 'Пополнить счёт',
+      activatePromo: 'Активировать промокод',
+      youWon: 'Вы выиграли',
     },
 
     // Crash Page
@@ -99,9 +103,9 @@ export const translations = {
       claim: 'Забрать',
       legendary: 'Легендарные',
       epic: 'Эпические',
-      common: 'Обычные',     
-     makeBet:  'Сделать ставку',
-
+      common: 'Обычные',
+      from: 'от',
+      makeBet: 'Сделать ставку',
     },
 
     // Bet Modal
@@ -113,6 +117,8 @@ export const translations = {
       betAmount: 'Сумма ставки',
       balance: 'Баланс',
       select: 'Выбрать',
+      autoCashout: 'Авто-вывод',
+      coefficient: 'Коэффициент',
     },
 
     // Deposit Modal
@@ -213,7 +219,7 @@ export const translations = {
 
     // Home Page
     home: {
-      roulette: 'РУЛЕТКА',
+      roulette: 'КЕЙСЫ',
       crash: 'РАКЕТКА',
       pvp: 'PvP',
       upgrade: 'Upgrade',
@@ -276,6 +282,9 @@ export const translations = {
       withdraw: 'Withdraw',
       operationsHistory: 'Operations History',
       deposits: 'Deposits',
+      settings: 'Settings',
+      hideLogin: 'Hide login',
+      vibration: 'Vibration',
     },
 
     // Inventory Modal
@@ -309,6 +318,7 @@ export const translations = {
       depositInfo: 'To open this case, you must deposit 3 TON within the last 24 hours',
       depositFunds: 'Deposit funds',
       activatePromo: 'Activate promo code',
+      youWon: 'You won',
     },
 
     // Crash Page
@@ -330,8 +340,8 @@ export const translations = {
       legendary: 'Legendary',
       epic: 'Epic',
       common: 'Common',
-      makeBet:  'Place Bet',
-
+      from: 'from',
+      makeBet: 'Place Bet',
     },
 
     // Bet Modal
@@ -343,6 +353,8 @@ export const translations = {
       betAmount: 'Bet Amount',
       balance: 'Balance',
       select: 'Select',
+      autoCashout: 'Auto Cashout',
+      coefficient: 'Coefficient',
     },
 
     // Deposit Modal
@@ -443,11 +455,11 @@ export const translations = {
 
     // Home Page
     home: {
-      roulette: 'ROULETTE',
-      crash: 'CRASH',
+      roulette: 'CASES',
+      crash: 'ROCKET',
       pvp: 'PvP',
       upgrade: 'Upgrade',
-      wheel: 'Wheel',
+      wheel: 'Roulette',
       online: 'ONLINE',
     },
 

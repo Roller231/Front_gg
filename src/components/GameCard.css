@@ -366,11 +366,12 @@
 }
 
 .pvp-cat {
-  width: 139px;
-  height: 139px;
+  width: 132px;
+  height: 132px;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-top: 30px;
 }
 
 .pvp-cat img {
@@ -504,9 +505,9 @@
   position: absolute;
   top: 50%;
   right: -2px;
-  width: 16px;
-  height: 10px;
-  transform: translateY(-50%);
+  width: 20px;
+  height: 14px;
+  transform: translateY(-50%) rotate(-90deg);
   filter: drop-shadow(0 0 6px rgba(255, 175, 77, 0.8));
 }
 

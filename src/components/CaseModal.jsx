@@ -8,6 +8,8 @@ import { Player } from '@lottiefiles/react-lottie-player'
 import { getCaseDrops, getDropById } from '../api/cases'
 import { useUser } from '../context/UserContext'
 import * as usersApi from '../api/users'
+import AsyncImage from './AsyncImage'
+import { vibrate, VIBRATION_PATTERNS } from '../utils/vibration'
 
 
 
@@ -27,7 +29,7 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
   const { t } = useLanguage()
   const [caseItems, setCaseItems] = useState([])
   const [loadingDrops, setLoadingDrops] = useState(true)
-  const { user, setUser } = useUser()
+  const { user, setUser, settings } = useUser()
 
   const casePrice = Number(caseData?.price || 0)
 const userBalance = Number(user?.balance || 0)
@@ -308,10 +310,19 @@ const canOpenCase = !isPaid || userBalance >= casePrice
     setView('spin')
     setIsSpinning(true)
 
+    // Вибрация при спине кейса
+    if (settings?.vibrationEnabled) {
+      vibrate(VIBRATION_PATTERNS.spin)
+    }
+
     // Длительность спина и затем показать результат
     setTimeout(() => {
       setIsSpinning(false)
       setView('result')
+      // Вибрация при выигрыше
+      if (settings?.vibrationEnabled) {
+        vibrate(VIBRATION_PATTERNS.win)
+      }
     }, 5200)
   }
 
@@ -330,13 +341,32 @@ const canOpenCase = !isPaid || userBalance >= casePrice
         <div className="wheel-result-overlay" onClick={handleResultOk}>
           <div className="wheel-result-modal" onClick={(e) => e.stopPropagation()}>
             <div className="wheel-result-glow"></div>
+            <div className="gg-confetti" aria-hidden="true">
+              {Array.from({ length: 28 }).map((_, i) => {
+                const x = (i * 37) % 100
+                const hue = (i * 47) % 360
+                const delay = i % 12
+                const rot = (i * 29) % 360
+                const d = i % 8
+                return (
+                  <span
+                    key={i}
+                    className="gg-confetti-piece"
+                    style={{
+                      '--x': x,
+                      '--hue': hue,
+                      '--delay': delay,
+                      '--rot': rot,
+                      '--d': d,
+                    }}
+                  />
+                )
+              })}
+            </div>
             <h2 className="wheel-result-title">{t('caseModal.congratulations')}</h2>
+            <p className="case-result-won-text">{t('caseModal.youWon')}</p>
             <div className="wheel-result-prize">
               <div className="wheel-result-card">
-                <span className="wheel-result-price">
-                  <img src={currencyIcon} alt="currency" className="wheel-result-coin" />
-                  {wonAmount.toFixed(2)}
-                </span>
                 <div className="wheel-result-prize-content">
                   {wonItem ? (
                     wonItem.type === 'animation' && wonItem.animation ? (
@@ -354,6 +384,10 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                   )}
                 </div>
               </div>
+              <span className="case-result-price-below">
+                <img src={currencyIcon} alt="currency" className="wheel-result-coin" />
+                {wonAmount.toFixed(2)}
+              </span>
             </div>
             <button className="wheel-result-close gg-btn-glow" onClick={handleResultOk}>
               {t('caseModal.claim')}
@@ -378,14 +412,14 @@ const canOpenCase = !isPaid || userBalance >= casePrice
       <div 
         className={`case-modal-content ${view === 'result' ? 'case-modal-result' : ''}`}
         ref={contentRef}
-        onTouchStart={handleDragStart}
-        onTouchMove={handleDragMove}
-        onTouchEnd={handleDragEnd}
       >
         {/* Ручка для свайпа */}
         <div 
           className="case-modal-handle"
           onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}
+          onTouchMove={handleDragMove}
+          onTouchEnd={handleDragEnd}
         >
           <div className="case-modal-handle-bar"></div>
         </div>
@@ -401,31 +435,33 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                 {[...Array(16)].map((_, i) => {
                   const previewItem = caseItems[i % caseItems.length]
                   return (
-                    <div key={`preview-${i}`} className="case-preview-item">
+                    <div key={`preview-${i}`} className="case-preview-wrapper">
+                      <div className="case-preview-item">
+                        <div className="case-preview-gift">
+                          {previewItem?.type === 'animation' && previewItem.animation ? (
+                            <Player
+                              autoplay
+                              loop
+                              src={previewItem.animation}
+                              className="case-preview-animation"
+                            />
+                          ) : (
+                            <AsyncImage
+                              src={previewItem?.image}
+                              alt={previewItem?.name || 'Gift'}
+                              className="case-preview-image"
+                            />
+                          )}
+                        </div>
+                      </div>
                       {isPaid ? (
-                        <span className="case-preview-price">
+                        <span className="case-preview-price-below">
                           <img src={currencyIcon} alt="currency" className="case-preview-coin" />
                           {previewItem?.price || '0.1'}
                         </span>
                       ) : (
-                        <span className="case-preview-badge">FREE</span>
+                        <span className="case-preview-badge-below">FREE</span>
                       )}
-                      <div className="case-preview-gift">
-                        {previewItem?.type === 'animation' && previewItem.animation ? (
-                          <Player
-                            autoplay
-                            loop
-                            src={previewItem.animation}
-                            className="case-preview-animation"
-                          />
-                        ) : (
-                          <img
-                            src={previewItem?.image}
-                            alt={previewItem?.name || 'Gift'}
-                            className="case-preview-image"
-                          />
-                        )}
-                      </div>
                     </div>
                   )
                 })}
@@ -446,27 +482,28 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                 <div className="case-section-title">{t('caseModal.whatsInside')}</div>
                 <div className="case-items-grid">
                   {caseItems.map((item) => (
-                    <div key={item.id} className="case-item-card">
-                      <div className="case-item-price">
+                    <div key={item.id} className="case-item-wrapper">
+                      <div className="case-item-card">
+                        <div className="case-item-image">
+                          {item.animation ? (
+                            <Player
+                              autoplay
+                              loop
+                              src={item.animation}
+                              className="case-item-animation"
+                            />
+                          ) : (
+                            <AsyncImage
+                              src={item.image}
+                              alt={item.name || 'Gift'}
+                              className="case-item-img"
+                            />
+                          )}
+                        </div>
+                      </div>
+                      <div className="case-item-price-below">
                         <img src={currencyIcon} alt="currency" className="case-item-coin" />
                         <span>{formatAmount(item.price)}</span>
-                      </div>
-                      <div className="case-item-image">
-  {item.animation ? (
-    <Player
-      autoplay
-      loop
-      src={item.animation}
-      className="case-item-animation"
-    />
-  ) : (
-    <img
-      src={item.image}
-      alt={item.name || 'Gift'}
-      className="case-item-img"
-    />
-  )}
-
                       </div>
                     </div>
                   ))}
@@ -491,26 +528,28 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                 <div className="case-section-title">{t('caseModal.whatsInside')}</div>
                 <div className="case-items-grid">
                   {caseItems.map((item) => (
-                    <div key={item.id} className="case-item-card">
-                      <div className="case-item-price">
+                    <div key={item.id} className="case-item-wrapper">
+                      <div className="case-item-card">
+                        <div className="case-item-image">
+                          {item.type === 'animation' && item.animation ? (
+                            <Player
+                              autoplay
+                              loop
+                              src={item.animation}
+                              className="case-item-animation"
+                            />
+                          ) : (
+                            <AsyncImage
+                              src={item.image}
+                              alt={item.name || 'Gift'}
+                              className="case-item-img"
+                            />
+                          )}
+                        </div>
+                      </div>
+                      <div className="case-item-price-below">
                         <img src={currencyIcon} alt="currency" className="case-item-coin" />
                         <span>{formatAmount(item.price)}</span>
-                      </div>
-                      <div className="case-item-image">
-                        {item.type === 'animation' && item.animation ? (
-                          <Player
-                            autoplay
-                            loop
-                            src={item.animation}
-                            className="case-item-animation"
-                          />
-                        ) : (
-                          <img
-                            src={item.image}
-                            alt={item.name || 'Gift'}
-                            className="case-item-img"
-                          />
-                        )}
                       </div>
                     </div>
                   ))}
@@ -562,7 +601,7 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                             className="case-spin-animation"
                           />
                         ) : (
-                          <img
+                          <AsyncImage
                             src={item.image}
                             alt={item.name || 'Gift'}
                             className="case-spin-image"

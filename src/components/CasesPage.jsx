@@ -13,6 +13,8 @@ import { Player } from '@lottiefiles/react-lottie-player'
 import { useLiveFeed } from '../context/LiveFeedContext'
 
 
+import AsyncImage from './AsyncImage'
+
 /* ===== LIVE DROPS (пока мок, можно позже заменить WS) ===== */
 
 
@@ -72,9 +74,10 @@ function CasesPage() {
                     />
                   ) : (
                     <img
-                      src={drop.image}
+                      src={drop.image || '/image/mdi_gift.svg'}
                       alt={drop.name}
                       className="live-item-image"
+                      onError={(e) => { e.target.src = '/image/mdi_gift.svg' }}
                     />
                   )}
                 </div>
@@ -104,12 +107,28 @@ function CasesPage() {
           {visibleCases.map((caseItem) => (
             <div
               key={caseItem.id}
-              className="case-card"
+              className="case-card-wrapper"
               onClick={() => handleCaseClick(caseItem)}
             >
+              <div className="case-card">
+                {/* Free badge remains top-left if free, but price moves down */}
+                {Number(caseItem.price) === 0 && (
+                  <div className="case-price-badge case-price-badge--free">
+                    {t('common.free')}
+                  </div>
+                )}
+
+                {/* IMAGE */}
+                <AsyncImage
+                  src={caseItem.main_image}
+                  alt={caseItem.name}
+                  className="case-item-image"
+                />
+              </div>
+
               {/* PRICE / FREE BADGE */}
-              {Number(caseItem.price) > 0 ? (
-                <div className="case-price-badge">
+              {Number(caseItem.price) > 0 && (
+                <div className="case-price-below">
                   <img
                     src={selectedCurrency.icon}
                     alt={selectedCurrency.id}
@@ -117,21 +136,7 @@ function CasesPage() {
                   />
                   <span>{formatAmount(caseItem.price)}</span>
                 </div>
-              ) : (
-                <div className="case-price-badge case-price-badge--free">
-                  {t('common.free')}
-                </div>
               )}
-
-              {/* IMAGE */}
-              <img
-                src={caseItem.main_image}
-                alt={caseItem.name}
-                className="case-item-image"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none'
-                }}
-              />
             </div>
           ))}
         </div>

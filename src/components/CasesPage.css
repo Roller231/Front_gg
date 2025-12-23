@@ -203,6 +203,22 @@
   padding: 0 16px;
 }
 
+.case-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.case-card-wrapper:hover {
+  transform: translateY(-4px);
+}
+
+.case-card-wrapper:active {
+  transform: scale(0.98);
+}
+
 .case-card {
   background: #291E42;
   border-radius: 20px;
@@ -212,21 +228,28 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
   overflow: hidden;
+  /* Removed hover/active from here as it's on wrapper now */
 }
 
-.case-card:hover {
-  transform: translateY(-4px);
+/* Price Below */
+.case-price-below {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #fff;
+  font-size: 16px; /* Increased size */
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 6px 12px;
+  border-radius: 12px;
+  width: fit-content;
+  margin: 0 auto; /* Center horizontally */
 }
 
-.case-card:active {
-  transform: scale(0.98);
-}
-
-/* Price Badge */
 .case-price-badge {
+  /* Only used for Free badge now */
   position: absolute;
   top: 10px;
   left: 10px;

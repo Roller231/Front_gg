@@ -10,6 +10,8 @@ import { getCrashBetsByRound, getCrashBotById } from '../api/crash'
 import { getUserById } from '../api/users'
 import { getDropById } from '../api/cases'
 import { useUser } from '../context/UserContext'
+import { maskUsername } from '../utils/maskUsername'
+import { vibrate, VIBRATION_PATTERNS } from '../utils/vibration'
 
 
 const MemoHeader = memo(Header)
@@ -22,10 +24,8 @@ const initialHistory = initialHistoryValues.map(value => ({ value, isPending: fa
 
 
 // Компонент линии — волнистая, левая часть внизу, правая поднимается
-function CrashLine({ multiplier, maxMultiplier }) {
-  // Не ограничиваем progress, чтобы линия могла подниматься до потолка
+const CrashLine = memo(function CrashLine({ multiplier, maxMultiplier }) {
   const progress = (multiplier - 1) / (maxMultiplier - 1)
-  
   
   // Случайные смещения для волн (генерируются один раз)
   const waveOffsets = useRef(
@@ -38,8 +38,8 @@ function CrashLine({ multiplier, maxMultiplier }) {
   const pathData = useMemo(() => {
     const width = 320
     const height = 280
-    const startY = height - 10 // Левый край всегда внизу
-    const endY = Math.max(5, startY - progress * (height - 15)) // Правый край поднимается до самого верха
+    const startY = height - 10
+    const endY = Math.max(5, startY - progress * (height - 15))
 
     const pointsCount = 24
     const waveCount = 3
@@ -47,8 +47,6 @@ function CrashLine({ multiplier, maxMultiplier }) {
     const points = Array.from({ length: pointsCount }, (_, idx) => {
       const t = idx / (pointsCount - 1)
       const x = t * width
-      // Базовая линия — как было раньше: M0,startY Q (width*0.5, startY-5) width,endY
-      // Для этой кривой x(t) = width * t, так что достаточно посчитать y(t).
       const controlY = startY - 5
       const baseY =
         (1 - t) * (1 - t) * startY +
@@ -56,7 +54,6 @@ function CrashLine({ multiplier, maxMultiplier }) {
         t * t * endY
 
       const offsetBucket = waveOffsets[Math.min(waveOffsets.length - 1, Math.floor(t * waveOffsets.length))]
-      // Чтобы не ломать рост и не смещать края — затухаем к 0 на концах
       const envelope = Math.sin(Math.PI * t)
       const irregular = offsetBucket * 0.9 * envelope
       const wave = Math.sin(t * waveCount * Math.PI * 2 + wavePhase) * amplitude * envelope
@@ -73,7 +70,7 @@ function CrashLine({ multiplier, maxMultiplier }) {
     d += ` Q ${points[points.length - 2].x} ${points[points.length - 2].y} ${points[points.length - 1].x} ${points[points.length - 1].y}`
 
     return d
-  }, [progress, waveOffsets])
+  }, [progress, waveOffsets, wavePhase])
 
   return (
     <svg
@@ -87,7 +84,7 @@ function CrashLine({ multiplier, maxMultiplier }) {
       />
     </svg>
   )
-}
+})
 
 function CrashPage() {
   const { t } = useLanguage()
@@ -102,8 +99,10 @@ function CrashPage() {
   const [isBetModalOpen, setIsBetModalOpen] = useState(false)
   const catLottieRef = useRef(null)
   const [giftIconIndex, setGiftIconIndex] = useState(0)
+  const [winModalOpen, setWinModalOpen] = useState(false)
+  const [winData, setWinData] = useState(null) // { giftIcon, wonAmount, multiplier }
   const [bets, setBets] = useState({});
-  const { user, setUser } = useUser();
+  const { user, setUser, settings } = useUser();
     const roundIdRef = useRef(null);
   const canBet = gameState === 'countdown' && countdown > 0
 
@@ -268,6 +267,9 @@ useEffect(() => {
         break
       }
       case "cashout": {
+        // Найдём игрока до обновления
+        const cashedOutPlayer = players.find(p => p.userId === msg.user_id)
+        
         // обновляем игроков
         setPlayers(prev =>
           prev.map(p =>
@@ -277,8 +279,8 @@ useEffect(() => {
           )
         )
       
-        // 🔥 ЕСЛИ ЭТО НАШ ЮЗЕР — ОБНОВЛЯЕМ БАЛАНС
-        if (msg.user_id === user?.id) {
+        // 🔥 ЕСЛИ ЭТО НАШ ЮЗЕР — ОБНОВЛЯЕМ БАЛАНС И ПОКАЗЫВАЕМ МОДАЛ ВЫИГРЫША
+        if (msg.user_id === user?.id && cashedOutPlayer) {
           getUserById(user.id)
             .then(freshUser => {
               setUser(freshUser)
@@ -286,6 +288,16 @@ useEffect(() => {
             .catch(err => {
               console.error('Failed to refresh user after cashout', err)
             })
+          
+          // Показываем модал выигрыша для любого успешного cashout
+          const wonAmount = cashedOutPlayer.betAmount * msg.multiplier
+          setWinData({
+            giftIcon: cashedOutPlayer.gift ? cashedOutPlayer.giftIcon : null,
+            wonAmount,
+            multiplier: msg.multiplier,
+            isGift: cashedOutPlayer.gift,
+          })
+          setWinModalOpen(true)
         }
       
         break
@@ -333,6 +345,10 @@ useEffect(() => {
   
         case "round_start": {
           setGameState("flying")
+          // Вибрация при старте полёта
+          if (settings?.vibrationEnabled) {
+            vibrate(VIBRATION_PATTERNS.action)
+          }
         
           if (msg.round_id) {
             roundIdRef.current = msg.round_id
@@ -363,6 +379,10 @@ useEffect(() => {
         loadBets(msg.round_id)   // ✅ сразу загрузили
         setMultiplier(msg.multiplier); // ✅ финальное значение
         setGameState("postflight");
+        // Вибрация при краше
+        if (settings?.vibrationEnabled) {
+          vibrate(VIBRATION_PATTERNS.crash)
+        }
         break;
     }
   });
@@ -535,11 +555,7 @@ useEffect(() => {
       
       <main className="main-content crash-content">
         {/* Зона игры */}
-        <div className={`crash-game-area ${gameState === 'countdown' ? 'crash-countdown' : ''} ${gameState === 'postflight' ? 'crash-postflight' : ''} ${gameState !== 'countdown' ? 'crash-no-rays' : ''}`}
-             style={gameState === 'flying' ? {
-               '--moon-speed': `${Math.max(1.5, 4 - (multiplier - 1) * 0.15)}s`,
-               '--star-speed': `${Math.max(2, 8 - (multiplier - 1) * 1.5)}s`
-             } : undefined}>
+        <div className={`crash-game-area ${gameState === 'countdown' ? 'crash-countdown' : ''} ${gameState === 'postflight' ? 'crash-postflight' : ''} ${gameState !== 'countdown' ? 'crash-no-rays' : ''}`}>
           <div
             className={`cosmic-background ${gameState === 'flying' ? 'cosmic-background-active' : ''}`}
             aria-hidden="true"
@@ -574,12 +590,11 @@ useEffect(() => {
                   }}
                   onEvent={(event) => {
                     if (event === 'complete') {
-                      // Анимация завершилась — включаем loop и циклируем последние 5 кадров
                       const lottie = catLottieRef.current
                       if (lottie) {
                         const totalFrames = lottie.totalFrames
-                        const loopStart = totalFrames - 180 // Последние 3 секунды (60fps × 3)
-                        lottie.loop = true // Включаем цикл!
+                        const loopStart = totalFrames - 180
+                        lottie.loop = true
                         lottie.playSegments([loopStart, totalFrames], true)
                       }
                     }
@@ -607,7 +622,7 @@ useEffect(() => {
           </div>
 
           {gameState !== 'countdown' && (
-            <div className="multiplier-display">
+            <div className={`multiplier-display ${gameState === 'postflight' ? 'centered sparkle' : ''}`}>
               <span className="multiplier-value">x{multiplier.toFixed(2)}</span>
             </div>
           )}
@@ -684,7 +699,9 @@ useEffect(() => {
         </div>
 
         <div className="player-details">
-          <span className="player-name">{player.name}</span>
+          <span className="player-name">
+                            {settings?.hideLogin ? maskUsername(player.name) : player.name}
+                          </span>
 
           <div className="player-stats-row">
             <img
@@ -703,26 +720,26 @@ useEffect(() => {
       </div>
 
       <div className="player-reward">
-        <div className="reward-amount-container">
-          <img
-            src="/image/Coin-Icon.svg"
-            className="coin-icon-large"
-            alt=""
-          />
-<span className={`reward-amount ${getPlayerResultClass(player)}`}>
-  {getPlayerRewardLabel(player)}
-</span>
-
-        </div>
+        {!player.gift && (
+          <div className="reward-amount-container">
+            <img
+              src="/image/Coin-Icon.svg"
+              className="coin-icon-large"
+              alt=""
+            />
+            <span className={`reward-amount ${getPlayerResultClass(player)}`}>
+              {getPlayerRewardLabel(player)}
+            </span>
+          </div>
+        )}
 
         {player.gift && player.giftIcon && (
-  <img
-    src={player.giftIcon}
-    className="gift-icon"
-    alt="Gift"
-  />
-)}
-
+          <img
+            src={player.giftIcon}
+            className="gift-icon"
+            alt="Gift"
+          />
+        )}
       </div>
     </div>
   ))}
@@ -731,6 +748,57 @@ useEffect(() => {
       </main>
       
       <MemoNavigation activePage="crash" />
+
+      {/* Модальное окно выигрыша */}
+      {winModalOpen && winData && (
+        <div className="wheel-result-overlay" onClick={() => setWinModalOpen(false)}>
+          <div className="wheel-result-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="wheel-result-glow"></div>
+            <div className="gg-confetti" aria-hidden="true">
+              {Array.from({ length: 28 }).map((_, i) => {
+                const x = (i * 37) % 100
+                const hue = (i * 47) % 360
+                const delay = i % 12
+                const rot = (i * 29) % 360
+                const d = i % 8
+                return (
+                  <span
+                    key={i}
+                    className="gg-confetti-piece"
+                    style={{
+                      '--x': x,
+                      '--hue': hue,
+                      '--delay': delay,
+                      '--rot': rot,
+                      '--d': d,
+                    }}
+                  />
+                )
+              })}
+            </div>
+            <h2 className="wheel-result-title">{t('caseModal.congratulations')}</h2>
+            <p className="crash-win-multiplier">x{winData.multiplier.toFixed(2)}</p>
+            <div className="wheel-result-prize">
+              <div className="wheel-result-card">
+                <div className="wheel-result-prize-content">
+                  {winData.isGift && winData.giftIcon ? (
+                    <img src={winData.giftIcon} alt="Gift" className="wheel-result-image" />
+                  ) : (
+                    <img src="/image/Coin-Icon.svg" alt="Coins" className="crash-win-coin-icon" />
+                  )}
+                </div>
+              </div>
+              <span className="case-result-price-below">
+                <img src="/image/Coin-Icon.svg" alt="currency" className="wheel-result-coin" />
+                {winData.wonAmount.toFixed(2)}
+              </span>
+            </div>
+            <button className="wheel-result-close gg-btn-glow" onClick={() => setWinModalOpen(false)}>
+              {t('caseModal.claim')}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
