@@ -8,25 +8,14 @@ import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
 import { vibrate, VIBRATION_PATTERNS } from '../utils/vibration'
 
+import { getAllDrops } from '../api/cases'
+import { upgradeItem } from '../api/upgrade'
+
+
 const MemoHeader = memo(Header)
 const MemoNavigation = memo(Navigation)
 
-const gifts = [
-  { id: 1, name: 'Сумка', image: '/image/case_card1.png', price: 0.5 },
-  { id: 2, name: 'Pepe', image: '/image/case_card2.png', price: 1.0 },
-  { id: 3, name: 'Кристаллы', image: '/image/case_card3.png', price: 2.5 },
-  { id: 4, name: 'Шлем', image: '/image/case_card4.png', price: 5.0 },
-  { id: 5, name: 'Редкий', image: '/image/case_card1.png', price: 10.0 },
-  { id: 6, name: 'Эпик', image: '/image/case_card2.png', price: 25.0 },
-]
 
-const targetGifts = [
-  { id: 101, name: 'Золотой Шлем', image: '/image/case_card4.png', price: 1.0, multiplier: 2 },
-  { id: 102, name: 'Платиновый Pepe', image: '/image/case_card2.png', price: 2.5, multiplier: 2.5 },
-  { id: 103, name: 'Алмазная Сумка', image: '/image/case_card1.png', price: 5.0, multiplier: 5 },
-  { id: 104, name: 'Легендарные Кристаллы', image: '/image/case_card3.png', price: 12.5, multiplier: 10 },
-  { id: 105, name: 'Мифический Предмет', image: '/image/case_card4.png', price: 50.0, multiplier: 25 },
-]
 
 function UpgradePage() {
   const { user, settings } = useUser()
@@ -38,12 +27,15 @@ function UpgradePage() {
   const [gameState, setGameState] = useState('idle') // 'idle' | 'spinning' | 'win' | 'lose'
   const [chance, setChance] = useState(50)
   const [resultText, setResultText] = useState(null)
-  
+  const [allDrops, setAllDrops] = useState([])
   const canvasRef = useRef(null)
   const animationRef = useRef(null)
   const currentAngleRef = useRef(Math.PI / 2)
   const isSpinningRef = useRef(false)
   const lastIsWinRef = useRef(null)
+  const WIN_CENTER = Math.PI / 2
+  const WIN_HALF_ANGLE = (chance / 100) * Math.PI
+  const [winItem, setWinItem] = useState(null)
 
   // Рассчёт шанса на основе цен
   useEffect(() => {
@@ -54,7 +46,34 @@ function UpgradePage() {
       setChance(50)
     }
   }, [sourceItem, targetItem])
+  useEffect(() => {
+    getAllDrops().then(setAllDrops)
+  }, [])
 
+  const inventoryItems = user?.inventory
+  ?.map(inv => {
+    const drop = allDrops.find(d => d.id === inv.drop_id)
+    if (!drop) return null
+
+    return {
+      ...drop,
+      count: inv.count,
+    }
+  })
+  .filter(Boolean) || []
+  const upgradeTargets = allDrops.filter(drop => drop.UseInUpgrade === true)
+  const canSelectTarget = (drop) => {
+    if (!sourceItem) return false
+  
+    // цель должна быть дороже source
+    if (drop.price <= sourceItem.price) return false
+  
+    return true
+  }
+  
+  
+  
+  
   // Canvas drawing
   const drawWheel = useCallback((rotationAngle) => {
     const canvas = canvasRef.current
@@ -154,10 +173,18 @@ function UpgradePage() {
     ctx.restore()
   }, [chance])
 
+
+
   // Инициализация canvas
   useEffect(() => {
     drawWheel(Math.PI / 2)
   }, [drawWheel, chance])
+
+  useEffect(() => {
+    // при выборе нового предмета для ставки
+    setTargetItem(null)
+  }, [sourceItem])
+  
 
   const handleSourceSelect = useCallback((gift) => {
     if (gameState !== 'idle') return
@@ -169,12 +196,26 @@ function UpgradePage() {
     setTargetItem(gift)
   }, [gameState])
 
-  const handleUpgrade = useCallback(() => {
+  const handleUpgrade = useCallback(async () => {
     if (!sourceItem || !targetItem || gameState !== 'idle' || isSpinningRef.current) return
-
+  
     isSpinningRef.current = true
     setGameState('spinning')
     setResultText(null)
+  
+    let response
+    try {
+      response = await upgradeItem({
+        user_id: user.id,
+        from_drop_id: sourceItem.id,
+        to_drop_id: targetItem.id,
+      })
+    } catch (e) {
+      console.error(e)
+      isSpinningRef.current = false
+      setGameState('idle')
+      return
+    }
     
     // Вибрация при начале спина
     if (settings?.vibrationEnabled) {
@@ -189,52 +230,65 @@ function UpgradePage() {
     const TWO_PI = Math.PI * 2
     const halfAngle = (chance / 100) * Math.PI
     const buffer = 0.08
-    const winHalf = Math.max(0, halfAngle - buffer)
-
+  
     const normalize = (a) => {
       const m = a % TWO_PI
       return m < 0 ? m + TWO_PI : m
     }
 
-    let targetAngle
-    if (isWin) {
-      // Победа: внутри окрашенной зоны вокруг низа (PI/2 ± halfAngle), но с небольшим отступом от краёв
-      const t = (Math.random() * 2 - 1) * winHalf
-      targetAngle = normalize(Math.PI / 2 + t)
-    } else {
-      // Проигрыш: строго ВНЕ окрашенной зоны (PI/2 ± halfAngle), тоже с небольшим отступом
-      // Чтобы стрелка никогда не попадала на окрашенную дугу при результате LOSE.
-      const loseHalf = Math.max(0, halfAngle + buffer)
-      const loseStart = Math.PI / 2 + loseHalf
-      const loseLen = Math.max(0, TWO_PI - 2 * loseHalf)
-      targetAngle = normalize(loseStart + Math.random() * loseLen)
+    const normalizeAngle = (a) => {
+      const TWO_PI = Math.PI * 2
+      const m = a % TWO_PI
+      return m < 0 ? m + TWO_PI : m
     }
     
-    // Добавляем 5 полных оборотов
-    const totalRotation = targetAngle + (Math.PI * 2 * 5)
+    let targetAngle
+
+    if (isWin) {
+      // ✅ СТРОГО внутри win-зоны
+      const safeHalf = Math.max(0, WIN_HALF_ANGLE - 0.15)
+      targetAngle =
+        WIN_CENTER + (Math.random() * 2 - 1) * safeHalf
+    }  else {
+      const gap = 0.25 // побольше зазор
+      const leftFrom = WIN_CENTER + WIN_HALF_ANGLE + gap
+      const leftTo = WIN_CENTER + Math.PI
     
+      const rightFrom = WIN_CENTER - Math.PI
+      const rightTo = WIN_CENTER - WIN_HALF_ANGLE - gap
+    
+      const zones = [
+        [leftFrom, leftTo],
+        [rightFrom, rightTo],
+      ]
+    
+      const [from, to] = zones[Math.floor(Math.random() * zones.length)]
+      targetAngle = normalizeAngle(from + Math.random() * (to - from))
+    }
+    
+    
+  
+    const totalRotation = targetAngle + TWO_PI * 5
     let startAngle = normalize(currentAngleRef.current)
     let startTime = null
     const duration = 4000
-    
-    // Ease Out Cubic
+  
     const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3)
-    
+  
     const animate = (timestamp) => {
       if (!startTime) startTime = timestamp
       const progress = (timestamp - startTime) / duration
-      
+  
       if (progress < 1) {
-        const ease = easeOutCubic(progress)
-        currentAngleRef.current = startAngle + (totalRotation - startAngle) * ease
+        currentAngleRef.current =
+          startAngle + (totalRotation - startAngle) * easeOutCubic(progress)
         drawWheel(currentAngleRef.current)
         animationRef.current = requestAnimationFrame(animate)
-      } else {
+      }  else {
         currentAngleRef.current = targetAngle
         drawWheel(currentAngleRef.current)
         isSpinningRef.current = false
-        lastIsWinRef.current = isWin
-        
+      
         if (isWin) {
           setGameState('win')
           setResultText(t('upgrade.success'))
@@ -250,11 +304,62 @@ function UpgradePage() {
             vibrate(VIBRATION_PATTERNS.lose)
           }
         }
+      
+
+        setUser(prev => {
+          if (!prev?.inventory) return prev
+        
+          const inventory = [...prev.inventory]
+        
+          // 🔻 списываем исходный предмет
+          const fromIdx = inventory.findIndex(
+            i => i.drop_id === sourceItem.id
+          )
+          if (fromIdx !== -1) {
+            inventory[fromIdx] = {
+              ...inventory[fromIdx],
+              count: inventory[fromIdx].count - 1,
+            }
+            if (inventory[fromIdx].count <= 0) {
+              inventory.splice(fromIdx, 1)
+            }
+          }
+        
+          // 🔺 если win — добавляем целевой предмет
+          if (isWin) {
+            const toIdx = inventory.findIndex(
+              i => i.drop_id === targetItem.id
+            )
+            if (toIdx !== -1) {
+              inventory[toIdx] = {
+                ...inventory[toIdx],
+                count: inventory[toIdx].count + 1,
+              }
+            } else {
+              inventory.push({
+                drop_id: targetItem.id,
+                count: 1,
+              })
+            }
+          }
+        
+          return {
+            ...prev,
+            inventory,
+          }
+        })
+        
+      
+        // ✅ СБРАСЫВАЕМ ВЫБОР ПРЕДМЕТОВ
+        setSourceItem(null)
+        setTargetItem(null)
       }
+      
     }
-    
+  
     animationRef.current = requestAnimationFrame(animate)
-  }, [sourceItem, targetItem, chance, gameState, drawWheel])
+  }, [sourceItem, targetItem, chance, gameState, drawWheel, user, t])
+  
 
   // Cleanup animation on unmount
   useEffect(() => {
@@ -344,7 +449,11 @@ function UpgradePage() {
               <div className={`upgrade-box upgrade-box-source ${sourceItem ? 'has-item' : ''} ${gameState === 'lose' ? 'losing' : ''}`}>
                 {sourceItem ? (
                   <>
-                    <img src={sourceItem.image} alt={sourceItem.name} className="upgrade-item-image" />
+<img
+  src={sourceItem.icon || sourceItem.image}
+  alt={sourceItem.name}
+  className="upgrade-item-image"
+/>
                     <div className="upgrade-box-content">
                       <div className="upgrade-item-price">
                         <img src={currencyIcon} alt="currency" className="upgrade-currency-icon" />
@@ -366,7 +475,11 @@ function UpgradePage() {
               <div className={`upgrade-box upgrade-box-target ${targetItem ? 'has-item' : ''} ${gameState === 'win' ? 'winning' : ''}`}>
                 {targetItem ? (
                   <>
-                    <img src={targetItem.image} alt={targetItem.name} className="upgrade-item-image" />
+<img
+  src={targetItem.icon || targetItem.image}
+  alt={targetItem.name}
+  className="upgrade-item-image"
+/>
                     <div className="upgrade-box-content">
                       <div className="upgrade-item-price">
                         <img src={currencyIcon} alt="currency" className="upgrade-currency-icon" />
@@ -414,11 +527,12 @@ function UpgradePage() {
                         {targetItem?.price ?? 0}
                       </span>
                       <div className="wheel-result-prize-content">
-                        <img
-                          src={targetItem?.image || '/image/case_card1.png'}
-                          alt="prize"
-                          className="wheel-result-image"
-                        />
+                      <img
+  src={winItem?.icon || winItem?.image || '/image/case_card1.png'}
+  alt="prize"
+  className="wheel-result-image"
+/>
+
                       </div>
                     </div>
                   </div>
@@ -435,19 +549,29 @@ function UpgradePage() {
         <div className="upgrade-selection-section">
           <h3 className="upgrade-section-title">{t('upgrade.yourItems')}</h3>
           <div className="upgrade-gifts-grid">
-            {gifts.map((gift) => (
-              <div 
-                key={gift.id}
-                className={`upgrade-gift-card ${sourceItem?.id === gift.id ? 'selected' : ''}`}
-                onClick={() => handleSourceSelect(gift)}
-              >
-                <div className="upgrade-gift-price">
-                  <img src={currencyIcon} alt="currency" className="upgrade-gift-currency" />
-                  <span>{gift.price}</span>
-                </div>
-                <img src={gift.image} alt={gift.name} className="upgrade-gift-image" />
-              </div>
-            ))}
+{inventoryItems.map((gift) => (
+  <div
+    key={gift.id}
+    className={`upgrade-gift-card ${sourceItem?.id === gift.id ? 'selected' : ''}`}
+    onClick={() => handleSourceSelect(gift)}
+  >
+    <div className="upgrade-gift-price">
+      <img src={currencyIcon} />
+      <span>{gift.price}</span>
+    </div>
+
+    <img
+      src={gift.icon || gift.image}
+      alt={gift.name}
+      className="upgrade-gift-image"
+    />
+
+    {gift.count > 1 && (
+      <div className="upgrade-gift-count">x{gift.count}</div>
+    )}
+  </div>
+))}
+
           </div>
         </div>
 
@@ -455,20 +579,35 @@ function UpgradePage() {
         <div className="upgrade-selection-section">
           <h3 className="upgrade-section-title">{t('upgrade.upgradeTargets')}</h3>
           <div className="upgrade-gifts-grid">
-            {targetGifts.map((gift) => (
-              <div 
-                key={gift.id}
-                className={`upgrade-gift-card target ${targetItem?.id === gift.id ? 'selected' : ''}`}
-                onClick={() => handleTargetSelect(gift)}
-              >
-                <div className="upgrade-gift-price">
-                  <img src={currencyIcon} alt="currency" className="upgrade-gift-currency" />
-                  <span>{gift.price}</span>
-                </div>
-                <div className="upgrade-gift-multiplier">x{gift.multiplier}</div>
-                <img src={gift.image} alt={gift.name} className="upgrade-gift-image" />
-              </div>
-            ))}
+          {upgradeTargets.map((gift) => {
+  const disabled = !canSelectTarget(gift)
+
+  return (
+    <div
+      key={gift.id}
+      className={`upgrade-gift-card target
+        ${targetItem?.id === gift.id ? 'selected' : ''}
+        ${disabled ? 'disabled' : ''}
+      `}
+      onClick={() => {
+        if (!disabled) handleTargetSelect(gift)
+      }}
+    >
+      <div className="upgrade-gift-price">
+        <img src={currencyIcon} />
+        <span>{gift.price}</span>
+      </div>
+
+      <img
+        src={gift.icon || gift.image}
+        alt={gift.name}
+        className="upgrade-gift-image"
+      />
+    </div>
+  )
+})}
+
+
           </div>
         </div>
       </main>

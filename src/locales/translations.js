@@ -202,6 +202,12 @@ export const translations = {
       inBattle: 'В бою',
       autoPickIn: 'Автовыбор через',
       sec: 'сек',
+
+      statusWin: 'Победа',
+      statusLose: 'Поражение',
+      statusDraw: 'Ничья',
+      statusFight: 'В бою',
+      ok: 'ОК',
     },
 
     // Currencies
@@ -432,6 +438,12 @@ export const translations = {
       inBattle: 'In Battle',
       autoPickIn: 'Auto pick in',
       sec: 'sec',
+
+      statusWin: 'Victory',
+      statusLose: 'Defeat',
+      statusDraw: 'Draw',
+      statusFight: 'In Battle',
+      ok: 'OK',
     },
 
     // Currencies
