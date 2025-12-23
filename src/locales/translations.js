@@ -124,7 +124,7 @@ export const translations = {
     // Deposit Modal
     deposit: {
       title: 'Пополнение счёта',
-      gifts: 'Подарки',
+      gifts: 'Звезды',
       wallet: 'Кошелёк',
       cryptoBot: 'Crypto Bot',
       instruction1: 'Перейдите в профиль',
@@ -362,7 +362,7 @@ export const translations = {
     // Deposit Modal
     deposit: {
       title: 'Deposit',
-      gifts: 'Gifts',
+      gifts: 'Stars',
       wallet: 'Wallet',
       cryptoBot: 'Crypto Bot',
       instruction1: 'Go to profile',
