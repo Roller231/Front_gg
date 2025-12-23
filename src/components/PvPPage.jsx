@@ -5,8 +5,6 @@ import Header from './Header'
 import Navigation from './Navigation'
 import BetModal from './BetModal'
 import { useUser } from '../context/UserContext'
-import { maskUsername } from '../utils/maskUsername'
-import { vibrate, VIBRATION_PATTERNS } from '../utils/vibration'
 import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
 import { usePvpSocket } from "../hooks/usePvpSocket"
@@ -24,7 +22,6 @@ const getBodyParts = (t) => [
 ]
 
 function PvPPage() {
-  const { user, settings } = useUser()
   const { selectedCurrency } = useCurrency()
   const { t } = useLanguage()
   
@@ -188,31 +185,6 @@ function PvPPage() {
   }, [isWaitingForOpponent])
 
   // Обратный отсчёт
-  useEffect(() => {
-    if (gameState === 'countdown' && countdown > 0) {
-      const timer = setTimeout(() => {
-        setCountdown(prev => prev - 1)
-      }, 1000)
-      return () => clearTimeout(timer)
-    } else if (gameState === 'countdown' && countdown === 0) {
-      setGameState('fighting')
-      // Вибрация при начале боя
-      if (settings?.vibrationEnabled) {
-        vibrate(VIBRATION_PATTERNS.action)
-      }
-      // Симулируем бой
-      setTimeout(() => {
-        const results = ['win', 'lose', 'draw']
-        const result = results[Math.floor(Math.random() * results.length)]
-        setBattleResult(result)
-        setGameState('result')
-        // Вибрация при результате
-        if (settings?.vibrationEnabled) {
-          vibrate(result === 'win' ? VIBRATION_PATTERNS.win : VIBRATION_PATTERNS.lose)
-        }
-      }, 2000)
-    }
-  }, [gameState, countdown])
 
   useEffect(() => {
     if (gameState !== 'result') return
@@ -310,8 +282,7 @@ function PvPPage() {
 
   const canStartGame = Boolean(attackPart && defendPart && myBet && gameState === 'waiting' && !isWaitingForOpponent)
   const showMatchPanel = Boolean(isWaitingForOpponent || gameState !== 'waiting')
-  const rawUsername = user?.username || user?.firstname || 'Username'
-  const displayUsername = settings?.hideLogin ? maskUsername(rawUsername) : `@${rawUsername}`
+  const displayUsername = user?.username ? `@${user.username}` : user?.firstname ? `@${user.firstname}` : '@Username'
   const displayAvatar = user?.url_image || user?.photo_url || '/image/ava1.png'
   const currencyIcon = selectedCurrency?.icon || '/image/Coin-Icon.svg'
 
@@ -407,10 +378,15 @@ function PvPPage() {
 </div>
 
               <div className="pvp-player-chip pvp-player-chip--right">
-                <img className="pvp-player-avatar" src={opponent.url_image} alt="Opponent" />
-                <span className="pvp-player-name">
-                  {settings?.hideLogin ? maskUsername(opponent.username?.replace('@', '') || 'Opponent') : opponent.username}
-                </span>
+              <img
+  className="pvp-player-avatar"
+  src={opponentBot?.avatar_url || '/image/ava2.png'}
+  alt="Opponent"
+/>
+<span className="pvp-player-name">
+  {"@" + opponentBot?.nickname || t('pvp.waiting')}
+</span>
+
               </div>
             </div>
 

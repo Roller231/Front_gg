@@ -6,7 +6,6 @@ import Navigation from './Navigation'
 import { useUser } from '../context/UserContext'
 import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
-import { vibrate, VIBRATION_PATTERNS } from '../utils/vibration'
 
 import { getAllDrops } from '../api/cases'
 import { upgradeItem } from '../api/upgrade'
@@ -18,8 +17,8 @@ const MemoNavigation = memo(Navigation)
 
 
 function UpgradePage() {
-  const { user, settings } = useUser()
-  const { selectedCurrency } = useCurrency()
+  const { user, setUser } = useUser()
+    const { selectedCurrency } = useCurrency()
   const { t } = useLanguage()
   
   const [sourceItem, setSourceItem] = useState(null)
@@ -65,12 +64,14 @@ function UpgradePage() {
   const canSelectTarget = (drop) => {
     if (!sourceItem) return false
   
-    // цель должна быть дороже source
+    // должен быть дороже исходного
     if (drop.price <= sourceItem.price) return false
+  
+    // если цель уже выбрана — блокируем всё дороже неё
+    if (targetItem && drop.price > targetItem.price) return false
   
     return true
   }
-  
   
   
   
@@ -217,16 +218,10 @@ function UpgradePage() {
       return
     }
     
-    // Вибрация при начале спина
-    if (settings?.vibrationEnabled) {
-      vibrate(VIBRATION_PATTERNS.spin)
-    }
-    
-    // Определяем результат
-    const randomValue = Math.random() * 100
-    const isWin = randomValue <= chance
-    
-    // Вычисляем угол остановки (углы canvas: 0 = вправо, PI/2 = вниз)
+  
+    const isWin = response.result === 'win'
+    lastIsWinRef.current = isWin
+  
     const TWO_PI = Math.PI * 2
     const halfAngle = (chance / 100) * Math.PI
     const buffer = 0.08
@@ -292,17 +287,10 @@ function UpgradePage() {
         if (isWin) {
           setGameState('win')
           setResultText(t('upgrade.success'))
-          // Вибрация при победе
-          if (settings?.vibrationEnabled) {
-            vibrate(VIBRATION_PATTERNS.win)
-          }
+          setWinItem(targetItem)
         } else {
           setGameState('lose')
           setResultText(t('upgrade.failed'))
-          // Вибрация при проигрыше
-          if (settings?.vibrationEnabled) {
-            vibrate(VIBRATION_PATTERNS.lose)
-          }
         }
       
 
