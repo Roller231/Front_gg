@@ -63,23 +63,28 @@ if (loading || !user) {
   
   useEffect(() => {
     const handler = (event) => {
+      console.log('invoiceClosed event:', event)
+  
+      // 🔥 реагируем ТОЛЬКО на успешную оплату
       if (event.status === 'paid') {
         fetch(`${API_URL}/api/stars/success`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            invoice_id: event.slug,   // ✅ ВОТ ОН
-            payload: event.payload
+            user_id: user.id   // ✅ ТОЛЬКО ЭТО
           })
+        }).catch(err => {
+          console.error('Stars success error', err)
         })
-        console.log('invoiceClosed event:', event)
+  
         onClose()
       }
     }
   
     window.Telegram.WebApp.onEvent('invoiceClosed', handler)
     return () => window.Telegram.WebApp.offEvent('invoiceClosed', handler)
-  }, [onClose])
+  }, [API_URL, user.id, onClose])
+  
   
   
   
