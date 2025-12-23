@@ -78,7 +78,7 @@ if (loading || !user) {
           })
   
           // 2️⃣ получаем обновлённого пользователя
-          const updatedUser = await usersApi.getUser(user.id)
+          const updatedUser = await usersApi.getUserById(user.id)
   
           // 3️⃣ обновляем контекст
           setUser(updatedUser)
