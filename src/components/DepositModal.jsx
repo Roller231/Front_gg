@@ -72,7 +72,7 @@ if (loading || !user) {
             payload: event.payload
           })
         })
-  
+        console.log('invoiceClosed event:', event)
         onClose()
       }
     }
