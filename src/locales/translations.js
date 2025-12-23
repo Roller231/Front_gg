@@ -134,6 +134,7 @@ export const translations = {
       walletNotConnected: 'Кошелёк не подключен.',
       connectWallet: 'Привязать кошелёк',
       amount: 'Сумма',
+      payStars: 'Пополнить'
     },
 
     // Partner Page
@@ -371,6 +372,7 @@ export const translations = {
       walletNotConnected: 'Wallet not connected.',
       connectWallet: 'Connect Wallet',
       amount: 'Amount',
+      payStars: 'Top up'
     },
 
     // Partner Page

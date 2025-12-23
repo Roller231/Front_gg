@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import './DepositModal.css'
 import { useLanguage } from '../context/LanguageContext'
+import { useUser } from '../context/UserContext'
 
 function DepositModal({ isOpen, onClose }) {
   const { t } = useLanguage()
@@ -15,6 +16,10 @@ function DepositModal({ isOpen, onClose }) {
   const currentTranslateY = useRef(0)
   const isDragging = useRef(false)
 
+  const API_URL = import.meta.env.VITE_API_URL
+
+  const { user, loading } = useUser()
+  
   // Сброс позиции при открытии
   useEffect(() => {
     if (isOpen && contentRef.current) {
@@ -25,7 +30,63 @@ function DepositModal({ isOpen, onClose }) {
       setAmount('')
     }
   }, [isOpen])
+  if (loading || !user) {
+    return null // или disabled кнопки
+  }
+  
 
+  const handleStarsPay = async () => {
+    if (!amount || Number(amount) <= 0) return
+    if (!user?.id) return
+  
+    try {
+      const res = await fetch(`${API_URL}/api/stars/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: Number(amount),
+          user_id: user.id // ✅ ВНУТРЕННИЙ ID
+        })
+      })
+  
+      if (!res.ok) {
+        throw new Error('Create invoice failed')
+      }
+  
+      const data = await res.json()
+      window.Telegram.WebApp.openInvoice(data.invoice_link)
+  
+    } catch (e) {
+      console.error('Stars pay error', e)
+    }
+  }
+  
+  
+  
+  useEffect(() => {
+    const handler = (event) => {
+      if (event.status === 'paid') {
+        fetch(`${API_URL}/api/stars/success`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            invoice_id: event.invoice_id,
+            payload: event.payload
+          })
+        })
+  
+        onClose()
+      }
+    }
+  
+    window.Telegram?.WebApp?.onEvent('invoiceClosed', handler)
+  
+    return () => {
+      window.Telegram?.WebApp?.offEvent('invoiceClosed', handler)
+    }
+  }, [onClose])
+  
+  
   // Начало свайпа/drag
   const handleDragStart = (e) => {
     isDragging.current = true
@@ -151,34 +212,30 @@ function DepositModal({ isOpen, onClose }) {
         <div className="deposit-modal-tabs-content">
           {/* Вкладка Подарки */}
           <div className={`deposit-tab-panel ${activeTab === 'gifts' ? 'active' : ''}`}>
-            <div className="deposit-gifts-content">
-              <div className="deposit-instructions">
-                <div className="deposit-instruction-item">
-                  <div className="deposit-instruction-number">1.</div>
-                  <div className="deposit-instruction-text">
-                    {t('deposit.instruction1')} <span className="deposit-link">@</span>
-                  </div>
-                </div>
-                <div className="deposit-instruction-item">
-                  <div className="deposit-instruction-number">2.</div>
-                  <div className="deposit-instruction-text">
-                    {t('deposit.instruction2')}
-                  </div>
-                </div>
-                <div className="deposit-instruction-item">
-                  <div className="deposit-instruction-emoji">🎁</div>
-                  <div className="deposit-instruction-text">
-                    {t('deposit.instruction3')}
-                  </div>
-                </div>
-                <div className="deposit-instruction-item">
-                  <div className="deposit-instruction-emoji">‼️</div>
-                  <div className="deposit-instruction-text">
-                    {t('deposit.instruction4')}
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="deposit-stars-content">
+  <div className="deposit-amount-wrapper">
+    <input
+      type="text"
+      inputMode="numeric"
+      className="deposit-amount-input"
+      placeholder={t('deposit.amount')}
+      value={amount}
+      onChange={(e) => {
+        const value = e.target.value.replace(/[^0-9]/g, '')
+        setAmount(value)
+      }}
+    />
+  </div>
+
+  <button
+    className="deposit-wallet-button"
+    onClick={handleStarsPay}
+    disabled={!amount}
+  >
+    {t('deposit.payStars')}
+  </button>
+</div>
+
           </div>
 
           {/* Вкладка Кошелёк */}
