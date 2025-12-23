@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import './DepositModal.css'
 import { useLanguage } from '../context/LanguageContext'
 import { useUser } from '../context/UserContext'
+import * as usersApi from '../api/users'
 
 function DepositModal({ isOpen, onClose }) {
   const { t } = useLanguage()
@@ -18,7 +19,7 @@ function DepositModal({ isOpen, onClose }) {
 
   const API_URL = import.meta.env.VITE_API_URL
 
-  const { user, loading } = useUser()
+  const { user, loading, setUser } = useUser()
   
   // Сброс позиции при открытии
   useEffect(() => {
@@ -62,28 +63,38 @@ if (loading || !user) {
   }
   
   useEffect(() => {
-    const handler = (event) => {
+    const handler = async (event) => {
       console.log('invoiceClosed event:', event)
   
-      // 🔥 реагируем ТОЛЬКО на успешную оплату
       if (event.status === 'paid') {
-        fetch(`${API_URL}/api/stars/success`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_id: user.id   // ✅ ТОЛЬКО ЭТО
+        try {
+          // 1️⃣ подтверждаем депозит
+          await fetch(`${API_URL}/api/stars/success`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: user.id
+            })
           })
-        }).catch(err => {
-          console.error('Stars success error', err)
-        })
   
-        onClose()
+          // 2️⃣ получаем обновлённого пользователя
+          const updatedUser = await usersApi.getUser(user.id)
+  
+          // 3️⃣ обновляем контекст
+          setUser(updatedUser)
+  
+        } catch (err) {
+          console.error('Stars success / user refresh error', err)
+        } finally {
+          onClose()
+        }
       }
     }
   
     window.Telegram.WebApp.onEvent('invoiceClosed', handler)
     return () => window.Telegram.WebApp.offEvent('invoiceClosed', handler)
-  }, [API_URL, user.id, onClose])
+  }, [API_URL, user.id, setUser, onClose])
+  
   
   
   
