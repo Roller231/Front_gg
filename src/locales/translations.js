@@ -90,7 +90,7 @@ export const translations = {
       waiting: 'Ожидание...',
       betsClosed: 'Ставки закрыты',
       cashout: 'Вывести',
-
+      betPlaced: "Ставка принята"
     },
 
     // Wheel Page
@@ -327,6 +327,7 @@ export const translations = {
       waiting: 'Waiting...',
       betsClosed: 'Bets Closed',
       cashout: 'Cashout',
+      betPlaced: "Bet placed"
     },
 
     // Wheel Page

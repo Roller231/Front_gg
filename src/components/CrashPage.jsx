@@ -104,8 +104,8 @@ function CrashPage() {
   const [bets, setBets] = useState({});
   const { user, setUser, settings } = useUser();
     const roundIdRef = useRef(null);
-  const canBet = gameState === 'countdown' && countdown > 0
 
+  
 
   const [players, setPlayers] = useState([])
 
@@ -125,7 +125,15 @@ function CrashPage() {
   const canPlaceBet = gameState === 'countdown' && countdown > 0
 
 const dropsCacheRef = useRef(new Map())
+const myBetInRound = useMemo(() => {
+  if (!user?.id) return null
 
+  return players.find(p => p.userId === user.id)
+}, [players, user])
+const canBet =
+gameState === 'countdown' &&
+countdown > 0 &&
+!myBetInRound
 
 const handleCashout = () => {
   if (!canCashout || !myActiveBet || !user?.id) return
@@ -267,10 +275,7 @@ useEffect(() => {
         break
       }
       case "cashout": {
-        // Найдём игрока до обновления
-        const cashedOutPlayer = players.find(p => p.userId === msg.user_id)
-        
-        // обновляем игроков
+        // обновляем игроков (UI)
         setPlayers(prev =>
           prev.map(p =>
             p.userId === msg.user_id
@@ -279,8 +284,8 @@ useEffect(() => {
           )
         )
       
-        // 🔥 ЕСЛИ ЭТО НАШ ЮЗЕР — ОБНОВЛЯЕМ БАЛАНС И ПОКАЗЫВАЕМ МОДАЛ ВЫИГРЫША
-        if (msg.user_id === user?.id && cashedOutPlayer) {
+        // ✅ ЕСЛИ ЭТО НАШ ЮЗЕР — ВСЕГДА ОБНОВЛЯЕМ БАЛАНС
+        if (msg.user_id === user?.id) {
           getUserById(user.id)
             .then(freshUser => {
               setUser(freshUser)
@@ -288,20 +293,24 @@ useEffect(() => {
             .catch(err => {
               console.error('Failed to refresh user after cashout', err)
             })
-          
-          // Показываем модал выигрыша для любого успешного cashout
-          const wonAmount = cashedOutPlayer.betAmount * msg.multiplier
-          setWinData({
-            giftIcon: cashedOutPlayer.gift ? cashedOutPlayer.giftIcon : null,
-            wonAmount,
-            multiplier: msg.multiplier,
-            isGift: cashedOutPlayer.gift,
-          })
-          setWinModalOpen(true)
+      
+          // win modal
+          const myBet = players.find(p => p.userId === user.id)
+      
+          if (myBet) {
+            setWinData({
+              giftIcon: myBet.gift ? myBet.giftIcon : null,
+              wonAmount: myBet.betAmount * msg.multiplier,
+              multiplier: msg.multiplier,
+              isGift: myBet.gift,
+            })
+            setWinModalOpen(true)
+          }
         }
       
         break
       }
+      
       case "bet_placed": {
         // сразу перезагружаем ставки текущего раунда
         if (roundIdRef.current) {
@@ -657,7 +666,11 @@ useEffect(() => {
         {/* Кнопка ставки */}
         <button
   className={`bet-button gg-btn-glow ${
-    canCashout ? 'cashout' : !canBet ? 'disabled' : ''
+    canCashout
+      ? 'cashout'
+      : !canBet
+        ? 'disabled'
+        : ''
   }`}
   onClick={() => {
     if (canCashout) {
@@ -670,10 +683,13 @@ useEffect(() => {
 >
   {canCashout
     ? `${t('crash.cashout')} x${multiplier.toFixed(2)}`
-    : canBet
-      ? t('crash.placeBet')
-      : t('crash.betsClosed')}
+    : myBetInRound
+      ? t('crash.betPlaced')       // 👈 НОВОЕ
+      : canBet
+        ? t('crash.placeBet')
+        : t('crash.betsClosed')}
 </button>
+
 
 
 
