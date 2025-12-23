@@ -44,7 +44,7 @@ if (loading || !user) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           amount: Number(amount),
-          user_id: window.Telegram.WebApp.initDataUnsafe?.user?.id
+          user_id: user.id
         })
       })
   
