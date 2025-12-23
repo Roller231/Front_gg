@@ -30,14 +30,13 @@ function DepositModal({ isOpen, onClose }) {
       setAmount('')
     }
   }, [isOpen])
-  if (loading || !user) {
-    return null // или disabled кнопки
-  }
-  
+if (loading || !user) {
+  return null // или disabled кнопки
+}
+
 
   const handleStarsPay = async () => {
     if (!amount || Number(amount) <= 0) return
-    if (!user?.id) return
   
     try {
       const res = await fetch(`${API_URL}/api/stars/create`, {
@@ -45,7 +44,7 @@ function DepositModal({ isOpen, onClose }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           amount: Number(amount),
-          user_id: user.id // ✅ ВНУТРЕННИЙ ID
+          user_id: window.Telegram.WebApp.initDataUnsafe?.user?.id
         })
       })
   
@@ -54,14 +53,13 @@ function DepositModal({ isOpen, onClose }) {
       }
   
       const data = await res.json()
+  
       window.Telegram.WebApp.openInvoice(data.invoice_link)
   
     } catch (e) {
       console.error('Stars pay error', e)
     }
   }
-  
-  
   
   useEffect(() => {
     const handler = (event) => {
@@ -70,7 +68,7 @@ function DepositModal({ isOpen, onClose }) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            invoice_id: event.invoice_id,
+            invoice_id: event.slug,   // ✅ ВОТ ОН
             payload: event.payload
           })
         })
@@ -79,12 +77,10 @@ function DepositModal({ isOpen, onClose }) {
       }
     }
   
-    window.Telegram?.WebApp?.onEvent('invoiceClosed', handler)
-  
-    return () => {
-      window.Telegram?.WebApp?.offEvent('invoiceClosed', handler)
-    }
+    window.Telegram.WebApp.onEvent('invoiceClosed', handler)
+    return () => window.Telegram.WebApp.offEvent('invoiceClosed', handler)
   }, [onClose])
+  
   
   
   // Начало свайпа/drag
