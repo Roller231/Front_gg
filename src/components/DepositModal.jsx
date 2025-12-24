@@ -61,7 +61,6 @@ const handleTonPay = async () => {
         {
           address: import.meta.env.VITE_TON_RECEIVER,
           amount: toNano(tonAmount).toString(),
-          payload
         }
       ]
     })
