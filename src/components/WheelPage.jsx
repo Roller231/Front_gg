@@ -20,7 +20,7 @@ import { useFreeSpin } from '../context/FreeSpinContext'
 const NUM_LIGHTS = 32 // Number of lights around the wheel
 
 function WheelPage() {
-  const { selectedCurrency, hasFreeSpins } = useCurrency()
+  const { selectedCurrency, hasFreeSpins, formatAmount } = useCurrency()
   const { t } = useLanguage()
   const [rotation, setRotation] = useState(0)
   const [isSpinning, setIsSpinning] = useState(false)
@@ -119,12 +119,13 @@ function WheelPage() {
   
       const winDrop = {
         id: drop.id,
-        price: drop.price,
+        basePrice: drop.price, // ⬅️ ВАЖНО
         image: drop.icon,
         animation: drop.lottie_anim,
         contentType: drop.lottie_anim ? 'animation' : 'image',
         type: drop.rarity === 'epic' ? 'purple' : 'blue',
       }
+      
   
       const prizes = buildWheelPrizes(winDrop)
       setWheelPrizes(prizes)
@@ -148,12 +149,14 @@ function WheelPage() {
   
       prizes.push({
         id: Math.random(),
-        price: r.price,
+        basePrice: r.price, // ✅
         image: r.icon,
         animation: r.lottie_anim,
         contentType: r.lottie_anim ? 'animation' : 'image',
         type: r.rarity === 'epic' ? 'purple' : 'blue',
       })
+      
+      
     }
   
     return prizes
@@ -187,13 +190,14 @@ function WheelPage() {
       const r = fillers[Math.floor(Math.random() * fillers.length)]
   
       prizes.push({
-        id: Math.random(), // уникальный id для React
-        price: r.price,
+        id: Math.random(),
+        basePrice: r.price, // ✅
         image: r.icon,
         animation: r.lottie_anim,
         contentType: r.lottie_anim ? 'animation' : 'image',
         type: r.rarity === 'epic' ? 'purple' : 'blue',
       })
+      
     }
   
     // 3️⃣ перемешиваем
@@ -526,8 +530,8 @@ function WheelPage() {
                   >
                     <span className="wheel-segment-price">
                       <img src={currencyIcon} alt="currency" className="wheel-segment-coin" />
-                      {prize.price}
-                    </span>
+                      {formatAmount(prize.basePrice)}
+                      </span>
                     {prize.contentType === 'animation' ? (
                       <Player
                         autoplay
@@ -660,8 +664,8 @@ function WheelPage() {
                 </div>
                 <span className="case-result-price-below">
                   <img src={currencyIcon} alt="currency" className="wheel-result-coin" />
-                  {wonPrize.price}
-                </span>
+                  {formatAmount(wonPrize.basePrice)}
+                                  </span>
               </div>
               <button className="wheel-result-close gg-btn-glow" onClick={closeResult}>
                 {t('wheel.claim')}
@@ -699,8 +703,10 @@ function WheelPage() {
               <div className="prizes-modal-body">
                 {(() => {
                   // Sort prizes by price (highest first) and split into 3 groups
-                  const sortedPrizes = [...wheelPrizes].sort((a, b) => b.price - a.price)
-                  const totalPrizes = sortedPrizes.length
+                  const sortedPrizes = [...wheelPrizes].sort(
+                    (a, b) => b.basePrice - a.basePrice
+                  )
+                                    const totalPrizes = sortedPrizes.length
                   const groupSize = Math.ceil(totalPrizes / 3)
                   
                   const legendaryPrizes = sortedPrizes.slice(0, groupSize)
@@ -723,15 +729,24 @@ function WheelPage() {
                       </div>
                       <span className="prize-price-badge">
                         <img src={currencyIcon} alt="currency" className="prize-price-coin" />
-                        {prize.price}
-                      </span>
+                        {formatAmount(prize.basePrice)}
+                        </span>
                     </div>
                   )
 
                   // Get min prices for each category
-                  const legendaryMinPrice = legendaryPrizes.length > 0 ? Math.min(...legendaryPrizes.map(p => p.price)) : 0
-                  const epicMinPrice = epicPrizes.length > 0 ? Math.min(...epicPrizes.map(p => p.price)) : 0
-                  const commonMinPrice = commonPrizes.length > 0 ? Math.min(...commonPrizes.map(p => p.price)) : 0
+                  const legendaryMinPrice = legendaryPrizes.length > 0 ? Math.min(...legendaryPrizes.map(p => p.basePrice))
+                  : 0
+                  const epicMinPrice =
+                  epicPrizes.length > 0
+                    ? Math.min(...epicPrizes.map(p => p.basePrice))
+                    : 0
+                
+                const commonMinPrice =
+                  commonPrizes.length > 0
+                    ? Math.min(...commonPrizes.map(p => p.basePrice))
+                    : 0
+                
 
                   return (
                     <>
@@ -741,7 +756,7 @@ function WheelPage() {
                           <h3 className="prizes-section-title prizes-section-legendary">
                             {t('wheel.legendary')}
                             <span className="prizes-section-price">
-                              {t('wheel.from')} <img src={currencyIcon} alt="currency" className="prizes-section-price-icon" /> {legendaryMinPrice}
+                              {t('wheel.from')} <img src={currencyIcon} alt="currency" className="prizes-section-price-icon" /> {formatAmount(legendaryMinPrice)}
                             </span>
                           </h3>
                           <div className="prizes-grid">
@@ -756,7 +771,8 @@ function WheelPage() {
                           <h3 className="prizes-section-title prizes-section-epic">
                             {t('wheel.epic')}
                             <span className="prizes-section-price">
-                              {t('wheel.from')} <img src={currencyIcon} alt="currency" className="prizes-section-price-icon" /> {epicMinPrice}
+                              {t('wheel.from')} <img src={currencyIcon} alt="currency" className="prizes-section-price-icon" /> {formatAmount(epicMinPrice)}
+
                             </span>
                           </h3>
                           <div className="prizes-grid">
@@ -771,7 +787,8 @@ function WheelPage() {
                           <h3 className="prizes-section-title prizes-section-common">
                             {t('wheel.common')}
                             <span className="prizes-section-price">
-                              {t('wheel.from')} <img src={currencyIcon} alt="currency" className="prizes-section-price-icon" /> {commonMinPrice}
+                              {t('wheel.from')} <img src={currencyIcon} alt="currency" className="prizes-section-price-icon" /> {formatAmount(commonMinPrice)}
+
                             </span>
                           </h3>
                           <div className="prizes-grid">

@@ -4,6 +4,7 @@ import './Header.css'
 import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
 import { useUser } from '../context/UserContext'
+import DepositModal from './DepositModal'
 
 const accountTypes = [
   { id: 'usdt', name: 'USDT TON', icon: '💎', amount: '1.22' },
@@ -39,6 +40,7 @@ const {
   const [showGameDropdown, setShowGameDropdown] = useState(false)
   const [selectedAccount, setSelectedAccount] = useState(accountTypes[0])
   const [selectedGameCurrency, setSelectedGameCurrency] = useState(gameCurrencies[0])
+  const [isDepositModalOpen, setIsDepositModalOpen] = useState(false)
 
   const visibleCurrencies = currencyOptions.filter((currency) => currency.id !== selectedCurrency.id)
 
@@ -82,7 +84,10 @@ const {
                 </span>
               </div>
             </div>
-            <button className="plus-btn" onClick={() => setIsModalOpen(true)}>
+            <button
+  className="plus-btn"
+  onClick={() => setIsDepositModalOpen(true)}
+>
               <img src="/image/plus icon.svg" alt="plus" />
             </button>
 
@@ -257,6 +262,12 @@ const {
           {t('header.bonusActivated')}
         </div>
       )}
+
+<DepositModal
+  isOpen={isDepositModalOpen}
+  onClose={() => setIsDepositModalOpen(false)}
+/>
+
     </header>
   )
 }

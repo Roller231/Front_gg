@@ -12,6 +12,7 @@ import { getDropById } from '../api/cases'
 import { useUser } from '../context/UserContext'
 import { maskUsername } from '../utils/maskUsername'
 import { vibrate, VIBRATION_PATTERNS } from '../utils/vibration'
+import { useCurrency } from '../context/CurrencyContext'
 
 
 const MemoHeader = memo(Header)
@@ -104,6 +105,7 @@ function CrashPage() {
   const [bets, setBets] = useState({});
   const { user, setUser, settings } = useUser();
     const roundIdRef = useRef(null);
+    const { selectedCurrency, formatAmount } = useCurrency()
 
   
 
@@ -539,14 +541,12 @@ useEffect(() => {
     }
   }, [gameState, multiplier])
   const getPlayerRewardLabel = (player) => {
-    // проиграл
     if (gameState === 'postflight' && !player.cashoutX) {
-      return '0.00'
-      // или 'LOST' если хочешь
+      return formatAmount(0)
     }
-  
-    return getPlayerReward(player).toFixed(2)
+    return formatAmount(getPlayerReward(player))
   }
+  
   
   useEffect(() => {
     if (coeffHistoryRef.current) {
@@ -720,14 +720,15 @@ useEffect(() => {
                           </span>
 
           <div className="player-stats-row">
-            <img
-              src="/image/Coin-Icon.svg"
-              className="coin-icon-small"
-              alt=""
-            />
-            <span className="stat-bet">
-              {player.betAmount.toFixed(2)}
-            </span>
+          <span className="stat-bet">
+  {formatAmount(player.betAmount)}
+</span>
+<img
+  src={selectedCurrency?.icon}
+  className="coin-icon-small"
+  alt="currency"
+/>
+
             <span className="stat-multiplier">
   {getPlayerMultiplierLabel(player)}
 </span>
@@ -738,14 +739,15 @@ useEffect(() => {
       <div className="player-reward">
         {!player.gift && (
           <div className="reward-amount-container">
-            <img
-              src="/image/Coin-Icon.svg"
-              className="coin-icon-large"
-              alt=""
-            />
-            <span className={`reward-amount ${getPlayerResultClass(player)}`}>
-              {getPlayerRewardLabel(player)}
-            </span>
+<span className={`reward-amount ${getPlayerResultClass(player)}`}>
+  {getPlayerRewardLabel(player)}
+</span>
+<img
+  src={selectedCurrency?.icon}
+  className="coin-icon-large"
+  alt="currency"
+/>
+
           </div>
         )}
 
@@ -800,13 +802,22 @@ useEffect(() => {
                   {winData.isGift && winData.giftIcon ? (
                     <img src={winData.giftIcon} alt="Gift" className="wheel-result-image" />
                   ) : (
-                    <img src="/image/Coin-Icon.svg" alt="Coins" className="crash-win-coin-icon" />
+<img
+  src={selectedCurrency?.icon}
+  alt="currency"
+  className="crash-win-coin-icon"
+/>
                   )}
                 </div>
               </div>
               <span className="case-result-price-below">
-                <img src="/image/Coin-Icon.svg" alt="currency" className="wheel-result-coin" />
-                {winData.wonAmount.toFixed(2)}
+              <img
+  src={selectedCurrency?.icon}
+  alt="currency"
+  className="wheel-result-coin"
+/>
+{formatAmount(winData.wonAmount)}
+
               </span>
             </div>
             <button className="wheel-result-close gg-btn-glow" onClick={() => setWinModalOpen(false)}>

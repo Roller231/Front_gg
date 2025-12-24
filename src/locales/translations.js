@@ -36,6 +36,17 @@ export const translations = {
       upgrade: 'Апгрейд',
     },
 
+
+    errors: {
+      notAuthorized: 'Вы не авторизованы',
+    },
+  
+    promo: {
+      activated: 'Промокод успешно активирован',
+      error: 'Ошибка активации промокода',
+      referralBonus: 'Реферальный бонус!',
+    },
+
     // Profile Page
     profile: {
       title: 'Профиль',
@@ -272,6 +283,16 @@ export const translations = {
       roulette: 'Roulette',
       pvp: 'PvP',
       upgrade: 'Upgrade',
+    },
+
+    errors: {
+      notAuthorized: 'You are not authorized',
+    },
+  
+    promo: {
+      activated: 'Promo code activated successfully',
+      error: 'Promo code activation error',
+      referralBonus: 'Referral bonus!',
     },
 
     // Profile Page

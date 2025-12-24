@@ -22,8 +22,8 @@ const getBodyParts = (t) => [
 ]
 
 function PvPPage() {
-  const { selectedCurrency } = useCurrency()
-  const { t } = useLanguage()
+  const { selectedCurrency, formatAmount } = useCurrency()
+    const { t } = useLanguage()
   
   const bodyParts = getBodyParts(t)
   const { user, setUser } = useUser()
@@ -402,7 +402,9 @@ function PvPPage() {
                         alt="currency"
                         className="pvp-gift-bet-currency-icon"
                       />
-                      <span className="pvp-gift-bet-price-value">{myBet?.gift?.price ?? ''}</span>
+<span className="pvp-gift-bet-price-value">
+  {formatAmount(myBet?.gift?.price ?? 0)}
+</span>
                     </div>
                     <img
   className="pvp-gift-bet-image"
@@ -412,14 +414,15 @@ function PvPPage() {
 
                   </div>
                 ) : (
-                  <div className="pvp-bet-value">
-                    <span>{myBet?.amount ?? 0}</span>
-                    <img
-                      src={myBet?.currencyIcon || selectedCurrency?.icon || '/image/Coin-Icon.svg'}
-                      alt="currency"
-                      className="pvp-bet-currency-icon"
-                    />
-                  </div>
+<div className="pvp-bet-value">
+<span>{formatAmount(myBet?.amount ?? 0)}</span>
+  <img
+    src={selectedCurrency?.icon || '/image/Coin-Icon.svg'}
+    alt="currency"
+    className="pvp-bet-currency-icon"
+  />
+</div>
+
                 )}
               </div>
 
@@ -432,8 +435,8 @@ function PvPPage() {
         src={selectedCurrency?.icon || '/image/Coin-Icon.svg'}
         className="pvp-gift-bet-currency-icon"
       />
-      <span>{opponentBot.gift.price}</span>
-    </div>
+<span>{formatAmount(opponentBot.gift.price)}</span>
+</div>
     <img
   className="pvp-gift-bet-image"
   src={opponentBot.gift.icon}
@@ -443,8 +446,13 @@ function PvPPage() {
   </div>
 ) : (
   <div className="pvp-bet-value">
-    <span>{opponentBot?.bet ?? 0}</span>
-    <img src="/image/Coin-Icon.svg" />
+<span>{formatAmount(opponentBot?.bet ?? 0)}</span>
+<img
+  src={selectedCurrency?.icon || '/image/Coin-Icon.svg'}
+  alt="currency"
+  className="pvp-bet-currency-icon"
+/>
+
   </div>
 )}
 
@@ -498,6 +506,7 @@ function PvPPage() {
         type: "coins",
         amount: result.amount,
       })
+      
     }
 
     if (result.type === "gift") {
@@ -513,7 +522,6 @@ function PvPPage() {
       setMyBet({
         type: "gift",
         gift: drop,
-        currencyIcon: selectedCurrency?.icon,
       })
     }
     
@@ -624,18 +632,28 @@ function PvPPage() {
                 <div className="player-details">
                   <span className="player-name">{player.name}</span>
                   <div className="player-stats-row">
-                    <img src="/image/Coin-Icon.svg" alt="Coin" className="coin-icon-small" />
-                    <span className="stat-bet">{player.bet}</span>
+                  <img
+  src={selectedCurrency?.icon || '/image/Coin-Icon.svg'}
+  alt="currency"
+  className="coin-icon-small"
+/>
+                    <span className="stat-bet">
+  {formatAmount(player.bet)}
+</span>
                   </div>
                 </div>
               </div>
               {player.bet && (
                 <div className="player-reward">
                   <div className="reward-amount-container">
-                    <img src="/image/Coin-Icon.svg" alt="Coin" className="coin-icon-large" />
-                    <span className={`reward-amount ${player.gift ? 'text-green' : ''}`}>
-                      {player.bet.toFixed(2)}
-                    </span>
+                  <img
+  src={selectedCurrency?.icon || '/image/Coin-Icon.svg'}
+  alt="currency"
+  className="coin-icon-large"
+/>                    <span className={`reward-amount ${player.gift ? 'text-green' : ''}`}>
+  {formatAmount(player.bet)}
+</span>
+
                   </div>
                   <div className="pvp-status">
                   <div className="pvp-status">

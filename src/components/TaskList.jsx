@@ -18,11 +18,24 @@ function TaskList() {
     const handleSelect = (option) => {
     setSelectedOption(option)
   }
+  const [notification, setNotification] = useState({
+    visible: false,
+    message: '',
+  })
 
+  const showNotification = (message) => {
+    setNotification({ visible: true, message })
+  
+    setTimeout(() => {
+      setNotification({ visible: false, message: '' })
+    }, 3000)
+  }
+  
   const handleApplyPromo = async () => {
     if (!promoCode.trim()) return
     if (!user) {
-      alert('User not authorized')
+      showNotification(t('errors.notAuthorized'))
+
       return
     }
   
@@ -40,15 +53,19 @@ function TaskList() {
       await refreshFreeSpin(user.id)
       // 4️⃣ UI feedback
       if (res.type === 'referral') {
-        alert(`Referral bonus: +${res.reward}`)
+        showNotification(
+          t('promo.referralBonus', { amount: res.reward })
+        )
       } else {
-        alert('Promo activated successfully')
+        showNotification(t('promo.activated'))
       }
+      
   
       setPromoCode('')
     } catch (e) {
-      alert(e.message || 'Promo error')
-    } finally {
+      showNotification(t('promo.error'))
+    }
+     finally {
       setLoading(false)
     }
   }
@@ -99,6 +116,12 @@ function TaskList() {
           {loading ? '...' : t('tasks.apply')}
         </button>
       </div>
+      {notification.visible && (
+  <div className="notification">
+    {notification.message}
+  </div>
+)}
+
     </div>
   )
 }

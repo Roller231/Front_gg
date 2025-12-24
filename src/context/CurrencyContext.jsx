@@ -11,7 +11,7 @@ const STATIC_CURRENCIES = [
   { id: 'shields', icon: '/image/Coin-Icon-three.svg' },
 ]
 
-export function CurrencyProvider({ children }) {
+export function CurrencyProvider({ children }) {  
   const { user } = useUser()
 
   // 🔹 базовый баланс ВСЕГДА в TON
