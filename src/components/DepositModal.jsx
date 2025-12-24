@@ -3,6 +3,11 @@ import './DepositModal.css'
 import { useLanguage } from '../context/LanguageContext'
 import { useUser } from '../context/UserContext'
 import * as usersApi from '../api/users'
+import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react'
+import { apiFetch } from '../api/client'
+
+
+
 
 function DepositModal({ isOpen, onClose }) {
   const { t } = useLanguage()
@@ -21,6 +26,76 @@ function DepositModal({ isOpen, onClose }) {
 
   const { user, loading, setUser } = useUser()
   
+
+  const [tonConnectUI] = useTonConnectUI()
+const tonWallet = useTonWallet()
+const [isPaying, setIsPaying] = useState(false)
+
+const toNano = (value) => {
+  return Math.floor(Number(value) * 1e9).toString()
+}
+
+
+const handleTonPay = async () => {
+  const tonAmount = Number(amount)
+  if (!tonAmount || tonAmount <= 0 || isPaying) return
+
+  setIsPaying(true)
+
+  try {
+    // 1️⃣ create (учёт)
+    const createRes = await apiFetch('/api/ton/create', {
+      method: 'POST',
+      body: JSON.stringify({
+        user_id: user.id,
+        amount: tonAmount
+      })
+    })
+
+    const { payload } = createRes
+
+    // 2️⃣ send tx
+    const tx = await tonConnectUI.sendTransaction({
+      validUntil: Math.floor(Date.now() / 1000) + 60,
+      messages: [
+        {
+          address: import.meta.env.VITE_TON_RECEIVER,
+          amount: toNano(tonAmount).toString(),
+          payload
+        }
+      ]
+    })
+
+    const txHash =
+      tx?.boc ||
+      tx?.transactionHash ||
+      tx?.id ||
+      JSON.stringify(tx)
+
+    // 3️⃣ success
+    await apiFetch('/api/ton/success', {
+      method: 'POST',
+      body: JSON.stringify({
+        user_id: user.id,
+        amount: tonAmount,
+        tx_hash: txHash,
+        payload
+      })
+    })
+
+    // 4️⃣ refresh user
+    const updatedUser = await usersApi.getUserById(user.id)
+    setUser(updatedUser)
+
+    onClose()
+  } catch (e) {
+    console.error('TON pay error', e)
+  } finally {
+    setIsPaying(false)
+  }
+}
+
+
   // Сброс позиции при открытии
   useEffect(() => {
     if (isOpen && contentRef.current) {
@@ -250,17 +325,57 @@ if (loading || !user) {
 
           </div>
 
-          {/* Вкладка Кошелёк */}
-          <div className={`deposit-tab-panel ${activeTab === 'wallet' ? 'active' : ''}`}>
-            <div className="deposit-wallet-content">
-              <div className="deposit-wallet-message">
-                {t('deposit.walletNotConnected')}
-              </div>
-              <button className="deposit-wallet-button">
-                {t('deposit.connectWallet')}
-              </button>
-            </div>
-          </div>
+{/* Вкладка Кошелёк */}
+<div className={`deposit-tab-panel ${activeTab === 'wallet' ? 'active' : ''}`}>
+  <div className="deposit-wallet-content">
+
+    {/* 1️⃣ КНОПКА ПОДКЛЮЧЕНИЯ */}
+    {!tonWallet && (
+      <button
+        className="deposit-wallet-button"
+        onClick={() => tonConnectUI.openModal()}
+      >
+        {t('deposit.connectWallet')}
+      </button>
+    )}
+
+    {/* 2️⃣ КОШЕЛЁК ПОДКЛЮЧЕН */}
+    {tonWallet && (
+      <>
+        <div className="deposit-wallet-message">
+          {tonWallet.account.address.slice(0, 6)}...
+          {tonWallet.account.address.slice(-4)}
+        </div>
+
+        {/* 3️⃣ ВВОД СУММЫ */}
+        <div className="deposit-amount-wrapper">
+          <input
+            type="text"
+            inputMode="decimal"
+            className="deposit-amount-input"
+            placeholder={t('deposit.amount')}
+            value={amount}
+            onChange={(e) => {
+              const value = e.target.value.replace(/[^0-9.]/g, '')
+              setAmount(value)
+            }}
+          />
+        </div>
+
+        {/* 4️⃣ ОПЛАТА */}
+        <button
+          className="deposit-wallet-button"
+          onClick={handleTonPay}
+          disabled={!amount || isPaying}
+        >
+          {isPaying ? 'Processing...' : 'Pay with TON'}
+        </button>
+      </>
+    )}
+
+  </div>
+</div>
+
 
           {/* Вкладка Crypto Bot */}
           <div className={`deposit-tab-panel ${activeTab === 'crypto' ? 'active' : ''}`}>

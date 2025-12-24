@@ -14,12 +14,29 @@ const STATIC_CURRENCIES = [
 export function CurrencyProvider({ children }) {  
   const { user } = useUser()
 
+
+
+
   // 🔹 базовый баланс ВСЕГДА в TON
   const BASE_BALANCE = Number(user?.balance) || 0
 
   const [rates, setRates] = useState({})
   const [selectedCurrency, setSelectedCurrency] = useState(STATIC_CURRENCIES[0])
   const [hasFreeSpins, setHasFreeSpins] = useState(true)
+
+  const NO_DECIMAL_CURRENCIES = ['stars', 'gems']
+
+
+  const formatNumber = (value, decimals = 2) => {
+    const floored =
+      decimals === 0 ? Math.floor(value) : Number(value.toFixed(decimals))
+  
+    return floored
+      .toLocaleString('ru-RU')
+      .replace(/\s/g, '.') // 👈 ключевая строка
+  }
+  
+  
 
   /* ===== LOAD RATES FROM BACKEND ===== */
   useEffect(() => {
@@ -31,15 +48,26 @@ export function CurrencyProvider({ children }) {
 
   /* ===== CURRENCY OPTIONS (FOR HEADER DROPDOWN) ===== */
   const currencyOptions = useMemo(() => {
-    return STATIC_CURRENCIES.map((c) => ({
-      ...c,
-      rate: rates[c.id] ?? null,
-      amount:
-        rates[c.id] != null
-          ? (BASE_BALANCE / rates[c.id]).toFixed(2)
-          : '—',
-    }))
+    return STATIC_CURRENCIES.map((c) => {
+      const rate = rates[c.id]
+  
+      if (rate == null) {
+        return { ...c, rate: null, amount: '—' }
+      }
+  
+      const rawAmount = BASE_BALANCE / rate
+      const isNoDecimal = NO_DECIMAL_CURRENCIES.includes(c.id)
+  
+      return {
+        ...c,
+        rate,
+        amount: isNoDecimal
+          ? formatNumber(rawAmount, 0)
+          : formatNumber(rawAmount, 2),
+      }
+    })
   }, [rates, BASE_BALANCE])
+  
 
   /* ===== KEEP SELECTED CURRENCY IN SYNC ===== */
   const resolvedSelectedCurrency = useMemo(() => {
