@@ -241,7 +241,8 @@ export const translations = {
 
     // Task List
     tasks: {
-      play10Times: 'Сыграть 10 раз',
+      play10Times: 'Бонус за 10-й вход',
+      play1Times: 'Бонус за 1-й вход',
       take: 'Забрать',
       promoPlaceholder: 'ПРОМОКОД',
       apply: 'Применить',
@@ -489,7 +490,8 @@ export const translations = {
 
     // Task List
     tasks: {
-      play10Times: 'Play 10 times',
+      play10Times: '10th Login Bonus',
+      play1Times: 'First Login Bonus',
       take: 'Take',
       promoPlaceholder: 'PROMOCODE',
       apply: 'Apply',
