@@ -346,7 +346,7 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
 
 
       {/* ===== OPERATIONS (заглушка) ===== */}
-      <div className="operations-section">
+      {/* <div className="operations-section">
         <h3 className="operations-title">{t('profile.operationsHistory')}</h3>
         <div className="operations-list">
           <div className="operation-item">
@@ -364,7 +364,7 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
             </span>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <BetModal
         isOpen={isBetModalOpen}

@@ -11,6 +11,7 @@ import * as usersApi from '../api/users'
 import AsyncImage from './AsyncImage'
 import { vibrate, VIBRATION_PATTERNS } from '../utils/vibration'
 import { useNavigate } from 'react-router-dom'
+import { checkFreeCase, consumeFreeCase } from '../api/freeCases'
 
 
 
@@ -31,11 +32,14 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
   const [loadingDrops, setLoadingDrops] = useState(true)
   const { user, setUser, settings } = useUser()
   const navigate = useNavigate()
-
+  const [freeAllowed, setFreeAllowed] = useState(false)
+  const [freeChecked, setFreeChecked] = useState(false)
   const casePrice = Number(caseData?.price || 0)
 const userBalance = Number(user?.balance || 0)
 
-const canOpenCase = !isPaid || userBalance >= casePrice
+const canOpenCase = isPaid
+  ? userBalance >= casePrice
+  : freeChecked && freeAllowed
 
 
   const [spinOffset, setSpinOffset] = useState(50)
@@ -77,7 +81,24 @@ const canOpenCase = !isPaid || userBalance >= casePrice
     return items[0]
   }
   
-
+  useEffect(() => {
+    if (!isOpen || isPaid || !user) return
+  
+    async function check() {
+      try {
+        const res = await checkFreeCase(user.id)
+        setFreeAllowed(res.allowed)
+      } catch (e) {
+        console.error('Free case check failed', e)
+        setFreeAllowed(false)
+      } finally {
+        setFreeChecked(true)
+      }
+    }
+  
+    check()
+  }, [isOpen, isPaid, user])
+  
   useEffect(() => {
     if (!isOpen || !caseData?.id) return
   
@@ -245,8 +266,22 @@ const canOpenCase = !isPaid || userBalance >= casePrice
 
   // Открытие кейса
   const handleOpenCase = async () => {
+
+
+
+    
     if (isSpinning || !caseItems.length) return
   
+
+    if (!isPaid) {
+      try {
+        await consumeFreeCase(user.id)
+      } catch (e) {
+        console.error('Failed to consume free case', e)
+        return
+      }
+    }
+
     // ❌ защита на всякий случай
     if (isPaid && user.balance < casePrice) return
   
@@ -474,11 +509,16 @@ const canOpenCase = !isPaid || userBalance >= casePrice
             {isPaid ? (
               /* Платный кейс */
               <>
-                <button className="case-open-button" onClick={handleOpenCase} disabled={!canOpenCase || isSpinning}>
-                {canOpenCase
+<button
+  className="case-open-button"
+  onClick={handleOpenCase}
+  disabled={!canOpenCase || isSpinning}
+>
+  {canOpenCase
     ? t('caseModal.open')
-    : t('caseModal.notEnoughFunds')}
-                </button>
+    : t('caseModal.depositInfo')}
+</button>
+
 
                 <div className="case-section-title">{t('caseModal.whatsInside')}</div>
                 <div className="case-items-grid">
@@ -510,64 +550,90 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                   ))}
                 </div>
               </>
-            ) : (
-              /* Бесплатный кейс */
-              <>
-                <div className="case-info-box">
-                  <div className="case-info-icon">
-                    <img src="/image/Vector.png" alt="warning" className="case-info-icon-image" />
-                  </div>
-                  <p className="case-info-text">
-                    {t('caseModal.depositInfo')}
-                  </p>
-                </div>
+) : (
+  /* Бесплатный кейс */
+  <>
+    {canOpenCase ? (
+      <button
+        className="case-open-button"
+        onClick={handleOpenCase}
+        disabled={isSpinning}
+      >
+        {t('caseModal.open')}
+      </button>
+    ) : (
+      <>
+        <div className="case-info-box">
+          <div className="case-info-icon">
+            <img
+              src="/image/Vector.png"
+              alt="warning"
+              className="case-info-icon-image"
+            />
+          </div>
+          <p className="case-info-text">
+            {t('caseModal.depositInfo')}
+          </p>
+        </div>
 
-                <button className="case-deposit-button" onClick={() => setIsDepositModalOpen(true)}>
-                  {t('caseModal.depositFunds')}
-                </button>
+        <button
+          className="case-deposit-button"
+          onClick={() => setIsDepositModalOpen(true)}
+        >
+          {t('caseModal.depositFunds')}
+        </button>
 
-                <button
-  className="case-promo-button"
-  onClick={() => {
-    onClose()
-    navigate('/')
-  }}
->
-  {t('caseModal.activatePromo')}
-</button>
+        <button
+          className="case-promo-button"
+          onClick={() => {
+            onClose()
+            navigate('/')
+          }}
+        >
+          {t('caseModal.activatePromo')}
+        </button>
+      </>
+    )}
 
-                <div className="case-section-title">{t('caseModal.whatsInside')}</div>
-                <div className="case-items-grid">
-                  {caseItems.map((item) => (
-                    <div key={item.id} className="case-item-wrapper">
-                      <div className="case-item-card">
-                        <div className="case-item-image">
-                          {item.type === 'animation' && item.animation ? (
-                            <Player
-                              autoplay
-                              loop
-                              src={item.animation}
-                              className="case-item-animation"
-                            />
-                          ) : (
-                            <AsyncImage
-                              src={item.image}
-                              alt={item.name || 'Gift'}
-                              className="case-item-img"
-                            />
-                          )}
-                        </div>
-                      </div>
-                      <div className="case-item-price-below">
-                        <img src={currencyIcon} alt="currency" className="case-item-coin" />
-                        <span>{formatAmount(item.price)}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+    <div className="case-section-title">
+      {t('caseModal.whatsInside')}
+    </div>
 
-              </>
-            )}
+    <div className="case-items-grid">
+      {caseItems.map((item) => (
+        <div key={item.id} className="case-item-wrapper">
+          <div className="case-item-card">
+            <div className="case-item-image">
+              {item.type === 'animation' && item.animation ? (
+                <Player
+                  autoplay
+                  loop
+                  src={item.animation}
+                  className="case-item-animation"
+                />
+              ) : (
+                <AsyncImage
+                  src={item.image}
+                  alt={item.name || 'Gift'}
+                  className="case-item-img"
+                />
+              )}
+            </div>
+          </div>
+          <div className="case-item-price-below">
+            <img
+              src={currencyIcon}
+              alt="currency"
+              className="case-item-coin"
+            />
+            <span>{formatAmount(item.price)}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </>
+)
+}
           </>
         ) : view === 'spin' ? (
           <div className="case-spin-view">
