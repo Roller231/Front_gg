@@ -44,13 +44,14 @@ const handleTonPay = async () => {
 
   try {
     // 1️⃣ create intent
-    const { payload } = await apiFetch('/api/ton/create', {
+    await apiFetch('/api/ton/create', {
       method: 'POST',
       body: JSON.stringify({
         user_id: user.id,
         amount: tonAmount
       })
     })
+    
 
     // 2️⃣ send transaction
     const tx = await tonConnectUI.sendTransaction({
@@ -58,8 +59,7 @@ const handleTonPay = async () => {
       messages: [
         {
           address: import.meta.env.VITE_TON_RECEIVER,
-          amount: toNano(tonAmount),
-          comment: payload
+          amount: toNano(tonAmount)
         }
       ]
     })
@@ -75,9 +75,7 @@ const handleTonPay = async () => {
       method: 'POST',
       body: JSON.stringify({
         user_id: user.id,
-        amount: tonAmount,
-        tx_hash: txHash,
-        payload
+        tx_hash: txHash
       })
     })
 
