@@ -10,7 +10,7 @@ import { useUser } from '../context/UserContext'
 import * as usersApi from '../api/users'
 import AsyncImage from './AsyncImage'
 import { vibrate, VIBRATION_PATTERNS } from '../utils/vibration'
-
+import { useNavigate } from 'react-router-dom'
 
 
 
@@ -30,6 +30,7 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
   const [caseItems, setCaseItems] = useState([])
   const [loadingDrops, setLoadingDrops] = useState(true)
   const { user, setUser, settings } = useUser()
+  const navigate = useNavigate()
 
   const casePrice = Number(caseData?.price || 0)
 const userBalance = Number(user?.balance || 0)
@@ -525,6 +526,16 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                   {t('caseModal.depositFunds')}
                 </button>
 
+                <button
+  className="case-promo-button"
+  onClick={() => {
+    onClose()
+    navigate('/')
+  }}
+>
+  {t('caseModal.activatePromo')}
+</button>
+
                 <div className="case-section-title">{t('caseModal.whatsInside')}</div>
                 <div className="case-items-grid">
                   {caseItems.map((item) => (
@@ -555,9 +566,6 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                   ))}
                 </div>
 
-                <button className="case-promo-button">
-                  {t('caseModal.activatePromo')}
-                </button>
               </>
             )}
           </>

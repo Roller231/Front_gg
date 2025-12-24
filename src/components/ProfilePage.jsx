@@ -252,7 +252,12 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
           <span className="inventory-title">
             {t('profile.inventory')} ({totalInventoryCount})
           </span>
-          <button className="sell-all-btn">{t('profile.sellAll')}</button>
+          <button
+  className="sell-all-btn"
+  onClick={() => setIsInventoryModalOpen(true)}
+>
+  {t('profile.sellAll')}
+</button>
         </div>
 
         <div className="inventory-items">
