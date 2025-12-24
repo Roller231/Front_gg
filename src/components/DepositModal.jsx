@@ -43,7 +43,7 @@ const handleTonPay = async () => {
   setIsPaying(true)
 
   try {
-    // 1️⃣ create intent
+    // 1️⃣ create (учёт)
     await apiFetch('/api/ton/create', {
       method: 'POST',
       body: JSON.stringify({
@@ -51,10 +51,9 @@ const handleTonPay = async () => {
         amount: tonAmount
       })
     })
-    
 
-    // 2️⃣ send transaction
-    const tx = await tonConnectUI.sendTransaction({
+    // 2️⃣ отправка TON
+    await tonConnectUI.sendTransaction({
       validUntil: Math.floor(Date.now() / 1000) + 60,
       messages: [
         {
@@ -64,22 +63,15 @@ const handleTonPay = async () => {
       ]
     })
 
-    const txHash =
-      tx?.boc ||
-      tx?.transactionHash ||
-      tx?.id ||
-      JSON.stringify(tx)
-
-    // 3️⃣ confirm on backend
+    // 3️⃣ success — ТОЛЬКО user_id
     await apiFetch('/api/ton/success', {
       method: 'POST',
       body: JSON.stringify({
-        user_id: user.id,
-        tx_hash: txHash
+        user_id: user.id
       })
     })
 
-    // 4️⃣ refresh user
+    // 4️⃣ обновляем пользователя
     const updatedUser = await usersApi.getUserById(user.id)
     setUser(updatedUser)
 
@@ -90,6 +82,7 @@ const handleTonPay = async () => {
     setIsPaying(false)
   }
 }
+
 
 
 
