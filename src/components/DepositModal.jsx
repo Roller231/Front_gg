@@ -43,8 +43,8 @@ const handleTonPay = async () => {
   setIsPaying(true)
 
   try {
-    // 1️⃣ create (учёт)
-    const createRes = await apiFetch('/api/ton/create', {
+    // 1️⃣ create intent
+    const { payload } = await apiFetch('/api/ton/create', {
       method: 'POST',
       body: JSON.stringify({
         user_id: user.id,
@@ -52,15 +52,14 @@ const handleTonPay = async () => {
       })
     })
 
-    const { payload } = createRes
-
-    // 2️⃣ send tx
+    // 2️⃣ send transaction
     const tx = await tonConnectUI.sendTransaction({
       validUntil: Math.floor(Date.now() / 1000) + 60,
       messages: [
         {
           address: import.meta.env.VITE_TON_RECEIVER,
-          amount: toNano(tonAmount).toString(),
+          amount: toNano(tonAmount),
+          comment: payload
         }
       ]
     })
@@ -71,7 +70,7 @@ const handleTonPay = async () => {
       tx?.id ||
       JSON.stringify(tx)
 
-    // 3️⃣ success
+    // 3️⃣ confirm on backend
     await apiFetch('/api/ton/success', {
       method: 'POST',
       body: JSON.stringify({
@@ -93,6 +92,7 @@ const handleTonPay = async () => {
     setIsPaying(false)
   }
 }
+
 
 
   // Сброс позиции при открытии
