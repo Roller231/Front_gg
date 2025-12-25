@@ -135,6 +135,16 @@ export const translations = {
       coefficient: 'Коэффициент',
     },
 
+    // Withdraw Modal
+    withdraw: {
+      title: 'Вывод средств',
+      stars: 'Звезды',
+      wallet: 'Кошелёк',
+      cryptoBot: 'Crypto Bot',
+      amount: 'Сумма',
+      withdrawButton: 'Вывести',
+    },
+
     // Deposit Modal
     deposit: {
       title: 'Пополнение счёта',
@@ -383,6 +393,16 @@ export const translations = {
       select: 'Select',
       autoCashout: 'Auto Cashout',
       coefficient: 'Coefficient',
+    },
+
+    // Withdraw Modal
+    withdraw: {
+      title: 'Withdraw',
+      stars: 'Stars',
+      wallet: 'Wallet',
+      cryptoBot: 'Crypto Bot',
+      amount: 'Amount',
+      withdrawButton: 'Withdraw',
     },
 
     // Deposit Modal

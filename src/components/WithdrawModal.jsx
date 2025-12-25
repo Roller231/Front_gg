@@ -1,8 +1,13 @@
 import { useState, useRef, useEffect } from 'react'
 import './WithdrawModal.css'
+import { useCurrency } from '../context/CurrencyContext'
+import { useLanguage } from '../context/LanguageContext'
 
 function WithdrawModal({ isOpen, onClose }) {
-  const [activeTab, setActiveTab] = useState('wallet')
+  const { t } = useLanguage()
+  const { selectedCurrency, currencyOptions } = useCurrency()
+  
+  const [activeTab, setActiveTab] = useState('stars')
   const [amount, setAmount] = useState('')
 
   const modalRef = useRef(null)
@@ -15,10 +20,16 @@ function WithdrawModal({ isOpen, onClose }) {
     if (isOpen && contentRef.current) {
       contentRef.current.style.transform = 'translateY(0)'
       currentTranslateY.current = 0
-      setActiveTab('wallet')
+      setActiveTab('stars')
       setAmount('')
     }
   }, [isOpen])
+
+  const handleWithdraw = () => {
+    if (!amount || parseFloat(amount) <= 0) return
+    console.log('Withdraw:', { amount, method: activeTab })
+    onClose()
+  }
 
   const handleDragStart = (e) => {
     isDragging.current = true
@@ -108,56 +119,52 @@ function WithdrawModal({ isOpen, onClose }) {
           <div className="withdraw-modal-handle-bar"></div>
         </div>
 
-        <h2 className="withdraw-modal-title">Вывести счёт</h2>
+        <h2 className="withdraw-modal-title">{t('withdraw.title')}</h2>
 
         <div className="withdraw-modal-tabs">
+          <button
+            className={`withdraw-modal-tab ${activeTab === 'stars' ? 'active' : ''}`}
+            onClick={() => setActiveTab('stars')}
+          >
+            {t('withdraw.stars')}
+          </button>
           <button
             className={`withdraw-modal-tab ${activeTab === 'wallet' ? 'active' : ''}`}
             onClick={() => setActiveTab('wallet')}
           >
-            Кошелёк
+            {t('withdraw.wallet')}
           </button>
           <button
             className={`withdraw-modal-tab ${activeTab === 'crypto' ? 'active' : ''}`}
             onClick={() => setActiveTab('crypto')}
           >
-            Crypto Bot
+            {t('withdraw.cryptoBot')}
           </button>
         </div>
 
-        <div className="withdraw-modal-tabs-content">
-          <div className={`withdraw-tab-panel ${activeTab === 'wallet' ? 'active' : ''}`}>
-            <div className="withdraw-wallet-content">
-              <div className="withdraw-wallet-message">
-                Вывод на кошелёк будет доступен позже.
-              </div>
-              <button className="withdraw-wallet-button">
-                Подключить кошелёк
-              </button>
-            </div>
-          </div>
-
-          <div className={`withdraw-tab-panel ${activeTab === 'crypto' ? 'active' : ''}`}>
-            <div className="withdraw-crypto-content">
-              <div className="withdraw-amount-wrapper">
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  className="withdraw-amount-input"
-                  placeholder="Сумма вывода"
-                  value={amount}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9.]/g, '')
-                    setAmount(value)
-                  }}
-                />
-              </div>
-              <button className="withdraw-submit-button">
-                Вывести счёт
-              </button>
-            </div>
-          </div>
+        {/* Поле суммы */}
+        <div className="withdraw-amount-section">
+          <input
+            type="text"
+            inputMode="decimal"
+            className="withdraw-amount-input"
+            placeholder={t('withdraw.amount')}
+            value={amount}
+            onChange={(e) => {
+              const value = e.target.value.replace(/[^0-9.]/g, '')
+              setAmount(value)
+            }}
+          />
         </div>
+
+        {/* Кнопка вывода */}
+        <button 
+          className="withdraw-submit-button"
+          onClick={handleWithdraw}
+          disabled={!amount || parseFloat(amount) <= 0}
+        >
+          {t('withdraw.withdrawButton')}
+        </button>
       </div>
     </div>
   )
