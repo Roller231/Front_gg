@@ -26,7 +26,7 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
   const [spinItems, setSpinItems] = useState([])
   const [isSpinning, setIsSpinning] = useState(false)
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false)
-  const { selectedCurrency, formatAmount } = useCurrency()
+  const { selectedCurrency, formatAmount, formatWinAmount } = useCurrency()
   const { t } = useLanguage()
   const [caseItems, setCaseItems] = useState([])
   const [loadingDrops, setLoadingDrops] = useState(true)
@@ -131,7 +131,9 @@ const canOpenCase = isPaid
         })
       )
   
-      setCaseItems(drops)
+      // Сортировка по цене от дешёвых к дорогим
+      const sortedDrops = drops.sort((a, b) => a.price - b.price)
+      setCaseItems(sortedDrops)
       setLoadingDrops(false)
     }
   
@@ -427,7 +429,7 @@ const canOpenCase = isPaid
               </div>
               <span className="case-result-price-below">
                 <img src={currencyIcon} alt="currency" className="wheel-result-coin" />
-                {wonAmount.toFixed(2)}
+                {formatWinAmount(wonAmount)}
               </span>
             </div>
             <button className="wheel-result-close gg-btn-glow" onClick={handleResultOk}>

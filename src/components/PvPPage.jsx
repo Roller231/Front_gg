@@ -168,6 +168,9 @@ function PvPPage() {
   
   // Точки ожидания
   const [waitingDots, setWaitingDots] = useState('')
+  
+  // Автовыбор через 5 секунд
+  const [autoPickCountdown, setAutoPickCountdown] = useState(null)
 
 
   // Анимация точек ожидания
@@ -185,6 +188,39 @@ function PvPPage() {
   }, [isWaitingForOpponent])
 
   // Обратный отсчёт
+
+  // Автовыбор атаки/защиты через 5 секунд если есть ставка но нет выбора
+  useEffect(() => {
+    // Если нет ставки или уже выбраны оба - сбрасываем
+    if (!myBet || (attackPart && defendPart)) {
+      setAutoPickCountdown(null)
+      return
+    }
+    
+    // Запускаем таймер на 5 секунд
+    setAutoPickCountdown(5)
+    
+    const interval = setInterval(() => {
+      setAutoPickCountdown(prev => {
+        if (prev === null || prev <= 1) {
+          // Автовыбор случайных частей тела
+          const randomParts = bodyParts.map(p => p.id)
+          if (!attackPart) {
+            const randomAttack = randomParts[Math.floor(Math.random() * randomParts.length)]
+            setAttackPart(randomAttack)
+          }
+          if (!defendPart) {
+            const randomDefend = randomParts[Math.floor(Math.random() * randomParts.length)]
+            setDefendPart(randomDefend)
+          }
+          return null
+        }
+        return prev - 1
+      })
+    }, 1000)
+    
+    return () => clearInterval(interval)
+  }, [myBet, attackPart, defendPart, bodyParts])
 
   useEffect(() => {
     if (gameState !== 'result') return
@@ -272,13 +308,29 @@ function PvPPage() {
 
   const handleStartGame = useCallback(() => {
     if (!attackPart || !defendPart || !myBet) return
+    if (!connected) {
+      console.warn("PvP WS not connected")
+      return
+    }
+
+    // Отправляем ставку в WebSocket только когда выбор сделан
+    if (myBet.type === "coins") {
+      sendBet({
+        user_id: user.id,
+        amount: myBet.amount,
+        gift: false,
+      })
+    } else if (myBet.type === "gift") {
+      sendBet({
+        user_id: user.id,
+        amount: 0,
+        gift: true,
+        gift_id: myBet.gift_id || myBet.gift?.id,
+      })
+    }
+
     setIsWaitingForOpponent(true)
-
-
-
-    // Симулируем ожидание противника
-
-  }, [attackPart, defendPart, myBet])
+  }, [attackPart, defendPart, myBet, connected, sendBet, user?.id])
 
   const canStartGame = Boolean(attackPart && defendPart && myBet && gameState === 'waiting' && !isWaitingForOpponent)
   const showMatchPanel = Boolean(isWaitingForOpponent || gameState !== 'waiting')
@@ -287,11 +339,7 @@ function PvPPage() {
   const currencyIcon = selectedCurrency?.icon || '/image/Coin-Icon.svg'
 
   const isGameInProgress = Boolean(isWaitingForOpponent || gameState === 'countdown' || gameState === 'fighting')
-  const isBetButtonDisabled =
-  isGameInProgress ||
-  isWaitingForOpponent ||
-  !attackPart ||
-  !defendPart
+  const isBetButtonDisabled = isGameInProgress
   useEffect(() => {
     if (!canStartGame) return
     handleStartGame()
@@ -304,7 +352,7 @@ function PvPPage() {
       <main className="main-content pvp-content">
         {/* Зона игры */}
         <div className={`pvp-game-area ${gameState === 'countdown' ? 'pvp-countdown' : ''} ${gameState === 'result' ? 'pvp-result' : ''}`}>
-          <div className="pvp-background" aria-hidden="true" />
+          <div className="game-cosmic-background" aria-hidden="true" />
           <div className="pvp-game-area-fade" />
           
           {/* Анимация боя */}
@@ -482,6 +530,12 @@ function PvPPage() {
             t('pvp.placeBet')
           )}
         </button>
+        {/* Текст автовыбора */}
+        {autoPickCountdown !== null && (
+          <div className="pvp-auto-pick-text">
+            {t('pvp.autoPickIn')} {autoPickCountdown} {t('pvp.sec')}
+          </div>
+        )}
 
         {/* Модальное окно ставки */}
         <MemoBetModal
@@ -489,45 +543,25 @@ function PvPPage() {
   isOpen={isBetModalOpen}
   onClose={() => setIsBetModalOpen(false)}
   onResult={async (result) => {
-    if (!connected) {
-      console.warn("PvP WS not connected")
-      return
-    }
-
-    // 🔥 ВОТ ОТПРАВКА В WEBSOCKET
+    // Только сохраняем ставку локально, НЕ отправляем в WebSocket
+    // Отправка произойдёт когда выбор атаки/защиты будет сделан
     if (result.type === "coins") {
-      sendBet({
-        user_id: user.id,
-        amount: result.amount,
-        gift: false,
-      })
-
       setMyBet({
         type: "coins",
         amount: result.amount,
       })
-      
     }
 
     if (result.type === "gift") {
-      sendBet({
-        user_id: user.id,
-        amount: 0,
-        gift: true,
-        gift_id: result.gift_id,
-      })
-    
       const drop = await getDropById(result.gift_id)
-    
       setMyBet({
         type: "gift",
         gift: drop,
+        gift_id: result.gift_id,
       })
     }
-    
   }}
 />
-
 
         {/* Выбор атаки и защиты */}
         {gameState === 'waiting' && !isWaitingForOpponent && (

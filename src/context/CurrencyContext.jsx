@@ -7,7 +7,7 @@ const CurrencyContext = createContext(null)
 const STATIC_CURRENCIES = [
   { id: 'coins', icon: '/image/ton_symbol.svg' },
   { id: 'gems', icon: '/image/Coin-Icon-one.svg' },
-  { id: 'stars', icon: '/image/Coin-Icon-two.svg' },
+  { id: 'stars', icon: '/image/telegram-star.svg' },
   { id: 'shields', icon: '/image/Coin-Icon-three.svg' },
 ]
 
@@ -24,7 +24,7 @@ export function CurrencyProvider({ children }) {
   const [selectedCurrency, setSelectedCurrency] = useState(STATIC_CURRENCIES[0])
   const [hasFreeSpins, setHasFreeSpins] = useState(true)
 
-  const NO_DECIMAL_CURRENCIES = ['stars', 'gems']
+  const NO_DECIMAL_CURRENCIES = ['stars', 'gems'] // звёзды и gems без дробной части
 
 
   const formatNumber = (value, decimals = 2) => {
@@ -80,7 +80,17 @@ export function CurrencyProvider({ children }) {
   /* ===== FORMAT ANY AMOUNT (TON → SELECTED CURRENCY) ===== */
   const formatAmount = (amount) => {
     if (!resolvedSelectedCurrency?.rate) return '—'
-    return (Number(amount) / resolvedSelectedCurrency.rate).toFixed(2)
+    const converted = Number(amount) / resolvedSelectedCurrency.rate
+    const isNoDecimal = NO_DECIMAL_CURRENCIES.includes(resolvedSelectedCurrency.id)
+    return isNoDecimal ? Math.floor(converted).toString() : converted.toFixed(2)
+  }
+
+  /* ===== FORMAT WINNING AMOUNT (TON → SELECTED CURRENCY) ===== */
+  const formatWinAmount = (amount) => {
+    if (!resolvedSelectedCurrency?.rate) return '—'
+    const converted = Number(amount) / resolvedSelectedCurrency.rate
+    const isNoDecimal = NO_DECIMAL_CURRENCIES.includes(resolvedSelectedCurrency.id)
+    return isNoDecimal ? Math.floor(converted).toString() : converted.toFixed(2)
   }
 
   const value = useMemo(
@@ -91,6 +101,7 @@ export function CurrencyProvider({ children }) {
       hasFreeSpins,
       setHasFreeSpins,
       formatAmount, // 👈 ВАЖНО
+      formatWinAmount, // 👈 ВАЖНО для выигрышей
     }),
     [currencyOptions, resolvedSelectedCurrency, hasFreeSpins]
   )

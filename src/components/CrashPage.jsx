@@ -105,7 +105,7 @@ function CrashPage() {
   const [bets, setBets] = useState({});
   const { user, setUser, settings } = useUser();
     const roundIdRef = useRef(null);
-    const { selectedCurrency, formatAmount } = useCurrency()
+    const { selectedCurrency, formatAmount, formatWinAmount } = useCurrency()
 
   
 
@@ -584,7 +584,7 @@ useEffect(() => {
             className={`cosmic-background ${gameState === 'flying' ? 'cosmic-background-active' : ''}`}
             aria-hidden="true"
           />
-          <div className="crash-game-area-fade" />
+                    <div className="crash-game-area-fade" />
           {/* Анимации взрывов и полёта кота */}
           <div className="crash-animation-container">
           {gameState === 'countdown' && (
@@ -832,7 +832,7 @@ useEffect(() => {
   alt="currency"
   className="wheel-result-coin"
 />
-{formatAmount(winData.wonAmount)}
+{formatWinAmount(winData.wonAmount)}
 
               </span>
             </div>
