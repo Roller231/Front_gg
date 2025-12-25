@@ -114,6 +114,7 @@ const canOpenCase = isPaid
           const drop = await getDropById(rel.drop_id)
           return {
             ...drop,
+            IsNft: drop.IsNft,
             chance: rel.chance,
           
             image: drop.icon,
@@ -510,8 +511,8 @@ const canOpenCase = isPaid
                   {caseItems.map((item) => (
                     <div key={item.id} className="case-item-wrapper">
                       <div className="case-item-card">
-                        <span className="nft-label">NFT</span>
-                        <div className="case-item-image">
+                      {item.IsNft && <span className="nft-label">NFT</span>}
+                          <div className="case-item-image">
                           {item.animation ? (
                             <Player
                               autoplay
