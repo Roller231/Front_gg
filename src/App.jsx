@@ -167,7 +167,7 @@ function App() {
   }, [])
   
 
-  // 🔄 пока идёт инициализация пользователя
+  // пока идёт инициализация пользователя
   if (loading) {
     return <Preloader progress={0} />
   }
@@ -179,6 +179,15 @@ function App() {
           <CurrencyProvider>
             <AppDataProvider>
               <LiveFeedProvider>
+                {/* Глобальный фон с пролетающими планетами */}
+                <div className="flying-planets-global" aria-hidden="true">
+                  {[...Array(8)].map((_, i) => (
+                    <div
+                      key={i}
+                      className={`flying-planet flying-planet-${i + 1}`}
+                    />
+                  ))}
+                </div>
                 <AppContent />
               </LiveFeedProvider>
             </AppDataProvider>
@@ -189,4 +198,3 @@ function App() {
   }
   
   export default App
-  

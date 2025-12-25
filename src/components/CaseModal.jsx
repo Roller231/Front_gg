@@ -474,30 +474,15 @@ const canOpenCase = isPaid
                     <div key={`preview-${i}`} className="case-preview-wrapper">
                       <div className="case-preview-item">
                         <div className="case-preview-gift">
-                          {previewItem?.type === 'animation' && previewItem.animation ? (
-                            <Player
-                              autoplay
-                              loop
-                              src={previewItem.animation}
-                              className="case-preview-animation"
-                            />
-                          ) : (
-                            <AsyncImage
-                              src={previewItem?.image}
-                              alt={previewItem?.name || 'Gift'}
-                              className="case-preview-image"
-                            />
-                          )}
+                          {/* Верхний бар - только статика .webp */}
+                          <AsyncImage
+                            src={previewItem?.image}
+                            alt={previewItem?.name || 'Gift'}
+                            className="case-preview-image"
+                          />
                         </div>
                       </div>
-                      {isPaid ? (
-                        <span className="case-preview-price-below">
-                          <img src={currencyIcon} alt="currency" className="case-preview-coin" />
-                          {previewItem?.price || '0.1'}
-                        </span>
-                      ) : (
-                        <span className="case-preview-badge-below">FREE</span>
-                      )}
+                      {/* Верхний бар декоративный - цены убраны */}
                     </div>
                   )
                 })}
@@ -525,6 +510,7 @@ const canOpenCase = isPaid
                   {caseItems.map((item) => (
                     <div key={item.id} className="case-item-wrapper">
                       <div className="case-item-card">
+                        <span className="nft-label">NFT</span>
                         <div className="case-item-image">
                           {item.animation ? (
                             <Player
@@ -595,45 +581,42 @@ const canOpenCase = isPaid
       </>
     )}
 
-    <div className="case-section-title">
-      {t('caseModal.whatsInside')}
-    </div>
+                <button className="case-promo-button">
+                  {t('caseModal.activatePromo')}
+                </button>
 
-    <div className="case-items-grid">
-      {caseItems.map((item) => (
-        <div key={item.id} className="case-item-wrapper">
-          <div className="case-item-card">
-            <div className="case-item-image">
-              {item.type === 'animation' && item.animation ? (
-                <Player
-                  autoplay
-                  loop
-                  src={item.animation}
-                  className="case-item-animation"
-                />
-              ) : (
-                <AsyncImage
-                  src={item.image}
-                  alt={item.name || 'Gift'}
-                  className="case-item-img"
-                />
-              )}
-            </div>
-          </div>
-          <div className="case-item-price-below">
-            <img
-              src={currencyIcon}
-              alt="currency"
-              className="case-item-coin"
-            />
-            <span>{formatAmount(item.price)}</span>
-          </div>
-        </div>
-      ))}
-    </div>
-  </>
-)
-}
+                <div className="case-section-title">{t('caseModal.whatsInside')}</div>
+                <div className="case-items-grid">
+                  {caseItems.map((item) => (
+                    <div key={item.id} className="case-item-wrapper">
+                      <div className="case-item-card">
+                        <span className="nft-label">NFT</span>
+                        <div className="case-item-image">
+                          {item.type === 'animation' && item.animation ? (
+                            <Player
+                              autoplay
+                              loop
+                              src={item.animation}
+                              className="case-item-animation"
+                            />
+                          ) : (
+                            <AsyncImage
+                              src={item.image}
+                              alt={item.name || 'Gift'}
+                              className="case-item-img"
+                            />
+                          )}
+                        </div>
+                      </div>
+                      <div className="case-item-price-below">
+                        <img src={currencyIcon} alt="currency" className="case-item-coin" />
+                        <span>{formatAmount(item.price)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </>
         ) : view === 'spin' ? (
           <div className="case-spin-view">

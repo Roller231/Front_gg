@@ -100,7 +100,7 @@
   overflow: hidden;
   margin: 0 -16px 20px;
   padding: 12px 0;
-  min-height: 110px; /* Increased height to accommodate price below */
+  min-height: 85px; /* Уменьшено - цены убраны */
 }
 
 .case-preview-track {
@@ -271,11 +271,11 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
   color: #fff;
   background: rgba(0, 0, 0, 0.4);
-  padding: 4px 8px;
+  padding: 5px 10px;
   border-radius: 8px;
 }
 
@@ -291,6 +291,23 @@
   position: relative;
   overflow: hidden;
   width: 100%;
+}
+
+/* NFT Label - маленький розово-сиреневый лэйбл */
+.nft-label {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: linear-gradient(135deg, #FF6BD6 0%, #B24BF3 100%);
+  color: #fff;
+  font-size: 8px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 4px;
+  z-index: 3;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 6px rgba(178, 75, 243, 0.4);
 }
 
 .case-item-price {
@@ -328,13 +345,13 @@
 }
 
 .case-item-img {
-  width: 100% !important;
-  height: 100% !important;
+  width: 85% !important;
+  height: 85% !important;
   max-width: none !important;
   max-height: none !important;
   object-fit: contain !important;
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-  padding: 10px;
+  padding: 6px;
   box-sizing: border-box;
 }
 
@@ -723,7 +740,7 @@
   background: rgba(0, 0, 0, 0.4);
   padding: 6px 12px;
   border-radius: 8px;
-  margin-top: 12px;
+  margin-top: -8px; /* Поднять на 20% ближе к подарку */
 }
 
 @keyframes result-title-pop {

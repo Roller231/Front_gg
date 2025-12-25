@@ -112,11 +112,25 @@ export const translations = {
       prizesList: 'Список призов',
       congratulations: 'Поздравляем!',
       claim: 'Забрать',
-      legendary: 'Легендарные',
-      epic: 'Эпические',
-      common: 'Обычные',
       from: 'от',
       makeBet: 'Сделать ставку',
+      // Категории подарков
+      exclusive: 'Эксклюзивные',
+      exclusiveDesc: 'Лимитки, ивенты, больше не выпускаются',
+      artifact: 'Артефактные',
+      artifactDesc: 'Уникальные подарки с историей или темой',
+      mythic: 'Мифические',
+      mythicDesc: 'Почти недостижимые, ограниченные серии',
+      legendary: 'Легендарные',
+      legendaryDesc: 'Очень редкие подарки, высокий статус',
+      epic: 'Эпические',
+      epicDesc: 'Яркие, эффектные, желанный лут',
+      rare: 'Редкие',
+      rareDesc: 'Заметно ценятся, встречаются нечасто',
+      uncommon: 'Необычные',
+      uncommonDesc: 'Чуть реже обычных, уже приятный дроп',
+      common: 'Обычные',
+      commonDesc: 'Базовые подарки без редкости, выпадают чаще всего',
     },
 
     // Bet Modal
@@ -132,9 +146,24 @@ export const translations = {
       coefficient: 'Коэффициент',
     },
 
+    // Withdraw Modal
+    withdraw: {
+      title: 'Вывод средств',
+      stars: 'Звезды',
+      wallet: 'Кошелёк',
+      cryptoBot: 'Crypto Bot',
+      amount: 'Сумма',
+      withdrawButton: 'Вывести',
+    },
+
     // Deposit Modal
     deposit: {
       title: 'Пополнение счёта',
+      stars: 'Звезды',
+      wallet: 'Кошелёк',
+      cryptoBot: 'Crypto Bot',
+      amountPlaceholder: 'Сумма',
+      depositButton: 'Пополнить',
       gifts: 'Звезды',
       wallet: 'Кошелёк',
       cryptoBot: 'Crypto Bot',
@@ -361,11 +390,25 @@ export const translations = {
       prizesList: 'Prize List',
       congratulations: 'Congratulations!',
       claim: 'Claim',
-      legendary: 'Legendary',
-      epic: 'Epic',
-      common: 'Common',
       from: 'from',
       makeBet: 'Place Bet',
+      // Gift categories
+      exclusive: 'Exclusive',
+      exclusiveDesc: 'Limited editions, events, no longer available',
+      artifact: 'Artifact',
+      artifactDesc: 'Unique gifts with history or special meaning',
+      mythic: 'Mythic',
+      mythicDesc: 'Almost impossible to obtain, limited drops',
+      legendary: 'Legendary',
+      legendaryDesc: 'Extremely rare gifts with high status',
+      epic: 'Epic',
+      epicDesc: 'Highly desirable gifts with standout design',
+      rare: 'Rare',
+      rareDesc: 'Valuable gifts that don\'t drop often',
+      uncommon: 'Uncommon',
+      uncommonDesc: 'Slightly rarer gifts with added value',
+      common: 'Common',
+      commonDesc: 'Basic gifts with the highest drop rate',
     },
 
     // Bet Modal
@@ -381,9 +424,24 @@ export const translations = {
       coefficient: 'Coefficient',
     },
 
+    // Withdraw Modal
+    withdraw: {
+      title: 'Withdraw',
+      stars: 'Stars',
+      wallet: 'Wallet',
+      cryptoBot: 'Crypto Bot',
+      amount: 'Amount',
+      withdrawButton: 'Withdraw',
+    },
+
     // Deposit Modal
     deposit: {
       title: 'Deposit',
+      stars: 'Stars',
+      wallet: 'Wallet',
+      cryptoBot: 'Crypto Bot',
+      amountPlaceholder: 'Amount',
+      depositButton: 'Deposit',
       gifts: 'Stars',
       wallet: 'Wallet',
       cryptoBot: 'Crypto Bot',

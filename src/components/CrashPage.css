@@ -124,14 +124,15 @@
   animation: none;
 }
 
-/* Остановка вращения луны после окончания игры */
-.crash-postflight::before {
-  animation: none;
-}
-
 /* Ускоренное вращение и пульсация луны во время полёта */
 .crash-no-rays::before {
   animation: moon-spin 3s linear infinite, moon-pulse 2s ease-in-out infinite;
+}
+
+/* Остановка вращения луны после окончания игры - должно быть после crash-no-rays для приоритета */
+.crash-game-area.crash-postflight::before,
+.crash-game-area.crash-postflight-done::before {
+  animation: none !important;
 }
 
 @keyframes moon-spin {
@@ -658,7 +659,7 @@
   height: 62px;
   object-fit: contain;
   display: block;
-  animation: crash-gift-swap 220ms ease;
+  animation: crash-gift-swap 220ms ease, gift-sway 2s ease-in-out infinite;
 }
 
 @keyframes crash-gift-swap {
@@ -669,5 +670,15 @@
   100% {
     opacity: 1;
     transform: scale(1) rotate(0deg);
+  }
+}
+
+/* Анимация покачивания подарков во время полёта */
+@keyframes gift-sway {
+  0%, 100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
   }
 }

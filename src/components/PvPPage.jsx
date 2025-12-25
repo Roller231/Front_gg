@@ -22,11 +22,11 @@ const getBodyParts = (t) => [
 ]
 
 function PvPPage() {
-  const { selectedCurrency, formatAmount } = useCurrency()
-    const { t } = useLanguage()
+  const { user, settings, setUser } = useUser()
+  const { selectedCurrency } = useCurrency()
+  const { t } = useLanguage()
   
   const bodyParts = getBodyParts(t)
-  const { user, setUser } = useUser()
 
   const [gameState, setGameState] = useState('waiting') // 'waiting' | 'countdown' | 'fighting' | 'result'
   const [isBetModalOpen, setIsBetModalOpen] = useState(false)

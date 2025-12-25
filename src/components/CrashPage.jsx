@@ -119,7 +119,7 @@ function CrashPage() {
     )
   }, [players, user])
   
-  const canCashout = gameState === 'flying' && Boolean(myActiveBet)
+  const canCashout = gameState === 'flying' && Boolean(myActiveBet) && multiplier >= 1.25
 
   const usersCacheRef = useRef(new Map())
   const botsCacheRef = useRef(new Map())
@@ -516,7 +516,7 @@ useEffect(() => {
     }
   
     if (player.autoCashoutX) {
-      return `auto x${player.autoCashoutX}`
+      return `x${player.autoCashoutX}`
     }
   
     return '—'
@@ -557,6 +557,21 @@ useEffect(() => {
     }
   }, [gameState])
 
+  // Продолжительная вибрация во время полёта ракеты
+  useEffect(() => {
+    if (gameState !== 'flying' || !settings?.vibrationEnabled) return
+
+    // Вибрация каждые 2 секунды пока ракета летит
+    const vibrateInterval = setInterval(() => {
+      vibrate(VIBRATION_PATTERNS.rocketFlight)
+    }, 2300)
+
+    // Первая вибрация сразу
+    vibrate(VIBRATION_PATTERNS.rocketFlight)
+
+    return () => clearInterval(vibrateInterval)
+  }, [gameState, settings?.vibrationEnabled])
+
   return (
     <div className="app crash-page">
       
@@ -564,7 +579,7 @@ useEffect(() => {
       
       <main className="main-content crash-content">
         {/* Зона игры */}
-        <div className={`crash-game-area ${gameState === 'countdown' ? 'crash-countdown' : ''} ${gameState === 'postflight' ? 'crash-postflight' : ''} ${gameState !== 'countdown' ? 'crash-no-rays' : ''}`}>
+        <div className={`crash-game-area ${gameState === 'countdown' ? 'crash-countdown' : ''} ${gameState === 'postflight' ? 'crash-postflight' : ''} ${gameState === 'postflight-done' ? 'crash-postflight-done' : ''} ${gameState !== 'countdown' ? 'crash-no-rays' : ''}`}>
           <div
             className={`cosmic-background ${gameState === 'flying' ? 'cosmic-background-active' : ''}`}
             aria-hidden="true"
@@ -616,9 +631,10 @@ useEffect(() => {
   <Player
     autoplay
     loop={false}
-    keepLastFrame
+    keepLastFrame={false}
     src="/animation/vzryv2__.json"
     className="lottie-postflight"
+    speed={1.18}
     onEvent={(event) => {
       if (event === 'complete') {
         // 👇 просто убираем анимацию после окончания
@@ -631,7 +647,7 @@ useEffect(() => {
           </div>
 
           {gameState !== 'countdown' && (
-            <div className={`multiplier-display ${gameState === 'postflight' ? 'centered sparkle' : ''}`}>
+            <div className={`multiplier-display ${gameState === 'postflight' || gameState === 'postflight-done' ? 'centered sparkle' : ''}`}>
               <span className="multiplier-value">x{multiplier.toFixed(2)}</span>
             </div>
           )}

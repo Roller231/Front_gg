@@ -29,6 +29,7 @@ function WheelPage() {
   const [lightPhase, setLightPhase] = useState(0)
   const [showCrashModal, setShowCrashModal] = useState(false)
   const [showPrizesModal, setShowPrizesModal] = useState(false)
+  const [expandedCategory, setExpandedCategory] = useState(null) // Для аккордеона
   const wheelRef = useRef(null)
   const [wheelPrizes, setWheelPrizes] = useState([])
   const [allDrops, setAllDrops] = useState([])
@@ -49,18 +50,16 @@ function WheelPage() {
       // 1) делаем бесплатный спин
       const result = await rouletteFreeSpin({ userId: user.id })
   
-      // 2) крутим колесо и показываем выигрыш
+      // 2) сразу обновляем статус бесплатного спина (кнопка сменится немедленно)
+      await registerPlay(user.id)
+      await refreshFreeSpin(user.id)
+  
+      // 3) крутим колесо и показываем выигрыш
       await handleBetResult(result)
   
-      // 3) фиксируем игру (важно для daily/promo логики)
-      await registerPlay(user.id)
-  
-      // 4) обновляем юзера (как в TaskList)
+      // 4) обновляем юзера
       const freshUser = await getUserById(user.id)
       setUser(freshUser)
-  
-      // 5) на всякий — принудительно рефрешим статус (как в TaskList)
-      await refreshFreeSpin(user.id)
     } catch (e) {
       console.error('Free spin failed', e)
     } finally {
@@ -93,9 +92,9 @@ function WheelPage() {
     setRotation(newRotation)
     setWonPrize(prizes[targetSegment])
   
-    // Вибрация во время спина
+    // Продолжительная вибрация во время спина
     if (settings?.vibrationEnabled) {
-      vibrate(VIBRATION_PATTERNS.spin)
+      vibrate(VIBRATION_PATTERNS.wheelSpin)
     }
 
     setTimeout(() => {
@@ -522,6 +521,16 @@ function WheelPage() {
               {/* Prize images/animations on segments */}
               {wheelPrizes.map((prize, index) => {
                 const angle = (index * 360 / wheelPrizes.length) + (180 / wheelPrizes.length)
+                
+                // Оптимизация: JSON анимация только для 3 верхних сегментов (под стрелкой)
+                // Вычисляем позицию сегмента относительно верха колеса
+                const segmentAngle = 360 / wheelPrizes.length
+                const normalizedRotation = ((rotation % 360) + 360) % 360
+                const segmentPosition = (index * segmentAngle + normalizedRotation) % 360
+                // Сегмент "наверху" если его позиция близка к 0 или 360 (±1 сегмент)
+                const isNearTop = segmentPosition < segmentAngle * 1.5 || segmentPosition > 360 - segmentAngle * 1.5
+                const shouldAnimate = isNearTop && prize.contentType === 'animation'
+                
                 return (
                   <div
                     key={`content-${prize.id}`}
@@ -702,101 +711,91 @@ function WheelPage() {
               </div>
               <div className="prizes-modal-body">
                 {(() => {
-                  // Sort prizes by price (highest first) and split into 3 groups
-                  const sortedPrizes = [...wheelPrizes].sort(
-                    (a, b) => b.basePrice - a.basePrice
-                  )
-                                    const totalPrizes = sortedPrizes.length
-                  const groupSize = Math.ceil(totalPrizes / 3)
-                  
-                  const legendaryPrizes = sortedPrizes.slice(0, groupSize)
-                  const epicPrizes = sortedPrizes.slice(groupSize, groupSize * 2)
-                  const commonPrizes = sortedPrizes.slice(groupSize * 2)
+                  // Категории подарков с ценовыми диапазонами (в TON)
+                  // РЕДАКТИРОВАТЬ ЦЕНЫ ЗДЕСЬ:
+                  const GIFT_CATEGORIES = [
+                    { key: 'exclusive', minPrice: 3000, maxPrice: Infinity, color: '#FFD700' },
+                    { key: 'artifact', minPrice: 1000, maxPrice: 3000, color: '#FF6B6B' },
+                    { key: 'mythic', minPrice: 700, maxPrice: 1000, color: '#E040FB' },
+                    { key: 'legendary', minPrice: 300, maxPrice: 700, color: '#FF9800' },
+                    { key: 'epic', minPrice: 100, maxPrice: 300, color: '#9C27B0' },
+                    { key: 'rare', minPrice: 40, maxPrice: 100, color: '#2196F3' },
+                    { key: 'uncommon', minPrice: 20, maxPrice: 40, color: '#4CAF50' },
+                    { key: 'common', minPrice: 0, maxPrice: 20, color: '#9E9E9E' },
+                  ]
 
-                  const renderPrizeCard = (prize) => (
-                    <div key={prize.id} className="prize-card">
-                      <div className="prize-image">
-                        {prize.contentType === 'animation' ? (
-                          <Player
-                            autoplay
-                            loop
-                            src={prize.animation}
-                            className="prize-animation"
-                          />
-                        ) : (
-                          <img src={prize.image} alt="prize" className="prize-img" />
-                        )}
-                      </div>
-                      <span className="prize-price-badge">
-                        <img src={currencyIcon} alt="currency" className="prize-price-coin" />
-                        {formatAmount(prize.basePrice)}
-                        </span>
-                    </div>
-                  )
+                  // Группируем все дропы по категориям
+                  const categorizedDrops = GIFT_CATEGORIES.map(cat => {
+                    const drops = allDrops.filter(drop => 
+                      drop.price >= cat.minPrice && drop.price < cat.maxPrice
+                    ).sort((a, b) => b.price - a.price)
+                    return { ...cat, drops }
+                  }).filter(cat => cat.drops.length > 0)
 
-                  // Get min prices for each category
-                  const legendaryMinPrice = legendaryPrizes.length > 0 ? Math.min(...legendaryPrizes.map(p => p.basePrice))
-                  : 0
-                  const epicMinPrice =
-                  epicPrizes.length > 0
-                    ? Math.min(...epicPrizes.map(p => p.basePrice))
-                    : 0
-                
-                const commonMinPrice =
-                  commonPrizes.length > 0
-                    ? Math.min(...commonPrizes.map(p => p.basePrice))
-                    : 0
-                
+                  const toggleCategory = (key) => {
+                    setExpandedCategory(expandedCategory === key ? null : key)
+                  }
 
                   return (
-                    <>
-                      {/* Legendary prizes - most expensive */}
-                      {legendaryPrizes.length > 0 && (
-                        <div className="prizes-section">
-                          <h3 className="prizes-section-title prizes-section-legendary">
-                            {t('wheel.legendary')}
-                            <span className="prizes-section-price">
-                              {t('wheel.from')} <img src={currencyIcon} alt="currency" className="prizes-section-price-icon" /> {formatAmount(legendaryMinPrice)}
-                            </span>
-                          </h3>
-                          <div className="prizes-grid">
-                            {legendaryPrizes.map(renderPrizeCard)}
-                          </div>
+                    <div className="prizes-accordion">
+                      {categorizedDrops.map(category => (
+                        <div key={category.key} className="prizes-accordion-item">
+                          <button 
+                            className={`prizes-accordion-header ${expandedCategory === category.key ? 'expanded' : ''}`}
+                            onClick={() => toggleCategory(category.key)}
+                            style={{ '--category-color': category.color }}
+                          >
+                            <div className="prizes-accordion-title">
+                              <span className="prizes-category-dot" style={{ background: category.color }}></span>
+                              <span className="prizes-category-name">{t(`wheel.${category.key}`)}</span>
+                              <span className="prizes-category-count">({category.drops.length})</span>
+                            </div>
+                            <div className="prizes-accordion-info">
+                              <span className="prizes-category-price">
+                                <img src={currencyIcon} alt="currency" className="prizes-section-price-icon" />
+                                {category.minPrice}+
+                              </span>
+                              <span className={`prizes-accordion-arrow ${expandedCategory === category.key ? 'expanded' : ''}`}>
+                                ▼
+                              </span>
+                            </div>
+                          </button>
+                          
+                          {expandedCategory === category.key && (
+                            <div className="prizes-accordion-content">
+                              <p className="prizes-category-desc">{t(`wheel.${category.key}Desc`)}</p>
+                              <div className="prizes-grid">
+                                {category.drops.map(drop => (
+                                  <div key={drop.id} className="prize-card">
+                                    <div className="prize-image">
+                                      {drop.lottie_anim ? (
+                                        <Player
+                                          autoplay
+                                          loop
+                                          src={drop.lottie_anim}
+                                          className="prize-animation"
+                                        />
+                                      ) : (
+                                        <img 
+                                          src={drop.icon} 
+                                          alt={drop.name} 
+                                          className="prize-img"
+                                          loading="lazy"
+                                        />
+                                      )}
+                                    </div>
+                                    <span className="prize-price-badge">
+                                      <img src={currencyIcon} alt="currency" className="prize-price-coin" />
+                                      {drop.price}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      )}
-
-                      {/* Epic prizes - medium price */}
-                      {epicPrizes.length > 0 && (
-                        <div className="prizes-section">
-                          <h3 className="prizes-section-title prizes-section-epic">
-                            {t('wheel.epic')}
-                            <span className="prizes-section-price">
-                              {t('wheel.from')} <img src={currencyIcon} alt="currency" className="prizes-section-price-icon" /> {formatAmount(epicMinPrice)}
-
-                            </span>
-                          </h3>
-                          <div className="prizes-grid">
-                            {epicPrizes.map(renderPrizeCard)}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Common prizes - cheapest */}
-                      {commonPrizes.length > 0 && (
-                        <div className="prizes-section">
-                          <h3 className="prizes-section-title prizes-section-common">
-                            {t('wheel.common')}
-                            <span className="prizes-section-price">
-                              {t('wheel.from')} <img src={currencyIcon} alt="currency" className="prizes-section-price-icon" /> {formatAmount(commonMinPrice)}
-
-                            </span>
-                          </h3>
-                          <div className="prizes-grid">
-                            {commonPrizes.map(renderPrizeCard)}
-                          </div>
-                        </div>
-                      )}
-                    </>
+                      ))}
+                    </div>
                   )
                 })()}
               </div>

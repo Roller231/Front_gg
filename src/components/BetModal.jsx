@@ -22,6 +22,7 @@ function BetModal({
   const [selectedGift, setSelectedGift] = useState(null)
   const [autoCashout, setAutoCashout] = useState(false)
   const [autoCashoutMultiplier, setAutoCashoutMultiplier] = useState('2.00')
+  const MIN_AUTO_CASHOUT = 2.0
   const { selectedCurrency } = useCurrency()
   const { user, setUser } = useUser()
   const { send, connected } = useCrashSocket(() => {})
@@ -470,8 +471,18 @@ function BetModal({
                         type="text"
                         className="auto-cashout-input"
                         value={autoCashoutMultiplier}
-                        onChange={(e) => setAutoCashoutMultiplier(e.target.value.replace(/[^0-9.]/g, ''))}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/[^0-9.]/g, '')
+                          setAutoCashoutMultiplier(val)
+                        }}
+                        onBlur={() => {
+                          const num = parseFloat(autoCashoutMultiplier)
+                          if (isNaN(num) || num < MIN_AUTO_CASHOUT) {
+                            setAutoCashoutMultiplier(MIN_AUTO_CASHOUT.toFixed(2))
+                          }
+                        }}
                         placeholder="2.00"
+                        min="2.00"
                       />
                     </div>
                   )}
@@ -512,7 +523,43 @@ function BetModal({
               ))}
             </div>
 
-
+              {game === 'crash' && (
+                <div className="auto-cashout-row">
+                  <div className="auto-cashout-toggle">
+                    <span className="auto-cashout-label">{t('betModal.autoCashout')}</span>
+                    <label className="toggle-switch">
+                      <input
+                        type="checkbox"
+                        checked={autoCashout}
+                        onChange={(e) => setAutoCashout(e.target.checked)}
+                      />
+                      <span className="toggle-slider"></span>
+                    </label>
+                  </div>
+                  {autoCashout && (
+                    <div className="auto-cashout-input-wrapper">
+                      <span className="auto-cashout-x">x</span>
+                      <input
+                        type="text"
+                        className="auto-cashout-input"
+                        value={autoCashoutMultiplier}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/[^0-9.]/g, '')
+                          setAutoCashoutMultiplier(val)
+                        }}
+                        onBlur={() => {
+                          const num = parseFloat(autoCashoutMultiplier)
+                          if (isNaN(num) || num < MIN_AUTO_CASHOUT) {
+                            setAutoCashoutMultiplier(MIN_AUTO_CASHOUT.toFixed(2))
+                          }
+                        }}
+                        placeholder="2.00"
+                        min="2.00"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
 
 <button
   className={`bet-submit-button gifts-submit ${!canBet ? 'disabled' : ''}`}

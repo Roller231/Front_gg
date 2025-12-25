@@ -11,8 +11,7 @@ import { apiFetch } from '../api/client'
 
 function DepositModal({ isOpen, onClose }) {
   const { t } = useLanguage()
-  const [activeTab, setActiveTab] = useState('gifts')
-  const [selectedCurrency, setSelectedCurrency] = useState(null)
+  const [activeTab, setActiveTab] = useState('stars')
   const [amount, setAmount] = useState('')
   
   // Для свайпа
@@ -91,8 +90,7 @@ const handleTonPay = async () => {
     if (isOpen && contentRef.current) {
       contentRef.current.style.transform = 'translateY(0)'
       currentTranslateY.current = 0
-      setActiveTab('gifts')
-      setSelectedCurrency(null)
+      setActiveTab('stars')
       setAmount('')
     }
   }, [isOpen])
@@ -266,10 +264,10 @@ if (loading || !user) {
         {/* Табы */}
         <div className="deposit-modal-tabs">
           <button 
-            className={`deposit-modal-tab ${activeTab === 'gifts' ? 'active' : ''}`}
-            onClick={() => setActiveTab('gifts')}
+            className={`deposit-modal-tab ${activeTab === 'stars' ? 'active' : ''}`}
+            onClick={() => setActiveTab('stars')}
           >
-            {t('deposit.gifts')}
+            {t('deposit.stars')}
           </button>
           <button 
             className={`deposit-modal-tab ${activeTab === 'wallet' ? 'active' : ''}`}
@@ -406,6 +404,15 @@ if (loading || !user) {
             </div>
           </div>
         </div>
+
+        {/* Кнопка пополнения */}
+        <button 
+          className="deposit-submit-button"
+          onClick={handleDeposit}
+          disabled={!amount || parseFloat(amount) <= 0}
+        >
+          {t('deposit.depositButton')}
+        </button>
       </div>
     </div>
   )

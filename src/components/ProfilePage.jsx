@@ -2,7 +2,7 @@ import './ProfilePage.css'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navigation from './Navigation'
-import BetModal from './BetModal'
+import WithdrawModal from './WithdrawModal'
 import InventoryModal from './InventoryModal'
 import Header from './Header'
 import { useCurrency } from '../context/CurrencyContext'
@@ -31,7 +31,7 @@ function ProfilePage() {
   const { user, settings, updateSettings } = useUser()
   const { t, language, changeLanguage, languages, currentLanguage } = useLanguage()
 
-  const [isBetModalOpen, setIsBetModalOpen] = useState(false)
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false)
   const [isInventoryModalOpen, setIsInventoryModalOpen] = useState(false)
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false)
 
@@ -102,8 +102,9 @@ function ProfilePage() {
           drops.map(d => [d.id, d])
         )
   
-        // 4. разворачиваем inventory по count
-        const expanded = inventory.flatMap(item =>
+        // 4. разворачиваем inventory по count (реверс - новые сначала)
+        const reversedInventory = [...inventory].reverse()
+        const expanded = reversedInventory.flatMap(item =>
           Array.from({ length: item.count }).map(() => dropMap[item.drop_id])
         )
   
@@ -334,7 +335,7 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
       {/* ===== WITHDRAW BUTTON ===== */}
       <button
   className="withdraw-btn gg-btn-glow"
-  onClick={() => setIsBetModalOpen(true)}
+  onClick={() => setIsWithdrawModalOpen(true)}
 >
 {t('profile.withdraw')} {selectedCurrency.amount}
   <img
@@ -366,10 +367,9 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
         </div>
       </div> */}
 
-      <BetModal
-        isOpen={isBetModalOpen}
-        onClose={() => setIsBetModalOpen(false)}
-        mode="withdraw"
+      <WithdrawModal
+        isOpen={isWithdrawModalOpen}
+        onClose={() => setIsWithdrawModalOpen(false)}
       />
 
       <InventoryModal
