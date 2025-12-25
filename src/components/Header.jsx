@@ -33,13 +33,13 @@ const {
   setHasFreeSpins,
 } = useCurrency()
 
-  const [isDepositModalOpen, setIsDepositModalOpen] = useState(false)
   const [showNotification, setShowNotification] = useState(false)
   const [showAccountDropdown, setShowAccountDropdown] = useState(false)
   const [showGameDropdown, setShowGameDropdown] = useState(false)
   const [selectedAccount, setSelectedAccount] = useState(accountTypes[0])
   const [selectedGameCurrency, setSelectedGameCurrency] = useState(gameCurrencies[0])
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const visibleCurrencies = currencyOptions.filter((currency) => currency.id !== selectedCurrency.id)
 

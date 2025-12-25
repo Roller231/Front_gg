@@ -581,9 +581,7 @@ const canOpenCase = isPaid
       </>
     )}
 
-                <button className="case-promo-button">
-                  {t('caseModal.activatePromo')}
-                </button>
+               
 
                 <div className="case-section-title">{t('caseModal.whatsInside')}</div>
                 <div className="case-items-grid">

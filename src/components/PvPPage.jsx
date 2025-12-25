@@ -23,7 +23,7 @@ const getBodyParts = (t) => [
 
 function PvPPage() {
   const { user, settings, setUser } = useUser()
-  const { selectedCurrency } = useCurrency()
+  const { selectedCurrency, formatAmount } = useCurrency()
   const { t } = useLanguage()
   
   const bodyParts = getBodyParts(t)
