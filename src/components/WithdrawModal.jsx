@@ -1,14 +1,18 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import './WithdrawModal.css'
-import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
+import { useUser } from '../context/UserContext'
+import { createTonWithdraw, createDropWithdraw } from '../api/withdraw'
+import { getUserById } from '../api/users'
+import { getDropById } from '../api/cases'
 
 function WithdrawModal({ isOpen, onClose }) {
   const { t } = useLanguage()
-  const { selectedCurrency, currencyOptions } = useCurrency()
-  
-  const [activeTab, setActiveTab] = useState('stars')
+  const { user, setUser } = useUser()
+
+  const [activeTab, setActiveTab] = useState('coins')
   const [amount, setAmount] = useState('')
+  const [selectedGift, setSelectedGift] = useState(null)
 
   const modalRef = useRef(null)
   const contentRef = useRef(null)
@@ -16,85 +20,101 @@ function WithdrawModal({ isOpen, onClose }) {
   const currentTranslateY = useRef(0)
   const isDragging = useRef(false)
 
-  useEffect(() => {
-    if (isOpen && contentRef.current) {
-      contentRef.current.style.transform = 'translateY(0)'
-      currentTranslateY.current = 0
-      setActiveTab('stars')
-      setAmount('')
-    }
-  }, [isOpen])
+  const [dropsMap, setDropsMap] = useState({})
 
-  const handleWithdraw = () => {
-    if (!amount || parseFloat(amount) <= 0) return
-    console.log('Withdraw:', { amount, method: activeTab })
+  /* ================= LOAD DROPS ================= */
+  useEffect(() => {
+    if (!isOpen || !user?.inventory?.length) return
+
+    let cancelled = false
+
+    const loadDrops = async () => {
+      const result = {}
+      for (const inv of user.inventory) {
+        try {
+          const drop = await getDropById(inv.drop_id)
+          result[inv.drop_id] = drop
+        } catch {}
+      }
+      if (!cancelled) setDropsMap(result)
+    }
+
+    loadDrops()
+    return () => (cancelled = true)
+  }, [isOpen, user])
+
+  const inventoryGifts = useMemo(() => {
+    if (!user?.inventory?.length) return []
+    return user.inventory
+      .map(inv => {
+        const drop = dropsMap[inv.drop_id]
+        if (!drop || inv.count <= 0) return null
+        return { ...drop, count: inv.count }
+      })
+      .filter(Boolean)
+  }, [user, dropsMap])
+
+  /* ================= REFRESH USER ================= */
+  const refreshUser = async () => {
+    const fresh = await getUserById(user.id)
+    setUser(fresh)
+  }
+
+  /* ================= TON ================= */
+  const handleCoinsWithdraw = async () => {
+    const value = Number(amount)
+    if (!value || value <= 0) return
+
+    await createTonWithdraw({
+      userId: user.id,
+      amount: value,
+    })
+
+    await refreshUser()
     onClose()
   }
 
+  /* ================= GIFTS ================= */
+  const handleGiftWithdraw = async () => {
+    if (!selectedGift) return
+
+    await createDropWithdraw({
+      userId: user.id,
+      dropId: selectedGift,
+    })
+
+    await refreshUser()
+    onClose()
+  }
+
+  /* ================= DRAG ================= */
   const handleDragStart = (e) => {
     isDragging.current = true
-    const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY
-    dragStartY.current = clientY - currentTranslateY.current
-
-    if (contentRef.current) {
-      contentRef.current.style.transition = 'none'
-    }
+    const y = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY
+    dragStartY.current = y - currentTranslateY.current
+    contentRef.current.style.transition = 'none'
   }
 
   const handleDragMove = (e) => {
     if (!isDragging.current) return
-
-    const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY
-    let newTranslateY = clientY - dragStartY.current
-
-    if (newTranslateY < 0) newTranslateY = 0
-
-    currentTranslateY.current = newTranslateY
-
-    if (contentRef.current) {
-      contentRef.current.style.transform = `translateY(${newTranslateY}px)`
-    }
+    const y = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY
+    const delta = Math.max(0, y - dragStartY.current)
+    currentTranslateY.current = delta
+    contentRef.current.style.transform = `translateY(${delta}px)`
   }
 
   const handleDragEnd = () => {
-    if (!isDragging.current) return
     isDragging.current = false
+    contentRef.current.style.transition = 'transform 0.3s ease'
 
-    if (contentRef.current) {
-      contentRef.current.style.transition = 'transform 0.3s ease-out'
-
-      if (currentTranslateY.current > 100) {
-        contentRef.current.style.transform = 'translateY(100%)'
-        setTimeout(() => {
-          onClose()
-          currentTranslateY.current = 0
-        }, 300)
-      } else {
-        contentRef.current.style.transform = 'translateY(0)'
-        currentTranslateY.current = 0
-      }
-    }
-  }
-
-  useEffect(() => {
-    const handleMouseMove = (e) => handleDragMove(e)
-    const handleMouseUp = () => handleDragEnd()
-
-    if (isOpen) {
-      document.addEventListener('mousemove', handleMouseMove)
-      document.addEventListener('mouseup', handleMouseUp)
+    if (currentTranslateY.current > 100) {
+      contentRef.current.style.transform = 'translateY(100%)'
+      setTimeout(onClose, 300)
+    } else {
+      contentRef.current.style.transform = 'translateY(0)'
     }
 
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseup', handleMouseUp)
-    }
-  }, [isOpen])
-
-  const handleOverlayClick = (e) => {
-    if (e.target === modalRef.current) {
-      onClose()
-    }
+    currentTranslateY.current = 0
   }
 
   if (!isOpen) return null
@@ -103,7 +123,7 @@ function WithdrawModal({ isOpen, onClose }) {
     <div
       className="withdraw-modal-overlay"
       ref={modalRef}
-      onClick={handleOverlayClick}
+      onClick={(e) => e.target === modalRef.current && onClose()}
     >
       <div
         className="withdraw-modal-content"
@@ -112,59 +132,73 @@ function WithdrawModal({ isOpen, onClose }) {
         onTouchMove={handleDragMove}
         onTouchEnd={handleDragEnd}
       >
-        <div
-          className="withdraw-modal-handle"
-          onMouseDown={handleDragStart}
-        >
-          <div className="withdraw-modal-handle-bar"></div>
+        <div className="withdraw-modal-handle" onMouseDown={handleDragStart}>
+          <div className="withdraw-modal-handle-bar" />
         </div>
 
         <h2 className="withdraw-modal-title">{t('withdraw.title')}</h2>
 
+        {/* TABS */}
         <div className="withdraw-modal-tabs">
           <button
-            className={`withdraw-modal-tab ${activeTab === 'stars' ? 'active' : ''}`}
-            onClick={() => setActiveTab('stars')}
+            className={`withdraw-modal-tab ${activeTab === 'coins' ? 'active' : ''}`}
+            onClick={() => setActiveTab('coins')}
           >
-            {t('withdraw.stars')}
+            {t('withdraw.coins')}
           </button>
           <button
-            className={`withdraw-modal-tab ${activeTab === 'wallet' ? 'active' : ''}`}
-            onClick={() => setActiveTab('wallet')}
+            className={`withdraw-modal-tab ${activeTab === 'gifts' ? 'active' : ''}`}
+            onClick={() => setActiveTab('gifts')}
           >
-            {t('withdraw.wallet')}
-          </button>
-          <button
-            className={`withdraw-modal-tab ${activeTab === 'crypto' ? 'active' : ''}`}
-            onClick={() => setActiveTab('crypto')}
-          >
-            {t('withdraw.cryptoBot')}
+            {t('withdraw.gifts')}
           </button>
         </div>
 
-        {/* Поле суммы */}
-        <div className="withdraw-amount-section">
-          <input
-            type="text"
-            inputMode="decimal"
-            className="withdraw-amount-input"
-            placeholder={t('withdraw.amount')}
-            value={amount}
-            onChange={(e) => {
-              const value = e.target.value.replace(/[^0-9.]/g, '')
-              setAmount(value)
-            }}
-          />
-        </div>
+        {/* COINS */}
+        {activeTab === 'coins' && (
+          <div className="withdraw-coins">
+            <input
+              className="withdraw-amount-input"
+              type="text"
+              placeholder="0"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ''))}
+            />
+            <button
+              className="withdraw-submit-button"
+              onClick={handleCoinsWithdraw}
+              disabled={!amount}
+            >
+              {t('withdraw.withdrawButton')}
+            </button>
+          </div>
+        )}
 
-        {/* Кнопка вывода */}
-        <button 
-          className="withdraw-submit-button"
-          onClick={handleWithdraw}
-          disabled={!amount || parseFloat(amount) <= 0}
-        >
-          {t('withdraw.withdrawButton')}
-        </button>
+        {/* GIFTS */}
+        {activeTab === 'gifts' && (
+          <>
+            <div className="withdraw-gifts-grid">
+              {inventoryGifts.map(g => (
+                <div
+                  key={g.id}
+                  className={`withdraw-gift ${selectedGift === g.id ? 'selected' : ''}`}
+                  onClick={() => setSelectedGift(g.id)}
+                >
+                  <img src={g.icon} alt={g.name} />
+                  <span>×{g.count}</span>
+                </div>
+              ))}
+            </div>
+
+            <button
+              className="withdraw-submit-button"
+              onClick={handleGiftWithdraw}
+              disabled={!selectedGift}
+            >
+              {t('withdraw.withdrawButton')}
+            </button>
+          </>
+        )}
       </div>
     </div>
   )

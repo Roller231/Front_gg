@@ -7,7 +7,7 @@ import { useUser } from '../context/UserContext'
 import { getUserById } from '../api/users'
 import { getDropById } from '../api/cases'// Примеры подарков (с эмодзи как заглушки)
 import { roulettePaidSpin } from '../api/roulette'
-
+import { apiFetch } from '../api/client'
 function BetModal({
   isOpen,
   onClose,
@@ -39,12 +39,26 @@ function BetModal({
 
   const [spinResult, setSpinResult] = useState(null)
 
+  function playGame(userId) {
+    return apiFetch(`/games/play?user_id=${userId}`, {
+      method: 'POST',
+    })
+  }
+
   const handleBetResult = (result) => {
     setSpinResult(result)
     handleSpin(result)
   }
   
-
+  const afterAnyBet = async () => {
+    try {
+      await playGame(user.id, game) // 🔥 XP / stats
+      await refreshUser()           // 🔥 обновляем user в контексте
+    } catch (e) {
+      console.error('Play / refresh failed', e)
+    }
+  }
+  
 
   const betHandlers = {
     crash: {
@@ -325,13 +339,14 @@ function BetModal({
       if (!handler) throw new Error('No coins handler')
   
       const result = await handler({ amount: amountInTon })
-  
+
+      await playGame(user.id)
+
       onResult?.(result)
-  
+
       if (game !== 'pvp') {
         await refreshUser()
       }
-  
       onClose()
     } catch (e) {
       console.error('Coins bet failed', e)
@@ -364,12 +379,14 @@ function BetModal({
   
       const result = await handler({ giftId: selectedGift })
   
+      await playGame(user.id)
+
       onResult?.(result)
   
+
       if (game !== 'pvp') {
         await refreshUser()
       }
-  
       onClose()
     } catch (e) {
       console.error('Gift bet failed', e)

@@ -11,6 +11,7 @@ import { useLanguage } from '../context/LanguageContext'
 import { getDropById } from '../api/cases'
 import * as usersApi from '../api/users'
 import { Player } from '@lottiefiles/react-lottie-player'
+import { canWithdraw } from '../api/withdraw'
 
 
 
@@ -31,9 +32,39 @@ function ProfilePage() {
   const { user, settings, updateSettings } = useUser()
   const { t, language, changeLanguage, languages, currentLanguage } = useLanguage()
 
+
+  const level = user.level || 1
+  const xp = user.xp || 0
+  
+  const BASE_XP = 1000
+  const XP_STEP = 200
+  
+  const nextLevelXP = BASE_XP + (level - 1) * XP_STEP
+  
+  const levelProgressPercent = Math.min(
+    100,
+    Math.floor((xp / nextLevelXP) * 100)
+  )
+  
+
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false)
   const [isInventoryModalOpen, setIsInventoryModalOpen] = useState(false)
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false)
+  const [withdrawInfo, setWithdrawInfo] = useState(null)
+  const [withdrawError, setWithdrawError] = useState(null)
+  const [notification, setNotification] = useState({
+    visible: false,
+    message: '',
+  })
+  
+  const showNotification = (message) => {
+    setNotification({ visible: true, message })
+  
+    setTimeout(() => {
+      setNotification({ visible: false, message: '' })
+    }, 3000)
+  }
+  
 
   if (!user) {
     return <div className="profile-page">Loading...</div>
@@ -53,6 +84,25 @@ function ProfilePage() {
   const [inventoryDrops, setInventoryDrops] = useState([])
   const [loadingInventory, setLoadingInventory] = useState(true)
   
+  useEffect(() => {
+    if (!user?.id) return
+  
+    let mounted = true
+  
+    async function loadWithdrawStatus() {
+      try {
+        const res = await canWithdraw(user.id)
+        if (mounted) setWithdrawInfo(res)
+      } catch (e) {
+        console.error('Withdraw can check failed', e)
+      }
+    }
+  
+    loadWithdrawStatus()
+    return () => (mounted = false)
+  }, [user?.id])
+  
+
   useEffect(() => {
     let mounted = true
   
@@ -213,22 +263,24 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
       <div className="level-progress-section">
         <div className="level-progress-container">
           <div className="level-badge level-current">
-            <span className="level-number">{user.level || 1}</span>
+          <span className="level-number">{level}</span>
           </div>
           <div className="level-progress-bar">
-            <div 
-              className="level-progress-fill" 
-              style={{ width: `${user.levelProgress || 35}%` }}
-            />
+          <div
+  className="level-progress-fill"
+  style={{ width: `${levelProgressPercent}%` }}
+/>
+
           </div>
           <div className="level-badge level-next">
             <span className="level-number">{(user.level || 1) + 1}</span>
           </div>
         </div>
         <div className="level-progress-info">
-          <span className="level-xp-text">
-            {user.currentXP || 350} / {user.nextLevelXP || 1000} XP
-          </span>
+        <span className="level-xp-text">
+  {xp} / {nextLevelXP} XP
+</span>
+
         </div>
       </div>
 
@@ -335,15 +387,25 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
       {/* ===== WITHDRAW BUTTON ===== */}
       <button
   className="withdraw-btn gg-btn-glow"
-  onClick={() => setIsWithdrawModalOpen(true)}
+  onClick={() => {
+    if (!withdrawInfo?.can) {
+      let msg = t('withdraw.cantWithdrawText')
+
+      if (withdrawInfo.total_deposit < 3) {
+        const remaining = (3 - withdrawInfo.total_deposit).toFixed(2)
+        msg += `\n${t('withdraw.remainingDeposit')}: ${remaining} TON`
+      }
+
+      showNotification(msg)
+      return
+    }
+
+    setIsWithdrawModalOpen(true)
+  }}
 >
-{t('profile.withdraw')} {selectedCurrency.amount}
-  <img
-    src={selectedCurrency.icon}
-    alt={selectedCurrency.id}
-    className="diamond-icon"
-  />
+  {t('profile.withdraw')} TON
 </button>
+
 
 
       {/* ===== OPERATIONS (заглушка) ===== */}
@@ -367,6 +429,7 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
         </div>
       </div> */}
 
+
       <WithdrawModal
         isOpen={isWithdrawModalOpen}
         onClose={() => setIsWithdrawModalOpen(false)}
@@ -384,6 +447,11 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
           console.log('Sell all items')
         }}
       />
+{notification.visible && (
+  <div className="notification">
+    {notification.message}
+  </div>
+)}
 
       <Navigation />
     </div>

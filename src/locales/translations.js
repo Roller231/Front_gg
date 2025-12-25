@@ -154,6 +154,12 @@ export const translations = {
       cryptoBot: 'Crypto Bot',
       amount: 'Сумма',
       withdrawButton: 'Вывести',
+      cantWithdrawTitle: 'Вывод недоступен',
+      cantWithdrawText:
+        'Для вывода требуется 2 уровень и депозит от 3 TON.',
+      remainingDeposit: 'Осталось пополнить',
+      coins: 'TON',
+      gifts: 'Подарки'
     },
 
     // Deposit Modal
@@ -432,6 +438,12 @@ export const translations = {
       cryptoBot: 'Crypto Bot',
       amount: 'Amount',
       withdrawButton: 'Withdraw',
+      cantWithdrawTitle: 'Withdraw unavailable',
+      cantWithdrawText:
+        'You need level 2 and at least 3 TON deposited.',
+      remainingDeposit: 'Remaining deposit',
+            coins: 'TON',
+      gifts: 'Gifts'
     },
 
     // Deposit Modal

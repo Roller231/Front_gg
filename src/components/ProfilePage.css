@@ -156,6 +156,55 @@
   justify-content: center;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
+/* =========================
+   🔔 TOAST NOTIFICATION
+   ========================= */
+
+/* =========================
+   🔔 TOAST NOTIFICATION (TOP)
+   ========================= */
+
+   .notification {
+    position: fixed;
+    top: 16px;                /* 🔝 сверху */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3000;
+  
+    background: rgba(36, 0, 88, 0.95); /* тот же цвет */
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+  
+    padding: 10px 14px;       /* 🔽 меньше */
+    min-width: auto;
+    max-width: calc(100% - 32px);
+  
+    color: var(--white);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 13px;          /* 🔽 компактнее */
+    font-weight: 600;
+    text-align: center;
+  
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  
+    white-space: pre-line;
+    animation: notification-slide-down 0.25s ease;
+  }
+  
+  /* Анимация сверху вниз */
+  @keyframes notification-slide-down {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -8px);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  }
+  
+  
+
 
 .rating-badge {
   gap: 2px;

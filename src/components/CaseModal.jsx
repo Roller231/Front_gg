@@ -12,7 +12,7 @@ import AsyncImage from './AsyncImage'
 import { vibrate, VIBRATION_PATTERNS } from '../utils/vibration'
 import { useNavigate } from 'react-router-dom'
 import { checkFreeCase, consumeFreeCase } from '../api/freeCases'
-
+import { apiFetch } from '../api/client'
 
 
 
@@ -55,6 +55,11 @@ const canOpenCase = isPaid
   const currentTranslateY = useRef(0)
   const isDragging = useRef(false)
 
+  function playGame(userId) {
+    return apiFetch(`/games/play?user_id=${userId}`, {
+      method: 'POST',
+    })
+  }
 
   function updateInventory(inventory = [], dropId) {
     const next = [...inventory]
@@ -292,7 +297,7 @@ const canOpenCase = isPaid
         const updatedUser = await usersApi.updateUser(user.id, {
           balance: user.balance - casePrice,
         })
-  
+        playGame(user.id)
         setUser(updatedUser)
       } catch (err) {
         console.error('Failed to deduct balance:', err)
@@ -303,7 +308,6 @@ const canOpenCase = isPaid
   
     setWonItem(winning)
     setWonAmount(winning.price)
-  
     if (user) {
       const updatedInventory = updateInventory(
         user.inventory || [],

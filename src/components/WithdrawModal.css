@@ -21,6 +21,70 @@
   }
 }
 
+/* ===========================
+   🎁 GIFTS TAB (WITHDRAW)
+   =========================== */
+
+   .withdraw-gifts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+    max-height: 45vh;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  
+  /* Карточка подарка */
+  .withdraw-gift {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    border: 2px solid transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .withdraw-gift:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .withdraw-gift.selected {
+    border-color: #5B3EF5;
+    box-shadow: 0 0 0 2px rgba(91, 62, 245, 0.4);
+  }
+  
+  /* Картинка */
+  .withdraw-gift img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    margin-bottom: 6px;
+  }
+  
+  /* Количество */
+  .withdraw-gift span {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.75);
+  }
+  
+  /* Скролл аккуратный */
+  .withdraw-gifts-grid::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  .withdraw-gifts-grid::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+  }
+  
+
 .withdraw-modal-content {
   width: min(420px, calc(100% - 32px));
   background: linear-gradient(180deg, #1F1145 0%, #0D0326 100%);
@@ -33,6 +97,35 @@
   display: flex;
   flex-direction: column;
 }
+
+
+/* ===========================
+   💰 COINS TAB (WITHDRAW)
+   =========================== */
+
+   .withdraw-coins {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  .withdraw-coins input {
+    width: 100%;
+    text-align: center;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 36px;
+    font-weight: 500;
+    color: #fff;
+    caret-color: #fff;
+  }
+  
+  .withdraw-coins input::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+  }
+  
 
 @keyframes withdraw-modal-slide-up {
   from {
