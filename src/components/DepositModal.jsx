@@ -4,8 +4,7 @@ import { useLanguage } from '../context/LanguageContext'
 
 function DepositModal({ isOpen, onClose }) {
   const { t } = useLanguage()
-  const [activeTab, setActiveTab] = useState('gifts')
-  const [selectedCurrency, setSelectedCurrency] = useState(null)
+  const [activeTab, setActiveTab] = useState('stars')
   const [amount, setAmount] = useState('')
   
   // Для свайпа
@@ -20,11 +19,16 @@ function DepositModal({ isOpen, onClose }) {
     if (isOpen && contentRef.current) {
       contentRef.current.style.transform = 'translateY(0)'
       currentTranslateY.current = 0
-      setActiveTab('gifts')
-      setSelectedCurrency(null)
+      setActiveTab('stars')
       setAmount('')
     }
   }, [isOpen])
+
+  const handleDeposit = () => {
+    if (!amount || parseFloat(amount) <= 0) return
+    console.log('Deposit:', { amount, method: activeTab })
+    onClose()
+  }
 
   // Начало свайпа/drag
   const handleDragStart = (e) => {
@@ -128,10 +132,10 @@ function DepositModal({ isOpen, onClose }) {
         {/* Табы */}
         <div className="deposit-modal-tabs">
           <button 
-            className={`deposit-modal-tab ${activeTab === 'gifts' ? 'active' : ''}`}
-            onClick={() => setActiveTab('gifts')}
+            className={`deposit-modal-tab ${activeTab === 'stars' ? 'active' : ''}`}
+            onClick={() => setActiveTab('stars')}
           >
-            {t('deposit.gifts')}
+            {t('deposit.stars')}
           </button>
           <button 
             className={`deposit-modal-tab ${activeTab === 'wallet' ? 'active' : ''}`}
@@ -147,91 +151,29 @@ function DepositModal({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Контент табов */}
-        <div className="deposit-modal-tabs-content">
-          {/* Вкладка Подарки */}
-          <div className={`deposit-tab-panel ${activeTab === 'gifts' ? 'active' : ''}`}>
-            <div className="deposit-gifts-content">
-              <div className="deposit-instructions">
-                <div className="deposit-instruction-item">
-                  <div className="deposit-instruction-number">1.</div>
-                  <div className="deposit-instruction-text">
-                    {t('deposit.instruction1')} <span className="deposit-link">@</span>
-                  </div>
-                </div>
-                <div className="deposit-instruction-item">
-                  <div className="deposit-instruction-number">2.</div>
-                  <div className="deposit-instruction-text">
-                    {t('deposit.instruction2')}
-                  </div>
-                </div>
-                <div className="deposit-instruction-item">
-                  <div className="deposit-instruction-emoji">🎁</div>
-                  <div className="deposit-instruction-text">
-                    {t('deposit.instruction3')}
-                  </div>
-                </div>
-                <div className="deposit-instruction-item">
-                  <div className="deposit-instruction-emoji">‼️</div>
-                  <div className="deposit-instruction-text">
-                    {t('deposit.instruction4')}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Вкладка Кошелёк */}
-          <div className={`deposit-tab-panel ${activeTab === 'wallet' ? 'active' : ''}`}>
-            <div className="deposit-wallet-content">
-              <div className="deposit-wallet-message">
-                {t('deposit.walletNotConnected')}
-              </div>
-              <button className="deposit-wallet-button">
-                {t('deposit.connectWallet')}
-              </button>
-            </div>
-          </div>
-
-          {/* Вкладка Crypto Bot */}
-          <div className={`deposit-tab-panel ${activeTab === 'crypto' ? 'active' : ''}`}>
-            <div className="deposit-crypto-content">
-              <div className="deposit-amount-wrapper">
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  className="deposit-amount-input"
-                  placeholder={t('deposit.amount')}
-                  value={amount}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9.]/g, '')
-                    setAmount(value)
-                  }}
-                />
-              </div>
-              <div className="deposit-currency-grid">
-                <button 
-                  className={`deposit-currency-button ${selectedCurrency === 'TON' ? 'active' : ''}`}
-                  onClick={() => setSelectedCurrency('TON')}
-                >
-                  TON
-                </button>
-                <button 
-                  className={`deposit-currency-button ${selectedCurrency === 'USDT' ? 'active' : ''}`}
-                  onClick={() => setSelectedCurrency('USDT')}
-                >
-                  USDT
-                </button>
-                <button 
-                  className={`deposit-currency-button ${selectedCurrency === 'TRX' ? 'active' : ''}`}
-                  onClick={() => setSelectedCurrency('TRX')}
-                >
-                  TRX
-                </button>
-              </div>
-            </div>
-          </div>
+        {/* Поле суммы */}
+        <div className="deposit-amount-section">
+          <input
+            type="text"
+            inputMode="decimal"
+            className="deposit-amount-input"
+            placeholder={t('deposit.amountPlaceholder')}
+            value={amount}
+            onChange={(e) => {
+              const value = e.target.value.replace(/[^0-9.]/g, '')
+              setAmount(value)
+            }}
+          />
         </div>
+
+        {/* Кнопка пополнения */}
+        <button 
+          className="deposit-submit-button"
+          onClick={handleDeposit}
+          disabled={!amount || parseFloat(amount) <= 0}
+        >
+          {t('deposit.depositButton')}
+        </button>
       </div>
     </div>
   )

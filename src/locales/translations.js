@@ -148,16 +148,11 @@ export const translations = {
     // Deposit Modal
     deposit: {
       title: 'Пополнение счёта',
-      gifts: 'Подарки',
+      stars: 'Звезды',
       wallet: 'Кошелёк',
       cryptoBot: 'Crypto Bot',
-      instruction1: 'Перейдите в профиль',
-      instruction2: 'Отправьте любой подарок',
-      instruction3: 'Подарок отобразится в вашем инвентаре',
-      instruction4: 'Убедитесь, что отправляете из своего профиля.',
-      walletNotConnected: 'Кошелёк не подключен.',
-      connectWallet: 'Привязать кошелёк',
-      amount: 'Сумма',
+      amountPlaceholder: 'Сумма',
+      depositButton: 'Пополнить',
     },
 
     // Partner Page
@@ -408,16 +403,11 @@ export const translations = {
     // Deposit Modal
     deposit: {
       title: 'Deposit',
-      gifts: 'Gifts',
+      stars: 'Stars',
       wallet: 'Wallet',
       cryptoBot: 'Crypto Bot',
-      instruction1: 'Go to profile',
-      instruction2: 'Send any gift',
-      instruction3: 'Gift will appear in your inventory',
-      instruction4: 'Make sure you send from your profile.',
-      walletNotConnected: 'Wallet not connected.',
-      connectWallet: 'Connect Wallet',
-      amount: 'Amount',
+      amountPlaceholder: 'Amount',
+      depositButton: 'Deposit',
     },
 
     // Partner Page
