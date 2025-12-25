@@ -135,7 +135,7 @@ export const translations = {
 
     // Bet Modal
     betModal: {
-      placeBet: 'Сделать ставку',
+      placeBet: 'Поставить',
       withdraw: 'Вывести',
       gifts: 'Подарки',
       coins: 'Монеты',
@@ -144,6 +144,7 @@ export const translations = {
       select: 'Выбрать',
       autoCashout: 'Авто-вывод',
       coefficient: 'Коэффициент',
+      selected: 'Выбрано',
     },
 
     // Withdraw Modal
@@ -224,6 +225,7 @@ export const translations = {
       tryAgain: 'Попробуй ещё раз',
       congratulations: 'Поздравляем!',
       makeBet:  'Сделать ставку',
+      noGifts: 'Нет подарков в инвентаре. Выиграйте подарки в других играх.',
 
     },
 
@@ -281,6 +283,7 @@ export const translations = {
       take: 'Забрать',
       promoPlaceholder: 'ПРОМОКОД',
       apply: 'Применить',
+      rewardReceived: 'Бонус активирован',
     },
   },
 
@@ -428,6 +431,7 @@ export const translations = {
       select: 'Select',
       autoCashout: 'Auto Cashout',
       coefficient: 'Coefficient',
+      selected: 'Selected',
     },
 
     // Withdraw Modal
@@ -507,7 +511,8 @@ export const translations = {
       ok: 'Ok',
       tryAgain: 'Try again',
       congratulations: 'Сongratulations',
-      makeBet:  'Сделать ставку',
+      makeBet:  'Place bet',
+      noGifts: 'No gifts in inventory. Win gifts in other games.',
 
     },
 
@@ -565,6 +570,7 @@ export const translations = {
       take: 'Take',
       promoPlaceholder: 'PROMOCODE',
       apply: 'Apply',
+      rewardReceived: 'Bonus activated',
     },
   },
 }

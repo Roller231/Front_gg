@@ -20,7 +20,7 @@ import { useFreeSpin } from '../context/FreeSpinContext'
 const NUM_LIGHTS = 32 // Number of lights around the wheel
 
 function WheelPage() {
-  const { selectedCurrency, hasFreeSpins, formatAmount } = useCurrency()
+  const { selectedCurrency, hasFreeSpins, formatAmount, formatWinAmount } = useCurrency()
   const { t } = useLanguage()
   const [rotation, setRotation] = useState(0)
   const [isSpinning, setIsSpinning] = useState(false)
@@ -435,6 +435,8 @@ function WheelPage() {
 
         {/* Fortune Wheel Section */}
         <div className="wheel-section">
+          {/* Cosmic background */}
+          <div className="game-cosmic-background" aria-hidden="true" />
           {/* Background glow effect */}
           <div className="wheel-bg-glow"></div>
           
@@ -673,7 +675,7 @@ function WheelPage() {
                 </div>
                 <span className="case-result-price-below">
                   <img src={currencyIcon} alt="currency" className="wheel-result-coin" />
-                  {formatAmount(wonPrize.basePrice)}
+                  {formatWinAmount(wonPrize.basePrice)}
                                   </span>
               </div>
               <button className="wheel-result-close gg-btn-glow" onClick={closeResult}>
@@ -753,7 +755,7 @@ function WheelPage() {
                             <div className="prizes-accordion-info">
                               <span className="prizes-category-price">
                                 <img src={currencyIcon} alt="currency" className="prizes-section-price-icon" />
-                                {category.minPrice}+
+                                {formatAmount(category.minPrice)}+
                               </span>
                               <span className={`prizes-accordion-arrow ${expandedCategory === category.key ? 'expanded' : ''}`}>
                                 ▼
@@ -786,7 +788,7 @@ function WheelPage() {
                                     </div>
                                     <span className="prize-price-badge">
                                       <img src={currencyIcon} alt="currency" className="prize-price-coin" />
-                                      {drop.price}
+                                      {formatAmount(drop.price)}
                                     </span>
                                   </div>
                                 ))}

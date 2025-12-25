@@ -179,15 +179,6 @@ function App() {
           <CurrencyProvider>
             <AppDataProvider>
               <LiveFeedProvider>
-                {/* Глобальный фон с пролетающими планетами */}
-                <div className="flying-planets-global" aria-hidden="true">
-                  {[...Array(8)].map((_, i) => (
-                    <div
-                      key={i}
-                      className={`flying-planet flying-planet-${i + 1}`}
-                    />
-                  ))}
-                </div>
                 <AppContent />
               </LiveFeedProvider>
             </AppDataProvider>

@@ -18,7 +18,7 @@ const MemoNavigation = memo(Navigation)
 
 function UpgradePage() {
   const { user, setUser } = useUser()
-  const { selectedCurrency, formatAmount } = useCurrency()
+  const { selectedCurrency, formatAmount, formatWinAmount } = useCurrency()
   const { t } = useLanguage()
   
   const [sourceItem, setSourceItem] = useState(null)
@@ -49,7 +49,7 @@ function UpgradePage() {
     getAllDrops().then(setAllDrops)
   }, [])
 
-  const inventoryItems = user?.inventory
+  const inventoryItems = (user?.inventory
   ?.map(inv => {
     const drop = allDrops.find(d => d.id === inv.drop_id)
     if (!drop) return null
@@ -59,13 +59,17 @@ function UpgradePage() {
       count: inv.count,
     }
   })
-  .filter(Boolean) || []
-  const upgradeTargets = allDrops.filter(drop => drop.UseInUpgrade === true)
+  .filter(Boolean) || [])
+  .sort((a, b) => a.price - b.price) // сортировка по цене от дешёвых к дорогим
+  const upgradeTargets = allDrops
+    .filter(drop => drop.UseInUpgrade === true)
+    .sort((a, b) => a.price - b.price) // сортировка по цене от дешёвых к дорогим
+  
   const canSelectTarget = (drop) => {
     if (!sourceItem) return true
   
-    // цель должна быть дороже source
-    if (drop.price <= sourceItem.price) return true
+    // цель должна быть ДОРОЖЕ source, иначе недоступна
+    if (drop.price <= sourceItem.price) return false
   
     return true
   }
@@ -403,7 +407,7 @@ function UpgradePage() {
       <main className="main-content upgrade-content">
         {/* Основная зона апгрейда */}
         <div className={`upgrade-game-area ${gameState}`}>
-          <div className="upgrade-background" aria-hidden="true" />
+          <div className="game-cosmic-background" aria-hidden="true" />
           <div className="upgrade-game-area-fade" />
           
           <div className="upgrade-main-container">
@@ -435,11 +439,11 @@ function UpgradePage() {
               <div className={`upgrade-box upgrade-box-source ${sourceItem ? 'has-item' : ''} ${gameState === 'lose' ? 'losing' : ''}`}>
                 {sourceItem ? (
                   <>
-<img
-  src={sourceItem.icon || sourceItem.image}
-  alt={sourceItem.name}
-  className="upgrade-item-image"
-/>
+                    <img
+                      src={sourceItem.icon || sourceItem.image}
+                      alt={sourceItem.name}
+                      className="upgrade-item-image"
+                    />
                     <div className="upgrade-box-content">
                       <div className="upgrade-item-price">
                         <img src={currencyIcon} alt="currency" className="upgrade-currency-icon" />
@@ -510,7 +514,7 @@ function UpgradePage() {
                     <div className="wheel-result-card">
                       <span className="wheel-result-price">
                         <img src={currencyIcon} alt="currency" className="wheel-result-coin" />
-                        {formatAmount(targetItem?.price ?? 0)}
+                        {formatWinAmount(winItem?.price ?? 0)}
                         </span>
                       <div className="wheel-result-prize-content">
                       <img
@@ -535,28 +539,34 @@ function UpgradePage() {
         <div className="upgrade-selection-section">
           <h3 className="upgrade-section-title">{t('upgrade.yourItems')}</h3>
           <div className="upgrade-gifts-grid">
-{inventoryItems.map((gift) => (
-  <div
-    key={gift.id}
-    className={`upgrade-gift-card ${sourceItem?.id === gift.id ? 'selected' : ''}`}
-    onClick={() => handleSourceSelect(gift)}
-  >
-    <div className="upgrade-gift-price">
-      <img src={currencyIcon} />
-      <span>{formatAmount(gift.price)}</span>
-      </div>
-
-    <img
-      src={gift.icon || gift.image}
-      alt={gift.name}
-      className="upgrade-gift-image"
-    />
-
-    {gift.count > 1 && (
-      <div className="upgrade-gift-count">x{gift.count}</div>
-    )}
+{inventoryItems.length === 0 ? (
+  <div className="upgrade-empty-inventory">
+    {t('upgrade.noGifts')}
   </div>
-))}
+) : (
+  inventoryItems.map((gift) => (
+    <div
+      key={gift.id}
+      className={`upgrade-gift-card ${sourceItem?.id === gift.id ? 'selected' : ''}`}
+      onClick={() => handleSourceSelect(gift)}
+    >
+      <div className="upgrade-gift-price">
+        <img src={currencyIcon} />
+        <span>{formatAmount(gift.price)}</span>
+        </div>
+
+      <img
+        src={gift.icon || gift.image}
+        alt={gift.name}
+        className="upgrade-gift-image"
+      />
+
+      {gift.count > 1 && (
+        <div className="upgrade-gift-count">x{gift.count}</div>
+      )}
+    </div>
+  ))
+)}
 
           </div>
         </div>

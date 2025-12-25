@@ -6,6 +6,18 @@
   padding: 0 16px 90px;
 }
 
+/* Пустой инвентарь */
+.upgrade-empty-inventory {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  padding: 40px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
 .upgrade-title {
   font-family: 'Open Sans', sans-serif;
   font-size: 24px;
@@ -41,18 +53,6 @@
   pointer-events: none;
 }
 
-.upgrade-background {
-  position: absolute;
-  inset: 0;
-  background: 
-    radial-gradient(circle at 20% 50%, rgba(100, 255, 100, 0.1), transparent 40%),
-    radial-gradient(circle at 80% 50%, rgba(255, 100, 100, 0.1), transparent 40%),
-    radial-gradient(circle at 50% 50%, rgba(148, 0, 211, 0.2), transparent 50%),
-    linear-gradient(140deg, rgba(26, 4, 70, 0.95) 0%, rgba(35, 6, 85, 0.95) 60%, rgba(48, 8, 110, 0.9) 100%);
-  opacity: 1;
-  pointer-events: none;
-  z-index: 0;
-}
 
 /* Вращающиеся лучи */
 .upgrade-game-area::after {

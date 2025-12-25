@@ -18,12 +18,25 @@ function BetModal({
 }) {
   const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState('coins') // 'gifts' | 'coins'
-  const [betAmount, setBetAmount] = useState('100')
   const [selectedGift, setSelectedGift] = useState(null)
   const [autoCashout, setAutoCashout] = useState(false)
   const [autoCashoutMultiplier, setAutoCashoutMultiplier] = useState('2.00')
   const { selectedCurrency } = useCurrency()
   const { user, setUser } = useUser()
+  
+  // Минимальная ставка 0.5 TON, по умолчанию 20% от баланса
+  const MIN_BET = 0.5
+  const NO_DECIMAL_CURRENCIES = ['stars', 'gems'] // валюты без дробной части
+  const isNoDecimalCurrency = NO_DECIMAL_CURRENCIES.includes(selectedCurrency?.id)
+  
+  const defaultBet = useMemo(() => {
+    const balance = Number(user?.balance) || 0
+    const twentyPercent = balance * 0.2
+    const bet = Math.max(MIN_BET, twentyPercent)
+    return isNoDecimalCurrency ? Math.floor(bet).toString() : bet.toFixed(2)
+  }, [user?.balance, isNoDecimalCurrency])
+  
+  const [betAmount, setBetAmount] = useState(defaultBet)
   const { send, connected } = useCrashSocket(() => {})
 
   
@@ -126,6 +139,13 @@ function BetModal({
       currentTranslateY.current = 0
     }
   }, [isOpen])
+
+  // Обновляем betAmount при открытии модала или изменении баланса
+  useEffect(() => {
+    if (isOpen) {
+      setBetAmount(defaultBet)
+    }
+  }, [isOpen, defaultBet])
 
   const sendBet = ({ amount, gift, giftId }) => {
     if (!connected || !user?.id) return
@@ -304,7 +324,9 @@ function BetModal({
   const handleMaxClick = () => {
     if (!selectedCurrency?.amount) return
     const numeric = selectedCurrency.amount.replace(/[^0-9.]/g, '')
-    setBetAmount(numeric || '0')
+    // Всегда округляем вниз до целого числа
+    const value = Math.floor(Number(numeric)).toString()
+    setBetAmount(value || '0')
   }
 
   const currencyIcon = selectedCurrency?.icon || '/image/Coin-Icon.svg'
@@ -455,7 +477,11 @@ function BetModal({
                   type="text"
                   className="bet-amount-input"
                   value={betAmount}
-                  onChange={(e) => setBetAmount(e.target.value.replace(/[^0-9.]/g, ''))}
+                  onChange={(e) => {
+                    // Для валют без дробной части убираем точку
+                    const regex = isNoDecimalCurrency ? /[^0-9]/g : /[^0-9.]/g
+                    setBetAmount(e.target.value.replace(regex, ''))
+                  }}
                   placeholder="0"
                 />
                 <div className="bet-amount-actions">
@@ -507,37 +533,35 @@ function BetModal({
 
           <div className={`bet-tab-panel ${activeTab === 'gifts' ? 'active' : ''}`}>
             <div className="bet-modal-gifts-content">
-            <div className="gifts-grid">
-              {inventoryGifts.map(gift => (
-                <div
-                  key={gift.id}
-                  className={`gift-card-wrapper ${selectedGift === gift.id ? 'selected' : ''}`}
-                  onClick={() => setSelectedGift(gift.id)}
-                >
-                  <div className="gift-card-inner">
-                    <div className="gift-count">×{gift.count}</div>
-                    <div className="gift-image">
+              <div className="bet-gifts-grid">
+                {inventoryGifts.map(gift => (
+                  <div
+                    key={gift.id}
+                    className="bet-gift-card"
+                  >
+                    <div className="bet-gift-card-image">
                       <img src={gift.icon} alt={gift.name} />
                     </div>
+                    <div className="bet-gift-card-name" title={gift.name}>
+                      {gift.name}
+                    </div>
+                    <div className="bet-gift-card-price">
+                      {gift.price?.toFixed(0) || '0'}
+                      <img src={selectedCurrency?.icon || '/image/Coin-Icon.svg'} alt="currency" />
+                    </div>
+                    <button
+                      className={`bet-gift-place-btn ${selectedGift === gift.id ? 'selected' : ''} ${!canBet ? 'disabled' : ''}`}
+                      onClick={() => {
+                        setSelectedGift(gift.id)
+                        if (canBet) handleGiftsSubmit()
+                      }}
+                      disabled={!canBet}
+                    >
+                      {selectedGift === gift.id ? t('betModal.selected') : t('betModal.placeBet')}
+                    </button>
                   </div>
-                  <div className="gift-price-below">
-                    <img src={selectedCurrency?.icon || '/image/Coin-Icon.svg'} alt="currency" className="gift-price-icon" />
-                    <span>{gift.price?.toFixed(2) || '0.00'}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-
-
-<button
-  className={`bet-submit-button gifts-submit ${!canBet ? 'disabled' : ''}`}
-  onClick={handleGiftsSubmit}
-  disabled={!canBet}
->
-  {canBet ? t('betModal.select') : t('crash.betsClosed')}
-</button>
-
+                ))}
+              </div>
             </div>
           </div>
         </div>

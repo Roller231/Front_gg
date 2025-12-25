@@ -49,7 +49,7 @@ export function AppDataProvider({ children }) {
       const staticImages = [
         '/image/ton_symbol.svg',
         '/image/Coin-Icon-one.svg',
-        '/image/Coin-Icon-two.svg',
+        '/image/telegram-star.svg',
         '/image/Coin-Icon-three.svg',
         '/image/Pumpkin.webp',
         '/image/Red_Menace.webp',
