@@ -36,6 +36,17 @@ export const translations = {
       upgrade: 'Апгрейд',
     },
 
+
+    errors: {
+      notAuthorized: 'Вы не авторизованы',
+    },
+  
+    promo: {
+      activated: 'Промокод успешно активирован',
+      error: 'Ошибка активации промокода',
+      referralBonus: 'Реферальный бонус!',
+    },
+
     // Profile Page
     profile: {
       title: 'Профиль',
@@ -90,7 +101,7 @@ export const translations = {
       waiting: 'Ожидание...',
       betsClosed: 'Ставки закрыты',
       cashout: 'Вывести',
-
+      betPlaced: "Ставка принята"
     },
 
     // Wheel Page
@@ -153,6 +164,17 @@ export const translations = {
       cryptoBot: 'Crypto Bot',
       amountPlaceholder: 'Сумма',
       depositButton: 'Пополнить',
+      gifts: 'Звезды',
+      wallet: 'Кошелёк',
+      cryptoBot: 'Crypto Bot',
+      instruction1: 'Перейдите в профиль',
+      instruction2: 'Отправьте любой подарок',
+      instruction3: 'Подарок отобразится в вашем инвентаре',
+      instruction4: 'Убедитесь, что отправляете из своего профиля.',
+      walletNotConnected: 'Кошелёк не подключен.',
+      connectWallet: 'Привязать кошелёк',
+      amount: 'Сумма',
+      payStars: 'Пополнить'
     },
 
     // Partner Page
@@ -248,7 +270,8 @@ export const translations = {
 
     // Task List
     tasks: {
-      play10Times: 'Сыграть 10 раз',
+      play10Times: 'Бонус за 10-й вход',
+      play1Times: 'Бонус за 1-й вход',
       take: 'Забрать',
       promoPlaceholder: 'ПРОМОКОД',
       apply: 'Применить',
@@ -290,6 +313,16 @@ export const translations = {
       roulette: 'Roulette',
       pvp: 'PvP',
       upgrade: 'Upgrade',
+    },
+
+    errors: {
+      notAuthorized: 'You are not authorized',
+    },
+  
+    promo: {
+      activated: 'Promo code activated successfully',
+      error: 'Promo code activation error',
+      referralBonus: 'Referral bonus!',
     },
 
     // Profile Page
@@ -346,6 +379,7 @@ export const translations = {
       waiting: 'Waiting...',
       betsClosed: 'Bets Closed',
       cashout: 'Cashout',
+      betPlaced: "Bet placed"
     },
 
     // Wheel Page
@@ -408,6 +442,17 @@ export const translations = {
       cryptoBot: 'Crypto Bot',
       amountPlaceholder: 'Amount',
       depositButton: 'Deposit',
+      gifts: 'Stars',
+      wallet: 'Wallet',
+      cryptoBot: 'Crypto Bot',
+      instruction1: 'Go to profile',
+      instruction2: 'Send any gift',
+      instruction3: 'Gift will appear in your inventory',
+      instruction4: 'Make sure you send from your profile.',
+      walletNotConnected: 'Wallet not connected.',
+      connectWallet: 'Connect Wallet',
+      amount: 'Amount',
+      payStars: 'Top up'
     },
 
     // Partner Page
@@ -503,7 +548,8 @@ export const translations = {
 
     // Task List
     tasks: {
-      play10Times: 'Play 10 times',
+      play10Times: '10th Login Bonus',
+      play1Times: 'First Login Bonus',
       take: 'Take',
       promoPlaceholder: 'PROMOCODE',
       apply: 'Apply',

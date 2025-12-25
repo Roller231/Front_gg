@@ -20,7 +20,7 @@ import { useFreeSpin } from '../context/FreeSpinContext'
 const NUM_LIGHTS = 32 // Number of lights around the wheel
 
 function WheelPage() {
-  const { selectedCurrency, hasFreeSpins } = useCurrency()
+  const { selectedCurrency, hasFreeSpins, formatAmount } = useCurrency()
   const { t } = useLanguage()
   const [rotation, setRotation] = useState(0)
   const [isSpinning, setIsSpinning] = useState(false)
@@ -118,12 +118,13 @@ function WheelPage() {
   
       const winDrop = {
         id: drop.id,
-        price: drop.price,
+        basePrice: drop.price, // ⬅️ ВАЖНО
         image: drop.icon,
         animation: drop.lottie_anim,
         contentType: drop.lottie_anim ? 'animation' : 'image',
         type: drop.rarity === 'epic' ? 'purple' : 'blue',
       }
+      
   
       const prizes = buildWheelPrizes(winDrop)
       setWheelPrizes(prizes)
@@ -147,12 +148,14 @@ function WheelPage() {
   
       prizes.push({
         id: Math.random(),
-        price: r.price,
+        basePrice: r.price, // ✅
         image: r.icon,
         animation: r.lottie_anim,
         contentType: r.lottie_anim ? 'animation' : 'image',
         type: r.rarity === 'epic' ? 'purple' : 'blue',
       })
+      
+      
     }
   
     return prizes
@@ -186,13 +189,14 @@ function WheelPage() {
       const r = fillers[Math.floor(Math.random() * fillers.length)]
   
       prizes.push({
-        id: Math.random(), // уникальный id для React
-        price: r.price,
+        id: Math.random(),
+        basePrice: r.price, // ✅
         image: r.icon,
         animation: r.lottie_anim,
         contentType: r.lottie_anim ? 'animation' : 'image',
         type: r.rarity === 'epic' ? 'purple' : 'blue',
       })
+      
     }
   
     // 3️⃣ перемешиваем
@@ -535,9 +539,9 @@ function WheelPage() {
                   >
                     <span className="wheel-segment-price">
                       <img src={currencyIcon} alt="currency" className="wheel-segment-coin" />
-                      {prize.price}
-                    </span>
-                    {shouldAnimate ? (
+                      {formatAmount(prize.basePrice)}
+                      </span>
+                    {prize.contentType === 'animation' ? (
                       <Player
                         autoplay
                         loop
@@ -669,8 +673,8 @@ function WheelPage() {
                 </div>
                 <span className="case-result-price-below">
                   <img src={currencyIcon} alt="currency" className="wheel-result-coin" />
-                  {wonPrize.price}
-                </span>
+                  {formatAmount(wonPrize.basePrice)}
+                                  </span>
               </div>
               <button className="wheel-result-close gg-btn-glow" onClick={closeResult}>
                 {t('wheel.claim')}

@@ -19,6 +19,10 @@
     padding-top: 60px;
   }
 }
+.header {
+  padding-top: 112px;
+}
+
 
 .header-right {
   display: flex;

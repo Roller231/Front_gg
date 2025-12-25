@@ -12,6 +12,7 @@ import { getDropById } from '../api/cases'
 import { useUser } from '../context/UserContext'
 import { maskUsername } from '../utils/maskUsername'
 import { vibrate, VIBRATION_PATTERNS } from '../utils/vibration'
+import { useCurrency } from '../context/CurrencyContext'
 
 
 const MemoHeader = memo(Header)
@@ -104,8 +105,9 @@ function CrashPage() {
   const [bets, setBets] = useState({});
   const { user, setUser, settings } = useUser();
     const roundIdRef = useRef(null);
-  const canBet = gameState === 'countdown' && countdown > 0
+    const { selectedCurrency, formatAmount } = useCurrency()
 
+  
 
   const [players, setPlayers] = useState([])
 
@@ -125,7 +127,15 @@ function CrashPage() {
   const canPlaceBet = gameState === 'countdown' && countdown > 0
 
 const dropsCacheRef = useRef(new Map())
+const myBetInRound = useMemo(() => {
+  if (!user?.id) return null
 
+  return players.find(p => p.userId === user.id)
+}, [players, user])
+const canBet =
+gameState === 'countdown' &&
+countdown > 0 &&
+!myBetInRound
 
 const handleCashout = () => {
   if (!canCashout || !myActiveBet || !user?.id) return
@@ -267,10 +277,7 @@ useEffect(() => {
         break
       }
       case "cashout": {
-        // Найдём игрока до обновления
-        const cashedOutPlayer = players.find(p => p.userId === msg.user_id)
-        
-        // обновляем игроков
+        // обновляем игроков (UI)
         setPlayers(prev =>
           prev.map(p =>
             p.userId === msg.user_id
@@ -279,8 +286,8 @@ useEffect(() => {
           )
         )
       
-        // 🔥 ЕСЛИ ЭТО НАШ ЮЗЕР — ОБНОВЛЯЕМ БАЛАНС И ПОКАЗЫВАЕМ МОДАЛ ВЫИГРЫША
-        if (msg.user_id === user?.id && cashedOutPlayer) {
+        // ✅ ЕСЛИ ЭТО НАШ ЮЗЕР — ВСЕГДА ОБНОВЛЯЕМ БАЛАНС
+        if (msg.user_id === user?.id) {
           getUserById(user.id)
             .then(freshUser => {
               setUser(freshUser)
@@ -288,20 +295,24 @@ useEffect(() => {
             .catch(err => {
               console.error('Failed to refresh user after cashout', err)
             })
-          
-          // Показываем модал выигрыша для любого успешного cashout
-          const wonAmount = cashedOutPlayer.betAmount * msg.multiplier
-          setWinData({
-            giftIcon: cashedOutPlayer.gift ? cashedOutPlayer.giftIcon : null,
-            wonAmount,
-            multiplier: msg.multiplier,
-            isGift: cashedOutPlayer.gift,
-          })
-          setWinModalOpen(true)
+      
+          // win modal
+          const myBet = players.find(p => p.userId === user.id)
+      
+          if (myBet) {
+            setWinData({
+              giftIcon: myBet.gift ? myBet.giftIcon : null,
+              wonAmount: myBet.betAmount * msg.multiplier,
+              multiplier: msg.multiplier,
+              isGift: myBet.gift,
+            })
+            setWinModalOpen(true)
+          }
         }
       
         break
       }
+      
       case "bet_placed": {
         // сразу перезагружаем ставки текущего раунда
         if (roundIdRef.current) {
@@ -530,14 +541,12 @@ useEffect(() => {
     }
   }, [gameState, multiplier])
   const getPlayerRewardLabel = (player) => {
-    // проиграл
     if (gameState === 'postflight' && !player.cashoutX) {
-      return '0.00'
-      // или 'LOST' если хочешь
+      return formatAmount(0)
     }
-  
-    return getPlayerReward(player).toFixed(2)
+    return formatAmount(getPlayerReward(player))
   }
+  
   
   useEffect(() => {
     if (coeffHistoryRef.current) {
@@ -673,7 +682,11 @@ useEffect(() => {
         {/* Кнопка ставки */}
         <button
   className={`bet-button gg-btn-glow ${
-    canCashout ? 'cashout' : !canBet ? 'disabled' : ''
+    canCashout
+      ? 'cashout'
+      : !canBet
+        ? 'disabled'
+        : ''
   }`}
   onClick={() => {
     if (canCashout) {
@@ -686,10 +699,13 @@ useEffect(() => {
 >
   {canCashout
     ? `${t('crash.cashout')} x${multiplier.toFixed(2)}`
-    : canBet
-      ? t('crash.placeBet')
-      : t('crash.betsClosed')}
+    : myBetInRound
+      ? t('crash.betPlaced')       // 👈 НОВОЕ
+      : canBet
+        ? t('crash.placeBet')
+        : t('crash.betsClosed')}
 </button>
+
 
 
 
@@ -720,14 +736,15 @@ useEffect(() => {
                           </span>
 
           <div className="player-stats-row">
-            <img
-              src="/image/Coin-Icon.svg"
-              className="coin-icon-small"
-              alt=""
-            />
-            <span className="stat-bet">
-              {player.betAmount.toFixed(2)}
-            </span>
+          <span className="stat-bet">
+  {formatAmount(player.betAmount)}
+</span>
+<img
+  src={selectedCurrency?.icon}
+  className="coin-icon-small"
+  alt="currency"
+/>
+
             <span className="stat-multiplier">
   {getPlayerMultiplierLabel(player)}
 </span>
@@ -738,14 +755,15 @@ useEffect(() => {
       <div className="player-reward">
         {!player.gift && (
           <div className="reward-amount-container">
-            <img
-              src="/image/Coin-Icon.svg"
-              className="coin-icon-large"
-              alt=""
-            />
-            <span className={`reward-amount ${getPlayerResultClass(player)}`}>
-              {getPlayerRewardLabel(player)}
-            </span>
+<span className={`reward-amount ${getPlayerResultClass(player)}`}>
+  {getPlayerRewardLabel(player)}
+</span>
+<img
+  src={selectedCurrency?.icon}
+  className="coin-icon-large"
+  alt="currency"
+/>
+
           </div>
         )}
 
@@ -800,13 +818,22 @@ useEffect(() => {
                   {winData.isGift && winData.giftIcon ? (
                     <img src={winData.giftIcon} alt="Gift" className="wheel-result-image" />
                   ) : (
-                    <img src="/image/Coin-Icon.svg" alt="Coins" className="crash-win-coin-icon" />
+<img
+  src={selectedCurrency?.icon}
+  alt="currency"
+  className="crash-win-coin-icon"
+/>
                   )}
                 </div>
               </div>
               <span className="case-result-price-below">
-                <img src="/image/Coin-Icon.svg" alt="currency" className="wheel-result-coin" />
-                {winData.wonAmount.toFixed(2)}
+              <img
+  src={selectedCurrency?.icon}
+  alt="currency"
+  className="wheel-result-coin"
+/>
+{formatAmount(winData.wonAmount)}
+
               </span>
             </div>
             <button className="wheel-result-close gg-btn-glow" onClick={() => setWinModalOpen(false)}>

@@ -99,7 +99,33 @@ function App() {
   useEffect(() => {
     initTelegram()
   }, [])
-
+  useEffect(() => {
+    const preventZoom = (e) => {
+      // Ctrl + колесо
+      if (e.ctrlKey) {
+        e.preventDefault()
+      }
+    }
+  
+    const preventKeyZoom = (e) => {
+      // Ctrl + + / - / =
+      if (
+        e.ctrlKey &&
+        (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '0')
+      ) {
+        e.preventDefault()
+      }
+    }
+  
+    window.addEventListener('wheel', preventZoom, { passive: false })
+    window.addEventListener('keydown', preventKeyZoom)
+  
+    return () => {
+      window.removeEventListener('wheel', preventZoom)
+      window.removeEventListener('keydown', preventKeyZoom)
+    }
+  }, [])
+  
   useEffect(() => {
     const tg = window.Telegram?.WebApp
     if (!tg) return

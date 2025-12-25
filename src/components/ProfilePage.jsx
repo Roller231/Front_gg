@@ -253,7 +253,12 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
           <span className="inventory-title">
             {t('profile.inventory')} ({totalInventoryCount})
           </span>
-          <button className="sell-all-btn">{t('profile.sellAll')}</button>
+          <button
+  className="sell-all-btn"
+  onClick={() => setIsInventoryModalOpen(true)}
+>
+  {t('profile.sellAll')}
+</button>
         </div>
 
         <div className="inventory-items">
@@ -342,7 +347,7 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
 
 
       {/* ===== OPERATIONS (заглушка) ===== */}
-      <div className="operations-section">
+      {/* <div className="operations-section">
         <h3 className="operations-title">{t('profile.operationsHistory')}</h3>
         <div className="operations-list">
           <div className="operation-item">
@@ -360,7 +365,7 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
             </span>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <WithdrawModal
         isOpen={isWithdrawModalOpen}

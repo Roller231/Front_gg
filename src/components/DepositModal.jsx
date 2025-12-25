@@ -1,6 +1,13 @@
 import { useState, useRef, useEffect } from 'react'
 import './DepositModal.css'
 import { useLanguage } from '../context/LanguageContext'
+import { useUser } from '../context/UserContext'
+import * as usersApi from '../api/users'
+import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react'
+import { apiFetch } from '../api/client'
+
+
+
 
 function DepositModal({ isOpen, onClose }) {
   const { t } = useLanguage()
@@ -14,6 +21,70 @@ function DepositModal({ isOpen, onClose }) {
   const currentTranslateY = useRef(0)
   const isDragging = useRef(false)
 
+  const API_URL = import.meta.env.VITE_API_URL
+
+  const { user, loading, setUser } = useUser()
+  
+
+  const [tonConnectUI] = useTonConnectUI()
+const tonWallet = useTonWallet()
+const [isPaying, setIsPaying] = useState(false)
+
+const toNano = (value) => {
+  return Math.floor(Number(value) * 1e9).toString()
+}
+
+
+const handleTonPay = async () => {
+  const tonAmount = Number(amount)
+  if (!tonAmount || tonAmount <= 0 || isPaying) return
+
+  setIsPaying(true)
+
+  try {
+    // 1️⃣ create (учёт)
+    await apiFetch('/api/ton/create', {
+      method: 'POST',
+      body: JSON.stringify({
+        user_id: user.id,
+        amount: tonAmount
+      })
+    })
+
+    // 2️⃣ отправка TON
+    await tonConnectUI.sendTransaction({
+      validUntil: Math.floor(Date.now() / 1000) + 60,
+      messages: [
+        {
+          address: import.meta.env.VITE_TON_RECEIVER,
+          amount: toNano(tonAmount)
+        }
+      ]
+    })
+
+    // 3️⃣ success — ТОЛЬКО user_id
+    await apiFetch('/api/ton/success', {
+      method: 'POST',
+      body: JSON.stringify({
+        user_id: user.id
+      })
+    })
+
+    // 4️⃣ обновляем пользователя
+    const updatedUser = await usersApi.getUserById(user.id)
+    setUser(updatedUser)
+
+    onClose()
+  } catch (e) {
+    console.error('TON pay error', e)
+  } finally {
+    setIsPaying(false)
+  }
+}
+
+
+
+
   // Сброс позиции при открытии
   useEffect(() => {
     if (isOpen && contentRef.current) {
@@ -23,13 +94,74 @@ function DepositModal({ isOpen, onClose }) {
       setAmount('')
     }
   }, [isOpen])
+if (loading || !user) {
+  return null // или disabled кнопки
+}
 
-  const handleDeposit = () => {
-    if (!amount || parseFloat(amount) <= 0) return
-    console.log('Deposit:', { amount, method: activeTab })
-    onClose()
+
+  const handleStarsPay = async () => {
+    if (!amount || Number(amount) <= 0) return
+  
+    try {
+      const res = await fetch(`${API_URL}/api/stars/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: Number(amount),
+          user_id: user.id
+        })
+      })
+  
+      if (!res.ok) {
+        throw new Error('Create invoice failed')
+      }
+  
+      const data = await res.json()
+  
+      window.Telegram.WebApp.openInvoice(data.invoice_link)
+  
+    } catch (e) {
+      console.error('Stars pay error', e)
+    }
   }
-
+  
+  useEffect(() => {
+    const handler = async (event) => {
+      console.log('invoiceClosed event:', event)
+  
+      if (event.status === 'paid') {
+        try {
+          // 1️⃣ подтверждаем депозит
+          await fetch(`${API_URL}/api/stars/success`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: user.id
+            })
+          })
+  
+          // 2️⃣ получаем обновлённого пользователя
+          const updatedUser = await usersApi.getUserById(user.id)
+  
+          // 3️⃣ обновляем контекст
+          setUser(updatedUser)
+  
+        } catch (err) {
+          console.error('Stars success / user refresh error', err)
+        } finally {
+          onClose()
+        }
+      }
+    }
+  
+    window.Telegram.WebApp.onEvent('invoiceClosed', handler)
+    return () => window.Telegram.WebApp.offEvent('invoiceClosed', handler)
+  }, [API_URL, user.id, setUser, onClose])
+  
+  
+  
+  
+  
   // Начало свайпа/drag
   const handleDragStart = (e) => {
     isDragging.current = true
@@ -151,19 +283,126 @@ function DepositModal({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Поле суммы */}
-        <div className="deposit-amount-section">
+        {/* Контент табов */}
+        <div className="deposit-modal-tabs-content">
+          {/* Вкладка Подарки */}
+          <div className={`deposit-tab-panel ${activeTab === 'gifts' ? 'active' : ''}`}>
+          <div className="deposit-stars-content">
+  <div className="deposit-amount-wrapper">
+    <input
+      type="text"
+      inputMode="numeric"
+      className="deposit-amount-input"
+      placeholder={t('deposit.amount')}
+      value={amount}
+      onChange={(e) => {
+        const value = e.target.value.replace(/[^0-9]/g, '')
+        setAmount(value)
+      }}
+    />
+  </div>
+
+  <button
+    className="deposit-wallet-button"
+    onClick={handleStarsPay}
+    disabled={!amount}
+  >
+    {t('deposit.payStars')}
+  </button>
+</div>
+
+          </div>
+
+{/* Вкладка Кошелёк */}
+<div className={`deposit-tab-panel ${activeTab === 'wallet' ? 'active' : ''}`}>
+  <div className="deposit-wallet-content">
+
+    {/* 1️⃣ КНОПКА ПОДКЛЮЧЕНИЯ */}
+    {!tonWallet && (
+      <button
+        className="deposit-wallet-button"
+        onClick={() => tonConnectUI.openModal()}
+      >
+        {t('deposit.connectWallet')}
+      </button>
+    )}
+
+    {/* 2️⃣ КОШЕЛЁК ПОДКЛЮЧЕН */}
+    {tonWallet && (
+      <>
+        <div className="deposit-wallet-message">
+          {tonWallet.account.address.slice(0, 6)}...
+          {tonWallet.account.address.slice(-4)}
+        </div>
+
+        {/* 3️⃣ ВВОД СУММЫ */}
+        <div className="deposit-amount-wrapper">
           <input
             type="text"
             inputMode="decimal"
             className="deposit-amount-input"
-            placeholder={t('deposit.amountPlaceholder')}
+            placeholder={t('deposit.amount')}
             value={amount}
             onChange={(e) => {
               const value = e.target.value.replace(/[^0-9.]/g, '')
               setAmount(value)
             }}
           />
+        </div>
+
+        {/* 4️⃣ ОПЛАТА */}
+        <button
+          className="deposit-wallet-button"
+          onClick={handleTonPay}
+          disabled={!amount || isPaying}
+        >
+          {isPaying ? 'Processing...' : 'Pay with TON'}
+        </button>
+      </>
+    )}
+
+  </div>
+</div>
+
+
+          {/* Вкладка Crypto Bot */}
+          <div className={`deposit-tab-panel ${activeTab === 'crypto' ? 'active' : ''}`}>
+            <div className="deposit-crypto-content">
+              <div className="deposit-amount-wrapper">
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  className="deposit-amount-input"
+                  placeholder={t('deposit.amount')}
+                  value={amount}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9.]/g, '')
+                    setAmount(value)
+                  }}
+                />
+              </div>
+              <div className="deposit-currency-grid">
+                <button 
+                  className={`deposit-currency-button ${selectedCurrency === 'TON' ? 'active' : ''}`}
+                  onClick={() => setSelectedCurrency('TON')}
+                >
+                  TON
+                </button>
+                <button 
+                  className={`deposit-currency-button ${selectedCurrency === 'USDT' ? 'active' : ''}`}
+                  onClick={() => setSelectedCurrency('USDT')}
+                >
+                  USDT
+                </button>
+                <button 
+                  className={`deposit-currency-button ${selectedCurrency === 'TRX' ? 'active' : ''}`}
+                  onClick={() => setSelectedCurrency('TRX')}
+                >
+                  TRX
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Кнопка пополнения */}

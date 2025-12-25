@@ -6,7 +6,6 @@ import Navigation from './Navigation'
 import { useUser } from '../context/UserContext'
 import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
-import { vibrate, VIBRATION_PATTERNS } from '../utils/vibration'
 
 import { getAllDrops } from '../api/cases'
 import { upgradeItem } from '../api/upgrade'
@@ -18,8 +17,8 @@ const MemoNavigation = memo(Navigation)
 
 
 function UpgradePage() {
-  const { user, settings } = useUser()
-  const { selectedCurrency } = useCurrency()
+  const { user, setUser } = useUser()
+  const { selectedCurrency, formatAmount } = useCurrency()
   const { t } = useLanguage()
   
   const [sourceItem, setSourceItem] = useState(null)
@@ -63,10 +62,10 @@ function UpgradePage() {
   .filter(Boolean) || []
   const upgradeTargets = allDrops.filter(drop => drop.UseInUpgrade === true)
   const canSelectTarget = (drop) => {
-    if (!sourceItem) return false
+    if (!sourceItem) return true
   
     // цель должна быть дороже source
-    if (drop.price <= sourceItem.price) return false
+    if (drop.price <= sourceItem.price) return true
   
     return true
   }
@@ -217,16 +216,10 @@ function UpgradePage() {
       return
     }
     
-    // Вибрация при начале спина
-    if (settings?.vibrationEnabled) {
-      vibrate(VIBRATION_PATTERNS.spin)
-    }
-    
-    // Определяем результат
-    const randomValue = Math.random() * 100
-    const isWin = randomValue <= chance
-    
-    // Вычисляем угол остановки (углы canvas: 0 = вправо, PI/2 = вниз)
+  
+    const isWin = response.result === 'win'
+    lastIsWinRef.current = isWin
+  
     const TWO_PI = Math.PI * 2
     const halfAngle = (chance / 100) * Math.PI
     const buffer = 0.08
@@ -292,17 +285,10 @@ function UpgradePage() {
         if (isWin) {
           setGameState('win')
           setResultText(t('upgrade.success'))
-          // Вибрация при победе
-          if (settings?.vibrationEnabled) {
-            vibrate(VIBRATION_PATTERNS.win)
-          }
+          setWinItem(targetItem)
         } else {
           setGameState('lose')
           setResultText(t('upgrade.failed'))
-          // Вибрация при проигрыше
-          if (settings?.vibrationEnabled) {
-            vibrate(VIBRATION_PATTERNS.lose)
-          }
         }
       
 
@@ -457,8 +443,8 @@ function UpgradePage() {
                     <div className="upgrade-box-content">
                       <div className="upgrade-item-price">
                         <img src={currencyIcon} alt="currency" className="upgrade-currency-icon" />
-                        <span>{sourceItem.price}</span>
-                      </div>
+                        <span>{formatAmount(sourceItem.price)}</span>
+                        </div>
                     </div>
                   </>
                 ) : (
@@ -483,8 +469,8 @@ function UpgradePage() {
                     <div className="upgrade-box-content">
                       <div className="upgrade-item-price">
                         <img src={currencyIcon} alt="currency" className="upgrade-currency-icon" />
-                        <span>{targetItem.price}</span>
-                      </div>
+                        <span>{formatAmount(targetItem.price)}</span>
+                        </div>
                     </div>
                   </>
                 ) : (
@@ -524,8 +510,8 @@ function UpgradePage() {
                     <div className="wheel-result-card">
                       <span className="wheel-result-price">
                         <img src={currencyIcon} alt="currency" className="wheel-result-coin" />
-                        {targetItem?.price ?? 0}
-                      </span>
+                        {formatAmount(targetItem?.price ?? 0)}
+                        </span>
                       <div className="wheel-result-prize-content">
                       <img
   src={winItem?.icon || winItem?.image || '/image/case_card1.png'}
@@ -557,8 +543,8 @@ function UpgradePage() {
   >
     <div className="upgrade-gift-price">
       <img src={currencyIcon} />
-      <span>{gift.price}</span>
-    </div>
+      <span>{formatAmount(gift.price)}</span>
+      </div>
 
     <img
       src={gift.icon || gift.image}
@@ -595,8 +581,8 @@ function UpgradePage() {
     >
       <div className="upgrade-gift-price">
         <img src={currencyIcon} />
-        <span>{gift.price}</span>
-      </div>
+        <span>{formatAmount(gift.price)}</span>
+        </div>
 
       <img
         src={gift.icon || gift.image}
