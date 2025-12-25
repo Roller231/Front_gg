@@ -716,7 +716,7 @@
 
 .wheel-result-price {
   position: absolute;
-  bottom: -25px;
+  bottom: -10px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -1133,4 +1133,110 @@
 
 .wheel-result-close:active {
   transform: scale(0.98);
+}
+
+/* Аккордеон для категорий подарков */
+.prizes-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prizes-accordion-item {
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.prizes-accordion-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  border-left: 3px solid var(--category-color, #8B5CF6);
+}
+
+.prizes-accordion-header:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.prizes-accordion-header.expanded {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.prizes-accordion-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.prizes-category-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.prizes-category-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.prizes-category-count {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.prizes-accordion-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.prizes-category-price {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.prizes-accordion-arrow {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
+  transition: transform 0.3s ease;
+}
+
+.prizes-accordion-arrow.expanded {
+  transform: rotate(180deg);
+}
+
+.prizes-accordion-content {
+  padding: 12px 16px 16px;
+  animation: accordion-expand 0.3s ease;
+}
+
+@keyframes accordion-expand {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+  }
+}
+
+.prizes-category-desc {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 12px;
+  line-height: 1.4;
 }

@@ -111,3 +111,113 @@ body {
      left: 120%;
    }
  }
+
+/* Lazy load placeholder - уменьшенная иконка подарка */
+.loading-placeholder {
+  width: 35% !important;
+  height: 35% !important;
+  object-fit: contain !important;
+  opacity: 0.5;
+}
+
+/* ===== Глобальные пролетающие планеты на фоне ===== */
+.flying-planets-global {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.flying-planet {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.25;
+  will-change: transform;
+  animation: planet-fly linear infinite;
+}
+
+/* 8 разных планет с разными цветами, размерами и позициями */
+.flying-planet-1 {
+  width: 30px;
+  height: 30px;
+  background: radial-gradient(circle at 30% 30%, #FFD700, #FF8C00);
+  top: 15%;
+  animation-duration: 12s;
+  animation-delay: 0s;
+}
+
+.flying-planet-2 {
+  width: 20px;
+  height: 20px;
+  background: radial-gradient(circle at 30% 30%, #87CEEB, #4169E1);
+  top: 35%;
+  animation-duration: 18s;
+  animation-delay: 2s;
+}
+
+.flying-planet-3 {
+  width: 45px;
+  height: 45px;
+  background: radial-gradient(circle at 30% 30%, #DDA0DD, #9932CC);
+  top: 55%;
+  animation-duration: 15s;
+  animation-delay: 4s;
+}
+
+.flying-planet-4 {
+  width: 15px;
+  height: 15px;
+  background: radial-gradient(circle at 30% 30%, #98FB98, #228B22);
+  top: 25%;
+  animation-duration: 20s;
+  animation-delay: 1s;
+}
+
+.flying-planet-5 {
+  width: 35px;
+  height: 35px;
+  background: radial-gradient(circle at 30% 30%, #FFA07A, #FF4500);
+  top: 70%;
+  animation-duration: 14s;
+  animation-delay: 6s;
+}
+
+.flying-planet-6 {
+  width: 25px;
+  height: 25px;
+  background: radial-gradient(circle at 30% 30%, #E6E6FA, #8A2BE2);
+  top: 45%;
+  animation-duration: 16s;
+  animation-delay: 3s;
+}
+
+.flying-planet-7 {
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle at 30% 30%, #F0E68C, #DAA520);
+  top: 80%;
+  animation-duration: 22s;
+  animation-delay: 5s;
+}
+
+.flying-planet-8 {
+  width: 18px;
+  height: 18px;
+  background: radial-gradient(circle at 30% 30%, #ADD8E6, #00CED1);
+  top: 10%;
+  animation-duration: 19s;
+  animation-delay: 7s;
+}
+
+@keyframes planet-fly {
+  0% {
+    transform: translateX(calc(100vw + 50px));
+  }
+  100% {
+    transform: translateX(-100px);
+  }
+}

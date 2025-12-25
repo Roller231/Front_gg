@@ -1,6 +1,6 @@
 .cases-page {
   min-height: 100vh;
-  background-color: var(--page-bg);
+  background-color: transparent;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -206,7 +206,7 @@
 .case-card-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
   cursor: pointer;
   transition: transform 0.2s ease;
 }
@@ -239,13 +239,16 @@
   justify-content: center;
   gap: 6px;
   color: #fff;
-  font-size: 16px; /* Increased size */
+  font-size: 18px; /* Increased size for readability */
   font-weight: 700;
   background: rgba(0, 0, 0, 0.3);
   padding: 6px 12px;
   border-radius: 12px;
   width: fit-content;
   margin: 0 auto; /* Center horizontally */
+  margin-top: -8px; /* Поднять впритык к кейсу */
+  position: relative;
+  z-index: 2;
 }
 
 .case-price-badge {

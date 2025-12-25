@@ -438,30 +438,15 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                     <div key={`preview-${i}`} className="case-preview-wrapper">
                       <div className="case-preview-item">
                         <div className="case-preview-gift">
-                          {previewItem?.type === 'animation' && previewItem.animation ? (
-                            <Player
-                              autoplay
-                              loop
-                              src={previewItem.animation}
-                              className="case-preview-animation"
-                            />
-                          ) : (
-                            <AsyncImage
-                              src={previewItem?.image}
-                              alt={previewItem?.name || 'Gift'}
-                              className="case-preview-image"
-                            />
-                          )}
+                          {/* Верхний бар - только статика .webp */}
+                          <AsyncImage
+                            src={previewItem?.image}
+                            alt={previewItem?.name || 'Gift'}
+                            className="case-preview-image"
+                          />
                         </div>
                       </div>
-                      {isPaid ? (
-                        <span className="case-preview-price-below">
-                          <img src={currencyIcon} alt="currency" className="case-preview-coin" />
-                          {previewItem?.price || '0.1'}
-                        </span>
-                      ) : (
-                        <span className="case-preview-badge-below">FREE</span>
-                      )}
+                      {/* Верхний бар декоративный - цены убраны */}
                     </div>
                   )
                 })}
@@ -484,6 +469,7 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                   {caseItems.map((item) => (
                     <div key={item.id} className="case-item-wrapper">
                       <div className="case-item-card">
+                        <span className="nft-label">NFT</span>
                         <div className="case-item-image">
                           {item.animation ? (
                             <Player
@@ -525,11 +511,16 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                   {t('caseModal.depositFunds')}
                 </button>
 
+                <button className="case-promo-button">
+                  {t('caseModal.activatePromo')}
+                </button>
+
                 <div className="case-section-title">{t('caseModal.whatsInside')}</div>
                 <div className="case-items-grid">
                   {caseItems.map((item) => (
                     <div key={item.id} className="case-item-wrapper">
                       <div className="case-item-card">
+                        <span className="nft-label">NFT</span>
                         <div className="case-item-image">
                           {item.type === 'animation' && item.animation ? (
                             <Player
@@ -554,10 +545,6 @@ const canOpenCase = !isPaid || userBalance >= casePrice
                     </div>
                   ))}
                 </div>
-
-                <button className="case-promo-button">
-                  {t('caseModal.activatePromo')}
-                </button>
               </>
             )}
           </>

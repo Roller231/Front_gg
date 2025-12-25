@@ -102,8 +102,9 @@ function ProfilePage() {
           drops.map(d => [d.id, d])
         )
   
-        // 4. разворачиваем inventory по count
-        const expanded = inventory.flatMap(item =>
+        // 4. разворачиваем inventory по count (реверс - новые сначала)
+        const reversedInventory = [...inventory].reverse()
+        const expanded = reversedInventory.flatMap(item =>
           Array.from({ length: item.count }).map(() => dropMap[item.drop_id])
         )
   
