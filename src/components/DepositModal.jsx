@@ -11,7 +11,7 @@ import { apiFetch } from '../api/client'
 
 function DepositModal({ isOpen, onClose }) {
   const { t } = useLanguage()
-  const [activeTab, setActiveTab] = useState('gifts')
+  const [activeTab, setActiveTab] = useState('stars')
   const [selectedCurrency, setSelectedCurrency] = useState(null)
   const [amount, setAmount] = useState('')
   
