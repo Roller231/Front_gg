@@ -297,7 +297,7 @@ const canOpenCase = isPaid
         const updatedUser = await usersApi.updateUser(user.id, {
           balance: user.balance - casePrice,
         })
-        playGame(user.id)
+        await playGame(user.id)
         setUser(updatedUser)
       } catch (err) {
         console.error('Failed to deduct balance:', err)
