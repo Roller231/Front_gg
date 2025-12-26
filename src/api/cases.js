@@ -11,5 +11,5 @@ export const getDropById = (id) =>
   apiFetch(`/drops/${id}`)
 
 export async function getAllDrops() {
-  return apiFetch('/drops')
+  return apiFetch('/drops?limit=500')
 }

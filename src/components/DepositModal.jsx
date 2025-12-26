@@ -277,12 +277,13 @@ if (loading || !user) {
           >
             {t('deposit.wallet')}
           </button>
-          <button 
+          {/* Криптобот временно отключен */}
+          {/* <button 
             className={`deposit-modal-tab ${activeTab === 'crypto' ? 'active' : ''}`}
             onClick={() => setActiveTab('crypto')}
           >
             {t('deposit.cryptoBot')}
-          </button>
+          </button> */}
         </div>
 
         {/* Контент табов */}

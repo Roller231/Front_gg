@@ -33,7 +33,7 @@
   text-align: center;
   color: rgba(255, 255, 255, 0.7);
   font-size: 13px;
-  margin-top: 8px;
+  margin: 16px 0;
   animation: pulse-text 1s ease-in-out infinite;
 }
 
