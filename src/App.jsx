@@ -23,11 +23,12 @@ import { useUser } from './context/UserContext'
 import { AppDataProvider, useAppData } from './context/AppDataContext'
 import { LiveFeedProvider } from './context/LiveFeedContext'
 import { FreeSpinProvider, useFreeSpin } from './context/FreeSpinContext'
+import { useOnlineWs} from './hooks/useOnlineWs'
 /* ================= HOME ================= */
 
 function HomePage() {
   const { t } = useLanguage()
-  
+  const online = useOnlineWs()
   return (
     <div className="app home-page">
       <Header />
@@ -37,11 +38,11 @@ function HomePage() {
         <TaskList />
 
         <div className="games-section">
-          <GameCard title={t('home.roulette')} online={55} />
-          <GameCard title={t('home.crash')} online={55} />
-          <GameCard title={t('home.wheel')} online={312} />
-          <GameCard title={t('home.pvp')} online={597} />
-          <GameCard title={t('home.upgrade')} online={597} />
+          <GameCard title={t('home.roulette')} online={online[1]} />
+          <GameCard title={t('home.crash')}    online={online[2]} />
+          <GameCard title={t('home.wheel')}    online={online[3]} />
+          <GameCard title={t('home.pvp')}      online={online[4]} />
+          <GameCard title={t('home.upgrade')}  online={online[4]} />
         </div>
       </main>
 

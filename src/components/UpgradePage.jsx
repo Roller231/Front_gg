@@ -68,8 +68,7 @@ function UpgradePage() {
   const canSelectTarget = (drop) => {
     if (!sourceItem) return true
   
-    // цель должна быть ДОРОЖЕ source, иначе недоступна
-    if (drop.price <= sourceItem.price) return false
+
   
     return true
   }
