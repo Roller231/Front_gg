@@ -485,6 +485,70 @@
   border-color: rgba(255, 255, 255, 0.5);
 }
 
+/* Промокод инпут контейнер */
+.case-promo-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 16px;
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.case-promo-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  font-size: 14px;
+  font-family: 'Open Sans', sans-serif;
+  outline: none;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.case-promo-input:focus {
+  border-color: rgba(139, 92, 246, 0.6);
+}
+
+.case-promo-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.case-promo-apply-button {
+  width: 100%;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Open Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.case-promo-apply-button:hover {
+  background: linear-gradient(135deg, #7C3AED 0%, #9333EA 100%);
+}
+
+.case-promo-error {
+  color: #EF4444;
+  font-size: 12px;
+  text-align: center;
+}
+
+.case-promo-success {
+  color: #22C55E;
+  font-size: 12px;
+  text-align: center;
+}
+
 /* ========== Экран спина ========== */
 .case-spin-view {
   display: flex;

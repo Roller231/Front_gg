@@ -34,6 +34,10 @@ function CaseModal({ isOpen, onClose, caseData, isPaid = true }) {
   const navigate = useNavigate()
   const [freeAllowed, setFreeAllowed] = useState(false)
   const [freeChecked, setFreeChecked] = useState(false)
+  const [showPromoInput, setShowPromoInput] = useState(false)
+  const [promoCode, setPromoCode] = useState('')
+  const [promoError, setPromoError] = useState('')
+  const [promoSuccess, setPromoSuccess] = useState('')
   const casePrice = Number(caseData?.price || 0)
 const userBalance = Number(user?.balance || 0)
 
@@ -503,12 +507,16 @@ const canOpenCase = isPaid
               <>
 <button
   className="case-open-button"
-  onClick={handleOpenCase}
-  disabled={!canOpenCase || isSpinning}
+  onClick={() => {
+    if (!canOpenCase) {
+      alert(t('caseModal.notEnoughFunds'))
+      return
+    }
+    handleOpenCase()
+  }}
+  disabled={isSpinning}
 >
-  {canOpenCase
-    ? t('caseModal.open')
-    : t('caseModal.depositInfo')}
+  {t('caseModal.open')}
 </button>
 
 
@@ -578,13 +586,46 @@ const canOpenCase = isPaid
 
         <button
           className="case-promo-button"
-          onClick={() => {
-            onClose()
-            navigate('/')
-          }}
+          onClick={() => setShowPromoInput(true)}
         >
           {t('caseModal.activatePromo')}
         </button>
+
+        {showPromoInput && (
+          <div className="case-promo-input-container">
+            <input
+              type="text"
+              className="case-promo-input"
+              placeholder={t('tasks.promoPlaceholder')}
+              value={promoCode}
+              onChange={(e) => setPromoCode(e.target.value)}
+            />
+            <button
+              className="case-promo-apply-button"
+              onClick={async () => {
+                if (!promoCode.trim()) return
+                try {
+                  const { activatePromo } = await import('../api/promo')
+                  await activatePromo(user.id, promoCode.trim())
+                  setPromoSuccess(t('promo.activated'))
+                  setPromoError('')
+                  setPromoCode('')
+                  setShowPromoInput(false)
+                  // Перезагрузить данные пользователя
+                  const updatedUser = await usersApi.getUserById(user.id)
+                  setUser(updatedUser)
+                } catch (err) {
+                  setPromoError(t('promo.error'))
+                  setPromoSuccess('')
+                }
+              }}
+            >
+              {t('tasks.apply')}
+            </button>
+            {promoError && <div className="case-promo-error">{promoError}</div>}
+            {promoSuccess && <div className="case-promo-success">{promoSuccess}</div>}
+          </div>
+        )}
       </>
     )}
 

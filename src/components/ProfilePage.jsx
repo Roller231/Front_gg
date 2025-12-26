@@ -362,8 +362,8 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
             <label className="settings-switch">
               <input 
                 type="checkbox" 
-                checked={!settings?.hideLogin}
-                onChange={(e) => updateSettings({ hideLogin: !e.target.checked })}
+                checked={settings?.hideLogin}
+                onChange={(e) => updateSettings({ hideLogin: e.target.checked })}
               />
               <span className="settings-slider"></span>
             </label>
