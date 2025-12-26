@@ -24,17 +24,26 @@ function BetModal({
   const { selectedCurrency } = useCurrency()
   const { user, setUser } = useUser()
   
-  // Минимальная ставка 0.5 TON, по умолчанию 20% от баланса
-  const MIN_BET = 0.5
+  // Минимальная ставка 0.5 TON
+  const MIN_BET_TON = 0.5
   const NO_DECIMAL_CURRENCIES = ['stars', 'gems'] // валюты без дробной части
   const isNoDecimalCurrency = NO_DECIMAL_CURRENCIES.includes(selectedCurrency?.id)
   
+  // Минимальная ставка в выбранной валюте
+  const minBetInCurrency = useMemo(() => {
+    const rate = selectedCurrency?.rate || 1
+    const converted = MIN_BET_TON / rate
+    return isNoDecimalCurrency ? Math.ceil(converted) : Number(converted.toFixed(2))
+  }, [selectedCurrency?.rate, isNoDecimalCurrency])
+  
   const defaultBet = useMemo(() => {
     const balance = Number(user?.balance) || 0
-    const twentyPercent = balance * 0.2
-    const bet = Math.max(MIN_BET, twentyPercent)
+    const rate = selectedCurrency?.rate || 1
+    const balanceInCurrency = balance / rate
+    const twentyPercent = balanceInCurrency * 0.2
+    const bet = Math.max(minBetInCurrency, twentyPercent)
     return isNoDecimalCurrency ? Math.floor(bet).toString() : bet.toFixed(2)
-  }, [user?.balance, isNoDecimalCurrency])
+  }, [user?.balance, isNoDecimalCurrency, minBetInCurrency, selectedCurrency?.rate])
   
   const [betAmount, setBetAmount] = useState(defaultBet)
   const { send, connected } = useCrashSocket(() => {})
@@ -491,6 +500,10 @@ function BetModal({
                     MAX
                   </button>
                 </div>
+              </div>
+              <div className="bet-min-amount-hint">
+                {t('betModal.minBet')}: {minBetInCurrency}
+                <img src={currencyIcon} alt="currency" className="bet-min-coin-icon" />
               </div>
 
               {game === 'crash' && (

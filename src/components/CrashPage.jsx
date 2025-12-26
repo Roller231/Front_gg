@@ -110,6 +110,7 @@ function CrashPage() {
   
 
   const [players, setPlayers] = useState([])
+  const [hasBetThisRound, setHasBetThisRound] = useState(false)
 
   const myActiveBet = useMemo(() => {
     if (!user?.id) return null
@@ -135,7 +136,8 @@ const myBetInRound = useMemo(() => {
 const canBet =
 gameState === 'countdown' &&
 countdown > 0 &&
-!myBetInRound
+!myBetInRound &&
+!hasBetThisRound
 
 const handleCashout = () => {
   if (!canCashout || !myActiveBet || !user?.id) return
@@ -143,6 +145,35 @@ const handleCashout = () => {
   send({
     event: 'cashout',
     user_id: user.id, // 🔥 ВАЖНО
+  })
+}
+
+// Callback при размещении ставки - оптимистичное обновление
+const handleBetPlaced = (betData) => {
+  if (!user?.id) return
+  
+  // Устанавливаем флаг что ставка сделана
+  setHasBetThisRound(true)
+  
+  // Добавляем пользователя в список игроков сразу (оптимистичное обновление)
+  const newPlayer = {
+    id: `temp-${Date.now()}`,
+    userId: user.id,
+    name: user.username || user.firstname || 'User',
+    avatar: user.url_image || '/image/default-avatar.png',
+    betAmount: betData?.amount || 0,
+    autoCashoutX: betData?.autoCashoutX || null,
+    cashoutX: null,
+    gift: betData?.gift || false,
+    giftId: betData?.giftId || null,
+    giftIcon: betData?.giftIcon || null,
+  }
+  
+  setPlayers(prev => {
+    // Проверяем, нет ли уже этого пользователя
+    const exists = prev.some(p => p.userId === user.id)
+    if (exists) return prev
+    return [newPlayer, ...prev]
   })
 }
 
@@ -263,6 +294,8 @@ useEffect(() => {
       case "new_round": {
         roundIdRef.current = msg.round_id
         setGameState("countdown")
+        setHasBetThisRound(false) // Сброс флага ставки при новом раунде
+        setPlayers([]) // Очищаем список игроков
       
         if (msg.betting_ends_at) {
           const now = Date.now() / 1000
@@ -717,6 +750,7 @@ useEffect(() => {
   game="crash"
   mode="bet"
   canBet={canBet}
+  onBetPlaced={handleBetPlaced}
 />
 
 

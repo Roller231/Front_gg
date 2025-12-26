@@ -146,6 +146,7 @@ export const translations = {
       autoCashout: 'Авто-вывод',
       coefficient: 'Коэффициент',
       selected: 'Выбрано',
+      minBet: 'Мин. ставка',
     },
 
     // Withdraw Modal
@@ -434,6 +435,7 @@ export const translations = {
       autoCashout: 'Auto Cashout',
       coefficient: 'Coefficient',
       selected: 'Selected',
+      minBet: 'Min. bet',
     },
 
     // Withdraw Modal
