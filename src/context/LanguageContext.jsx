@@ -26,7 +26,7 @@ export function LanguageProvider({ children }) {
     }
   }, [])
 
-  const t = useCallback((key) => {
+  const t = useCallback((key, params = {}) => {
     const keys = key.split('.')
     let value = translations[language]
     
@@ -38,7 +38,16 @@ export function LanguageProvider({ children }) {
       }
     }
     
-    return value || key
+    let result = value || key
+    
+    // Заменяем {{param}} на значения из params
+    if (typeof result === 'string' && Object.keys(params).length > 0) {
+      Object.entries(params).forEach(([param, val]) => {
+        result = result.replace(new RegExp(`\\{\\{${param}\\}\\}`, 'g'), val)
+      })
+    }
+    
+    return result
   }, [language])
 
   const currentLanguage = useMemo(() => {

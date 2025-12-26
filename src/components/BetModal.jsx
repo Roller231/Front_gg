@@ -383,12 +383,13 @@ function BetModal({
   
   
 
-  const handleGiftsSubmit = async () => {
-    if (!selectedGift || !user?.id) return
+  const handleGiftsSubmit = async (giftIdOverride = null) => {
+    const giftId = giftIdOverride || selectedGift
+    if (!giftId || !user?.id) return
   
-    // 🔒 PvP: проверка, есть ли подарок в инвентаре
+    // PvP: проверка, есть ли подарок в инвентаре
     if (game === 'pvp') {
-      const hasGift = inventoryGifts.some(g => g.id === selectedGift)
+      const hasGift = inventoryGifts.some(g => g.id === giftId)
       if (!hasGift) {
         console.warn('Gift not in inventory')
         return
@@ -399,7 +400,7 @@ function BetModal({
       const handler = betHandlers[game]?.gifts
       if (!handler) throw new Error('No gifts handler')
   
-      const result = await handler({ giftId: selectedGift })
+      const result = await handler({ giftId })
   
       await playGame(user.id)
 
@@ -432,14 +433,14 @@ function BetModal({
       <div 
         className="bet-modal-content"
         ref={contentRef}
-        onTouchStart={handleDragStart}
-        onTouchMove={handleDragMove}
-        onTouchEnd={handleDragEnd}
       >
         {/* Ручка для свайпа */}
         <div 
           className="bet-modal-handle"
           onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}
+          onTouchMove={handleDragMove}
+          onTouchEnd={handleDragEnd}
         >
           <div className="bet-modal-handle-bar"></div>
         </div>
@@ -552,12 +553,14 @@ function BetModal({
                     <button
                       className={`bet-gift-place-btn ${selectedGift === gift.id ? 'selected' : ''} ${!canBet ? 'disabled' : ''}`}
                       onClick={() => {
-                        setSelectedGift(gift.id)
-                        if (canBet) handleGiftsSubmit()
+                        if (canBet) {
+                          setSelectedGift(gift.id)
+                          handleGiftsSubmit(gift.id)
+                        }
                       }}
                       disabled={!canBet}
                     >
-                      {selectedGift === gift.id ? t('betModal.selected') : t('betModal.placeBet')}
+                      {t('betModal.placeBet')}
                     </button>
                   </div>
                 ))}

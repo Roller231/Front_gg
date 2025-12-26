@@ -114,16 +114,17 @@ function PvPPage() {
             : "draw",
       })
     
-      // 👇 ставка игрока
-      if (data.user_bet === 0 && myBet?.type === "gift") {
-        setMyBet(prev => prev)
-      } else {
-        setMyBet({
+      // 👇 ставка игрока - сохраняем подарок если был подарок
+      setMyBet(prev => {
+        if (prev?.type === "gift") {
+          return prev
+        }
+        return {
           type: "coins",
           amount: data.user_bet,
           currencyIcon: selectedCurrency?.icon,
-        })
-      }
+        }
+      })
     
       setTimeout(async () => {
         setBattleResult(data.result)
@@ -216,13 +217,13 @@ function PvPPage() {
   }, [attackPart, defendPart, myBet, connected, sendBet, user?.id])
 
   const canStartGame = Boolean(attackPart && defendPart && myBet && gameState === 'waiting' && !isWaitingForOpponent)
-  const showMatchPanel = Boolean(isWaitingForOpponent || gameState !== 'waiting')
+  const showMatchPanel = Boolean(myBet || isWaitingForOpponent || gameState !== 'waiting')
   const displayUsername = user?.username ? `@${user.username}` : user?.firstname ? `@${user.firstname}` : '@Username'
   const displayAvatar = user?.url_image || user?.photo_url || '/image/ava1.png'
   const currencyIcon = selectedCurrency?.icon || '/image/Coin-Icon.svg'
 
   const isGameInProgress = Boolean(isWaitingForOpponent || gameState === 'countdown' || gameState === 'fighting')
-  const isBetButtonDisabled = isGameInProgress
+  const isBetButtonDisabled = isGameInProgress || Boolean(myBet)
   
   // Автовыбор атаки/защиты через 5 секунд если есть ставка но нет выбора
   useEffect(() => {
@@ -630,16 +631,24 @@ function PvPPage() {
 
 
               {battleResult === 'win' && opponentBot?.type === 'gift' && opponentBot?.gift && (
-  <div className="wheel-result-prize">
+  <div className="wheel-result-prize pvp-result-prize">
     <div className="wheel-result-card">
       <img
         src={opponentBot.gift.icon}
         alt={opponentBot.gift.name}
         className="wheel-result-gift-image"
       />
-      <div className="wheel-result-gift-name">
-        {opponentBot.gift.name}
-      </div>
+    </div>
+    <div className="pvp-result-gift-name">
+      {opponentBot.gift.name}
+    </div>
+    <div className="pvp-result-gift-price">
+      <img
+        src={selectedCurrency?.icon || '/image/Coin-Icon.svg'}
+        alt="currency"
+        className="pvp-result-gift-price-icon"
+      />
+      <span>{formatAmount(opponentBot.gift.price)}</span>
     </div>
   </div>
 )}

@@ -131,8 +131,8 @@ const canOpenCase = isPaid
         })
       )
   
-      // Сортировка по цене от дешёвых к дорогим
-      const sortedDrops = drops.sort((a, b) => a.price - b.price)
+      // Сортировка по цене от дорогих к дешёвым
+      const sortedDrops = drops.sort((a, b) => b.price - a.price)
       setCaseItems(sortedDrops)
       setLoadingDrops(false)
     }

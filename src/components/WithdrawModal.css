@@ -58,20 +58,38 @@
     box-shadow: 0 0 0 2px rgba(91, 62, 245, 0.4);
   }
   
-  /* Картинка */
-  .withdraw-gift img {
+  /* Картинка подарка */
+  .withdraw-gift > img {
     width: 64px;
     height: 64px;
     object-fit: contain;
     margin-bottom: 6px;
   }
   
-  /* Количество */
-  .withdraw-gift span {
+  /* Цена подарка */
+  .withdraw-gift-price {
     font-family: 'Open Sans', sans-serif;
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .withdraw-gift-currency-icon {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+  }
+
+  /* Количество */
+  .withdraw-gift-count {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 12px;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.75);
+    color: rgba(255, 255, 255, 0.5);
   }
   
   /* Скролл аккуратный */
@@ -89,13 +107,15 @@
   width: min(420px, calc(100% - 32px));
   background: linear-gradient(180deg, #1F1145 0%, #0D0326 100%);
   border-radius: 24px 24px 0 0;
-  padding: 16px 24px 32px;
+  padding: 20px 24px 36px;
   animation: withdraw-modal-slide-up 0.3s ease-out;
   touch-action: none;
   user-select: none;
-  max-height: 90vh;
+  height: 65vh;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 -10px 60px rgba(91, 62, 245, 0.4);
+  border-top: 1px solid rgba(139, 92, 246, 0.3);
 }
 
 
@@ -107,6 +127,7 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
+    padding: 20px 0;
   }
   
   .withdraw-coins input {
@@ -139,8 +160,9 @@
 .withdraw-modal-handle {
   display: flex;
   justify-content: center;
-  padding: 8px 0 16px;
+  padding: 16px 0 20px;
   cursor: grab;
+  touch-action: none;
 }
 
 .withdraw-modal-handle:active {
@@ -156,11 +178,15 @@
 
 .withdraw-modal-title {
   font-family: 'Open Sans', sans-serif;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   color: #fff;
   text-align: center;
-  margin: 0 0 20px;
+  margin: 0 0 24px;
+  background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .withdraw-modal-tabs {
@@ -225,22 +251,30 @@
 /* Кнопка вывода */
 .withdraw-submit-button {
   width: 100%;
-  padding: 18px 24px;
+  height: 56px;
+  padding: 8px 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   border: none;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #3B5EF5 0%, #8B5CF6 100%);
+  border-radius: 14px;
+  background: radial-gradient(circle at 0% 100%, #2C7DF8 0%, #951BF9 100%);
   color: #fff;
   font-family: 'Open Sans', sans-serif;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
+  line-height: 130%;
+  letter-spacing: -0.02em;
+  text-align: center;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
-  box-shadow: 0 8px 32px rgba(91, 62, 245, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 8px 8px 32px rgba(37, 2, 72, 0.5);
 }
 
 .withdraw-submit-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(91, 62, 245, 0.5);
+  box-shadow: 8px 12px 40px rgba(37, 2, 72, 0.6);
 }
 
 .withdraw-submit-button:active {

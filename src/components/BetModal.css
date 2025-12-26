@@ -465,20 +465,11 @@
   min-height: 28px;
 }
 
-.bet-gift-place-btn:hover {
-  background: linear-gradient(135deg, #6B3FD8 0%, #8B5CF6 100%);
-  border-color: transparent;
-  color: #fff;
-}
-
 .bet-gift-place-btn:active {
-  transform: scale(0.98);
-}
-
-.bet-gift-place-btn.selected {
   background: linear-gradient(135deg, #6B3FD8 0%, #8B5CF6 100%);
   border-color: transparent;
   color: #fff;
+  transform: scale(0.98);
 }
 
 .bet-gift-place-btn.disabled {

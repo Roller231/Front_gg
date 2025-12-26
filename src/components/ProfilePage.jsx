@@ -388,22 +388,14 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
       <button
   className="withdraw-btn gg-btn-glow"
   onClick={() => {
-    if (!withdrawInfo?.can) {
-      let msg = t('withdraw.cantWithdrawText')
-
-      if (withdrawInfo.total_deposit < 3) {
-        const remaining = (3 - withdrawInfo.total_deposit).toFixed(2)
-        msg += `\n${t('withdraw.remainingDeposit')}: ${remaining} TON`
-      }
-
-      showNotification(msg)
+    if (!withdrawInfo?.can_withdraw) {
+      showNotification(t('profile.withdrawDepositRequired', { amount: '3' }))
       return
     }
-
     setIsWithdrawModalOpen(true)
   }}
 >
-  {t('profile.withdraw')} TON
+  {t('profile.withdraw')}
 </button>
 
 

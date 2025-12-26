@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useMemo } from 'react'
 import './WithdrawModal.css'
 import { useLanguage } from '../context/LanguageContext'
 import { useUser } from '../context/UserContext'
+import { useCurrency } from '../context/CurrencyContext'
 import { createTonWithdraw, createDropWithdraw } from '../api/withdraw'
 import { getUserById } from '../api/users'
 import { getDropById } from '../api/cases'
@@ -9,6 +10,7 @@ import { getDropById } from '../api/cases'
 function WithdrawModal({ isOpen, onClose }) {
   const { t } = useLanguage()
   const { user, setUser } = useUser()
+  const { selectedCurrency } = useCurrency()
 
   const [activeTab, setActiveTab] = useState('coins')
   const [amount, setAmount] = useState('')
@@ -92,7 +94,9 @@ function WithdrawModal({ isOpen, onClose }) {
     isDragging.current = true
     const y = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY
     dragStartY.current = y - currentTranslateY.current
-    contentRef.current.style.transition = 'none'
+    if (contentRef.current) {
+      contentRef.current.style.transition = 'none'
+    }
   }
 
   const handleDragMove = (e) => {
@@ -100,22 +104,54 @@ function WithdrawModal({ isOpen, onClose }) {
     const y = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY
     const delta = Math.max(0, y - dragStartY.current)
     currentTranslateY.current = delta
-    contentRef.current.style.transform = `translateY(${delta}px)`
+    if (contentRef.current) {
+      contentRef.current.style.transform = `translateY(${delta}px)`
+    }
   }
 
   const handleDragEnd = () => {
+    if (!isDragging.current) return
     isDragging.current = false
-    contentRef.current.style.transition = 'transform 0.3s ease'
+    
+    if (contentRef.current) {
+      contentRef.current.style.transition = 'transform 0.3s ease'
 
-    if (currentTranslateY.current > 100) {
-      contentRef.current.style.transform = 'translateY(100%)'
-      setTimeout(onClose, 300)
-    } else {
-      contentRef.current.style.transform = 'translateY(0)'
+      if (currentTranslateY.current > 100) {
+        contentRef.current.style.transform = 'translateY(100%)'
+        setTimeout(() => {
+          onClose()
+          currentTranslateY.current = 0
+        }, 300)
+      } else {
+        contentRef.current.style.transform = 'translateY(0)'
+        currentTranslateY.current = 0
+      }
+    }
+  }
+
+  // Обработчики для mouse events на document
+  useEffect(() => {
+    const handleMouseMove = (e) => handleDragMove(e)
+    const handleMouseUp = () => handleDragEnd()
+
+    if (isOpen) {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
     }
 
-    currentTranslateY.current = 0
-  }
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isOpen])
+
+  // Сброс позиции при открытии
+  useEffect(() => {
+    if (isOpen && contentRef.current) {
+      contentRef.current.style.transform = 'translateY(0)'
+      currentTranslateY.current = 0
+    }
+  }, [isOpen])
 
   if (!isOpen) return null
 
@@ -128,11 +164,14 @@ function WithdrawModal({ isOpen, onClose }) {
       <div
         className="withdraw-modal-content"
         ref={contentRef}
-        onTouchStart={handleDragStart}
-        onTouchMove={handleDragMove}
-        onTouchEnd={handleDragEnd}
       >
-        <div className="withdraw-modal-handle" onMouseDown={handleDragStart}>
+        <div 
+          className="withdraw-modal-handle" 
+          onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}
+          onTouchMove={handleDragMove}
+          onTouchEnd={handleDragEnd}
+        >
           <div className="withdraw-modal-handle-bar" />
         </div>
 
@@ -185,7 +224,10 @@ function WithdrawModal({ isOpen, onClose }) {
                   onClick={() => setSelectedGift(g.id)}
                 >
                   <img src={g.icon} alt={g.name} />
-                  <span>×{g.count}</span>
+                  <span className="withdraw-gift-price">
+                    {g.price}
+                    <img src={selectedCurrency?.icon || '/image/Coin-Icon.svg'} alt="currency" className="withdraw-gift-currency-icon" />
+                  </span>
                 </div>
               ))}
             </div>

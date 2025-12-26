@@ -60,10 +60,10 @@ function UpgradePage() {
     }
   })
   .filter(Boolean) || [])
-  .sort((a, b) => a.price - b.price) // сортировка по цене от дешёвых к дорогим
+  .sort((a, b) => b.price - a.price) // сортировка по цене от дорогих к дешёвым
   const upgradeTargets = allDrops
     .filter(drop => drop.UseInUpgrade === true)
-    .sort((a, b) => a.price - b.price) // сортировка по цене от дешёвых к дорогим
+    .sort((a, b) => b.price - a.price) // сортировка по цене от дорогих к дешёвым
   
   const canSelectTarget = (drop) => {
     if (!sourceItem) return true
