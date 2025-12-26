@@ -595,7 +595,7 @@ const canOpenCase = isPaid
                   {caseItems.map((item) => (
                     <div key={item.id} className="case-item-wrapper">
                       <div className="case-item-card">
-                        <span className="nft-label">NFT</span>
+                        {item.IsNft && <span className="nft-label">NFT</span>}
                         <div className="case-item-image">
                           {item.type === 'animation' && item.animation ? (
                             <Player
