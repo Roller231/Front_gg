@@ -6,6 +6,7 @@ import Navigation from './Navigation'
 import BetModal from './BetModal'
 import { useLanguage } from '../context/LanguageContext'
 import { useCrashSocket } from "../hooks/useCrashSocket";
+import { useCrashContext } from '../context/CrashContext'
 import { getCrashBetsByRound, getCrashBotById } from '../api/crash'
 import { getUserById } from '../api/users'
 import { getDropById } from '../api/cases'
@@ -19,8 +20,6 @@ const MemoHeader = memo(Header)
 const MemoNavigation = memo(Navigation)
 const MemoBetModal = memo(BetModal)
 
-const initialHistoryValues = [1.0, 1.2, 4.96, 5.42, 8.5, 4.95, 4.0]
-const initialHistory = initialHistoryValues.map(value => ({ value, isPending: false }))
 
 
 
@@ -89,12 +88,21 @@ const CrashLine = memo(function CrashLine({ multiplier, maxMultiplier }) {
 
 function CrashPage() {
   const { t } = useLanguage()
-  const [gameState, setGameState] = useState('countdown') // 'countdown' | 'preflight' | 'flying' | 'postflight'
-  const [countdown, setCountdown] = useState(null)
-  const [multiplier, setMultiplier] = useState(1.0)
-  const [coefficientHistory, setCoefficientHistory] = useState(initialHistory)
+  const {
+    gameState,
+    setGameState,
+    countdown,
+    setCountdown,
+    multiplier,
+    setMultiplier,
+    coefficientHistory,
+    roundId: contextRoundId,
+    setRoundId: setContextRoundId,
+    send: contextSend,
+    connected: contextConnected,
+  } = useCrashContext()
+  
   const coeffHistoryRef = useRef(null)
-  const prevGameState = useRef(null)
   const multiplierRafIdRef = useRef(null)
   const lastMultiplierUiUpdateRef = useRef(0)
   const [isBetModalOpen, setIsBetModalOpen] = useState(false)
@@ -293,24 +301,12 @@ useEffect(() => {
     switch (msg.event) {
       case "new_round": {
         roundIdRef.current = msg.round_id
-        setGameState("countdown")
-        setHasBetThisRound(false) // Сброс флага ставки при новом раунде
-        setPlayers([]) // Очищаем список игроков
-      
-        if (msg.betting_ends_at) {
-          const now = Date.now() / 1000
-          const left = Math.max(
-            0,
-            Math.ceil(msg.betting_ends_at - now)
-          )
-          setCountdown(left)
-        }
-      
+        setHasBetThisRound(false)
+        setPlayers([])
         loadBets(msg.round_id)
         break
       }
       case "cashout": {
-        // обновляем игроков (UI)
         setPlayers(prev =>
           prev.map(p =>
             p.userId === msg.user_id
@@ -319,7 +315,6 @@ useEffect(() => {
           )
         )
       
-        // ✅ ЕСЛИ ЭТО НАШ ЮЗЕР — ВСЕГДА ОБНОВЛЯЕМ БАЛАНС
         if (msg.user_id === user?.id) {
           getUserById(user.id)
             .then(freshUser => {
@@ -329,7 +324,6 @@ useEffect(() => {
               console.error('Failed to refresh user after cashout', err)
             })
       
-          // win modal
           const myBet = players.find(p => p.userId === user.id)
       
           if (myBet) {
@@ -342,88 +336,45 @@ useEffect(() => {
             setWinModalOpen(true)
           }
         }
-      
         break
       }
       
       case "bet_placed": {
-        // сразу перезагружаем ставки текущего раунда
         if (roundIdRef.current) {
           loadBets(roundIdRef.current)
         }
         break
       }
       
-      
       case "state": {
         if (msg.round_id) {
           roundIdRef.current = msg.round_id
           loadBets(msg.round_id)
         }
-      
-        if (msg.phase === "betting") {
-          setGameState("countdown")
-      
-          if (msg.betting_ends_at) {
-            const now = Date.now() / 1000
-            const left = Math.max(
-              0,
-              Math.ceil(msg.betting_ends_at - now)
-            )
-            setCountdown(left)
-          }
-        }
-      
-        if (msg.phase === "running") {
-          setGameState("flying")
-          setMultiplier(msg.multiplier ?? 1)
-        }
-      
-        if (msg.phase === "crashed") {
-          setGameState("postflight")
-        }
-      
         break
       }
       
-  
-        case "round_start": {
-          setGameState("flying")
-          // Вибрация при старте полёта
-          if (settings?.vibrationEnabled) {
-            vibrate(VIBRATION_PATTERNS.action)
-          }
-        
-          if (msg.round_id) {
-            roundIdRef.current = msg.round_id
-            loadBets(msg.round_id)
-          }
-        
-          break
+      case "round_start": {
+        if (settings?.vibrationEnabled) {
+          vibrate(VIBRATION_PATTERNS.action)
         }
-        
-        
-  
-        case "tick": {
-          // ⬅️ если зашли в середине раунда
-          if (!roundIdRef.current && msg.round_id) {
-            roundIdRef.current = msg.round_id
-            loadBets(msg.round_id)
-          }
-        
-          if (gameState !== "flying") {
-            setGameState("flying")
-          }
-        
-          setMultiplier(msg.multiplier)
-          break
+        if (msg.round_id) {
+          roundIdRef.current = msg.round_id
+          loadBets(msg.round_id)
         }
+        break
+      }
+      
+      case "tick": {
+        if (!roundIdRef.current && msg.round_id) {
+          roundIdRef.current = msg.round_id
+          loadBets(msg.round_id)
+        }
+        break
+      }
         
       case "crash":
-        loadBets(msg.round_id)   // ✅ сразу загрузили
-        setMultiplier(msg.multiplier); // ✅ финальное значение
-        setGameState("postflight");
-        // Вибрация при краше
+        loadBets(msg.round_id)
         if (settings?.vibrationEnabled) {
           vibrate(VIBRATION_PATTERNS.crash)
         }
@@ -444,62 +395,6 @@ useEffect(() => {
   )
 
 
-  useEffect(() => {
-    if (gameState !== 'countdown') return
-    if (countdown === null) return // ⬅️ ВАЖНО
-  
-    const timer = setInterval(() => {
-      setCountdown(c => (c !== null ? Math.max(0, c - 1) : null))
-    }, 1000)
-  
-    return () => clearInterval(timer)
-  }, [gameState, countdown])
-  
-  
-  // Обратный отсчёт
-
-
-  // preflight больше не используется — бесшовный переход
-
-  // Рост множителя во время полёта кота
-
-
-  // Перезапуск игры
-
-
-  // Автоматический перезапуск после краша
-
-
-  // Добавляем "Ожидание" при отсчёте, затем живой коэффициент при полёте
-  useEffect(() => {
-    const previousState = prevGameState.current
-
-    // При старте отсчёта добавляем "Ожидание"
-    if (gameState === 'countdown' && previousState !== 'countdown') {
-      setCoefficientHistory(prevHistory => {
-        if (prevHistory[0]?.isPending || prevHistory[0]?.isLive) {
-          return prevHistory
-        }
-        const updatedHistory = [{ value: null, isPending: true, isLive: false }, ...prevHistory]
-        return updatedHistory.slice(0, 14)
-      })
-    }
-
-    // При старте полёта меняем "Ожидание" на живой коэффициент
-    if (gameState === 'flying' && previousState !== 'flying') {
-      setCoefficientHistory(prevHistory => {
-        const updatedHistory = [...prevHistory]
-        if (updatedHistory[0]?.isPending) {
-          updatedHistory[0] = { value: 1.0, isPending: false, isLive: true }
-        } else if (!updatedHistory[0]?.isLive) {
-          updatedHistory.unshift({ value: 1.0, isPending: false, isLive: true })
-        }
-        return updatedHistory.slice(0, 14)
-      })
-    }
-
-    prevGameState.current = gameState
-  }, [gameState])
 
 
   const getPlayerResultClass = (player) => {
@@ -514,6 +409,21 @@ useEffect(() => {
     }
   
     return ''
+  }
+  
+  const getPlayerRowClass = (player) => {
+    let classes = 'player-row'
+    
+    // При краше добавляем анимацию фона
+    if (gameState === 'postflight') {
+      if (player.cashoutX === null) {
+        classes += ' player-row--lost'
+      } else {
+        classes += ' player-row--won'
+      }
+    }
+    
+    return classes
   }
   
   
@@ -555,24 +465,6 @@ useEffect(() => {
     return '—'
   }
   
-  // Фиксируем коэффициент в истории после краша (убираем isLive)
-  useEffect(() => {
-    if (gameState === 'postflight') {
-      setCoefficientHistory(prevHistory => {
-        const nextValue = Number(multiplier.toFixed(2))
-        const updatedHistory = [...prevHistory]
-        if (updatedHistory[0]?.isLive) {
-          // Фиксируем живой коэффициент
-          updatedHistory[0] = { value: nextValue, isPending: false, isLive: false }
-        } else if (updatedHistory[0]?.isPending) {
-          updatedHistory[0] = { value: nextValue, isPending: false }
-        } else {
-          updatedHistory.unshift({ value: nextValue, isPending: false })
-        }
-        return updatedHistory.slice(0, 14)
-      })
-    }
-  }, [gameState, multiplier])
   const getPlayerRewardLabel = (player) => {
     if (gameState === 'postflight' && !player.cashoutX) {
       return formatAmount(0)
@@ -758,7 +650,7 @@ useEffect(() => {
         {/* Список игроков */}
         <div className="players-list">
   {players.map(player => (
-    <div key={player.id} className="player-row">
+    <div key={player.id} className={getPlayerRowClass(player)}>
       <div className="player-info">
         <div className="player-avatar">
           <img src={player.avatar} alt={player.name} />

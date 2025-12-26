@@ -20,7 +20,7 @@ function BetModal({
   const [activeTab, setActiveTab] = useState('coins') // 'gifts' | 'coins'
   const [selectedGift, setSelectedGift] = useState(null)
   const [autoCashout, setAutoCashout] = useState(false)
-  const [autoCashoutMultiplier, setAutoCashoutMultiplier] = useState('2.00')
+  const [autoCashoutMultiplier, setAutoCashoutMultiplier] = useState('1.30')
   const { selectedCurrency } = useCurrency()
   const { user, setUser } = useUser()
   
@@ -36,18 +36,29 @@ function BetModal({
     return isNoDecimalCurrency ? Math.ceil(converted) : Number(converted.toFixed(2))
   }, [selectedCurrency?.rate, isNoDecimalCurrency])
   
+  const LAST_BET_KEY = `crash_last_bet_${selectedCurrency?.id || 'default'}`
+  
   const defaultBet = useMemo(() => {
+    // Сначала проверяем localStorage
+    const savedBet = localStorage.getItem(LAST_BET_KEY)
+    if (savedBet && Number(savedBet) >= minBetInCurrency) {
+      return savedBet
+    }
+    
     const balance = Number(user?.balance) || 0
     const rate = selectedCurrency?.rate || 1
     const balanceInCurrency = balance / rate
     const twentyPercent = balanceInCurrency * 0.2
     const bet = Math.max(minBetInCurrency, twentyPercent)
     return isNoDecimalCurrency ? Math.floor(bet).toString() : bet.toFixed(2)
-  }, [user?.balance, isNoDecimalCurrency, minBetInCurrency, selectedCurrency?.rate])
+  }, [user?.balance, isNoDecimalCurrency, minBetInCurrency, selectedCurrency?.rate, LAST_BET_KEY])
   
   const [betAmount, setBetAmount] = useState(defaultBet)
   const { send, connected } = useCrashSocket(() => {})
-
+  
+  useEffect(() => {
+    localStorage.setItem(LAST_BET_KEY, betAmount)
+  }, [betAmount, LAST_BET_KEY])
   
   // Для свайпа
   const modalRef = useRef(null)
@@ -333,8 +344,10 @@ function BetModal({
   const handleMaxClick = () => {
     if (!selectedCurrency?.amount) return
     const numeric = selectedCurrency.amount.replace(/[^0-9.]/g, '')
-    // Всегда округляем вниз до целого числа
-    const value = Math.floor(Number(numeric)).toString()
+    // Сохраняем десятичные значения
+    const value = isNoDecimalCurrency 
+      ? Math.floor(Number(numeric)).toString() 
+      : numeric
     setBetAmount(value || '0')
   }
 
@@ -527,7 +540,13 @@ function BetModal({
                         className="auto-cashout-input"
                         value={autoCashoutMultiplier}
                         onChange={(e) => setAutoCashoutMultiplier(e.target.value.replace(/[^0-9.]/g, ''))}
-                        placeholder="2.00"
+                        onBlur={(e) => {
+                          const val = parseFloat(e.target.value)
+                          if (isNaN(val) || val < 1.3) {
+                            setAutoCashoutMultiplier('1.30')
+                          }
+                        }}
+                        placeholder="1.30"
                       />
                     </div>
                   )}

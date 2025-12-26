@@ -23,6 +23,7 @@ import { useUser } from './context/UserContext'
 import { AppDataProvider, useAppData } from './context/AppDataContext'
 import { LiveFeedProvider } from './context/LiveFeedContext'
 import { FreeSpinProvider, useFreeSpin } from './context/FreeSpinContext'
+import { CrashProvider } from './context/CrashContext'
 import { useOnlineWs} from './hooks/useOnlineWs'
 /* ================= HOME ================= */
 
@@ -180,7 +181,9 @@ function App() {
           <CurrencyProvider>
             <AppDataProvider>
               <LiveFeedProvider>
-                <AppContent />
+                <CrashProvider>
+                  <AppContent />
+                </CrashProvider>
               </LiveFeedProvider>
             </AppDataProvider>
           </CurrencyProvider>
