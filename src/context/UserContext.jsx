@@ -45,7 +45,21 @@ export function UserProvider({ children }) {
   const initUser = async ({ tg_id, username, firstname, photo_url }) => {
     try {
       const existingUser = await usersApi.getUserByTgId(tg_id)
-      setUser(existingUser)
+      
+      // Обновляем аватар если он изменился в Telegram
+      if (photo_url && existingUser.url_image !== photo_url) {
+        try {
+          const updatedUser = await usersApi.updateUser(existingUser.id, {
+            url_image: photo_url,
+          })
+          setUser(updatedUser)
+        } catch (updateErr) {
+          console.warn('Failed to update avatar:', updateErr)
+          setUser(existingUser)
+        }
+      } else {
+        setUser(existingUser)
+      }
     } catch (err) {
       if (err.message === 'User not found') {
         const newUser = await usersApi.createUser({
