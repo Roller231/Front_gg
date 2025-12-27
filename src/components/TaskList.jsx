@@ -47,7 +47,7 @@ function TaskList() {
   
 
   const handleClaimFirst = async () => {
-    if (!user || !rewards?.first_reward.available) return
+    if (!user || !rewards?.daily_reward.available) return
   
     try {
       setClaiming(true)
@@ -139,15 +139,15 @@ function TaskList() {
         <div className="task-left">
           <span
             className={`task-check ${
-              rewards?.first_reward.used ? 'completed' : ''
+              rewards?.daily_reward.used ? 'completed' : ''
             }`}
           >
-            {rewards?.first_reward.used && '✓'}
+            {rewards?.daily_reward.used && '✓'}
           </span>
   
           <span
             className={`task-text ${
-              rewards?.first_reward.used ? 'completed' : ''
+              rewards?.daily_reward.used ? 'completed' : ''
             }`}
           >
             {t('tasks.play1Times')}
@@ -156,14 +156,14 @@ function TaskList() {
   
         <button
           className={`take-btn ${
-            rewards?.first_reward.available && !rewards?.first_reward.used
+            rewards?.daily_reward.available && !rewards?.daily_reward.used
               ? 'active'
               : 'inactive'
           }`}
           disabled={
             claiming ||
-            rewards?.first_reward.used ||
-            !rewards?.first_reward.available
+            rewards?.daily_reward.used ||
+            !rewards?.daily_reward.available
           }
           onClick={handleClaimFirst}
         >

@@ -66,6 +66,7 @@ export function UserProvider({ children }) {
           tg_id,
           username,
           firstname,
+          refLink: 'https://t.me/ggcat_game_bot?start=' + tg_id,
           url_image: photo_url || null,
         })
         setUser(newUser)
