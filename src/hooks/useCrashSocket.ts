@@ -43,6 +43,10 @@ export function useCrashSocket(onMessage: (msg: any) => void) {
   const connect = useCallback(() => {
     if (isUnmountedRef.current) return;
     
+    // Закрываем старое соединение если есть
+    if (wsRef.current) {
+      wsRef.current.close();
+    }
 
     console.log("🔄 Connecting to Crash WS...");
     const ws = new WebSocket(WS_URL);
