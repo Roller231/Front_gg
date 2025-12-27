@@ -166,7 +166,7 @@
 
    .notification {
     position: fixed;
-    top: 16px;                /* 🔝 сверху */
+    top: 80px;                /* ниже хедера */
     left: 50%;
     transform: translateX(-50%);
     z-index: 3000;

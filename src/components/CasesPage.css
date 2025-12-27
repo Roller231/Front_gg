@@ -316,6 +316,7 @@
   max-width: none !important;
   max-height: none !important;
   object-fit: contain !important;
+  border-radius: inherit;
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
   padding: 10px;
 }
