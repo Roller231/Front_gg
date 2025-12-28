@@ -347,7 +347,16 @@ if (loading || !user) {
             placeholder={t('deposit.amount')}
             value={amount}
             onChange={(e) => {
-              const value = e.target.value.replace(/[^0-9.]/g, '')
+              let value = e.target.value
+              // Заменяем запятые на точки для унификации
+              value = value.replace(/,/g, '.')
+              // Удаляем все символы кроме цифр и точек
+              value = value.replace(/[^0-9.]/g, '')
+              // Предотвращаем множественные точки
+              const parts = value.split('.')
+              if (parts.length > 2) {
+                value = parts[0] + '.' + parts.slice(1).join('')
+              }
               setAmount(value)
             }}
           />
@@ -379,7 +388,16 @@ if (loading || !user) {
                   placeholder={t('deposit.amount')}
                   value={amount}
                   onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9.]/g, '')
+                    let value = e.target.value
+                    // Заменяем запятые на точки для унификации
+                    value = value.replace(/,/g, '.')
+                    // Удаляем все символы кроме цифр и точек
+                    value = value.replace(/[^0-9.]/g, '')
+                    // Предотвращаем множественные точки
+                    const parts = value.split('.')
+                    if (parts.length > 2) {
+                      value = parts[0] + '.' + parts.slice(1).join('')
+                    }
                     setAmount(value)
                   }}
                 />
