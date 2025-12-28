@@ -5,7 +5,6 @@ import Header from './Header'
 import Navigation from './Navigation'
 import BetModal from './BetModal'
 import { useLanguage } from '../context/LanguageContext'
-import { useCrashSocket } from "../hooks/useCrashSocket";
 import { useCrashContext } from '../context/CrashContext'
 import { getCrashBetsByRound, getCrashBotById } from '../api/crash'
 import { getUserById } from '../api/users'
@@ -98,8 +97,9 @@ function CrashPage() {
     coefficientHistory,
     roundId: contextRoundId,
     setRoundId: setContextRoundId,
-    send: contextSend,
-    connected: contextConnected,
+    send,
+    connected,
+    subscribe,
   } = useCrashContext()
   
   const coeffHistoryRef = useRef(null)
@@ -110,6 +110,7 @@ function CrashPage() {
   const [giftIconIndex, setGiftIconIndex] = useState(0)
   const [winModalOpen, setWinModalOpen] = useState(false)
   const [winData, setWinData] = useState(null) // { giftIcon, wonAmount, multiplier }
+  const [explosionPlayed, setExplosionPlayed] = useState(false)
   const [bets, setBets] = useState({});
   const { user, setUser, settings } = useUser();
     const roundIdRef = useRef(null);
@@ -297,90 +298,97 @@ useEffect(() => {
 }, [gameState, loadBets])
 
 
-  const { send, connected } = useCrashSocket((msg) => {
-    switch (msg.event) {
-      case "new_round": {
-        roundIdRef.current = msg.round_id
-        setHasBetThisRound(false)
-        setPlayers([])
-        loadBets(msg.round_id)
-        break
-      }
-      case "cashout": {
-        setPlayers(prev =>
-          prev.map(p =>
-            p.userId === msg.user_id
-              ? { ...p, cashoutX: msg.multiplier }
-              : p
+  // Подписка на сообщения WebSocket через контекст
+  useEffect(() => {
+    const handleMessage = (msg) => {
+      switch (msg.event) {
+        case "new_round": {
+          roundIdRef.current = msg.round_id
+          setHasBetThisRound(false)
+          setExplosionPlayed(false)
+          setPlayers([])
+          loadBets(msg.round_id)
+          break
+        }
+        case "cashout": {
+          setPlayers(prev =>
+            prev.map(p =>
+              p.userId === msg.user_id
+                ? { ...p, cashoutX: msg.multiplier }
+                : p
+            )
           )
-        )
-      
-        if (msg.user_id === user?.id) {
-          getUserById(user.id)
-            .then(freshUser => {
-              setUser(freshUser)
-            })
-            .catch(err => {
-              console.error('Failed to refresh user after cashout', err)
-            })
-      
-          const myBet = players.find(p => p.userId === user.id)
-      
-          if (myBet) {
-            setWinData({
-              giftIcon: myBet.gift ? myBet.giftIcon : null,
-              wonAmount: myBet.betAmount * msg.multiplier,
-              multiplier: msg.multiplier,
-              isGift: myBet.gift,
-            })
-            setWinModalOpen(true)
-          }
-        }
-        break
-      }
-      
-      case "bet_placed": {
-        if (roundIdRef.current) {
-          loadBets(roundIdRef.current)
-        }
-        break
-      }
-      
-      case "state": {
-        if (msg.round_id) {
-          roundIdRef.current = msg.round_id
-          loadBets(msg.round_id)
-        }
-        break
-      }
-      
-      case "round_start": {
-        if (settings?.vibrationEnabled) {
-          vibrate(VIBRATION_PATTERNS.action)
-        }
-        if (msg.round_id) {
-          roundIdRef.current = msg.round_id
-          loadBets(msg.round_id)
-        }
-        break
-      }
-      
-      case "tick": {
-        if (!roundIdRef.current && msg.round_id) {
-          roundIdRef.current = msg.round_id
-          loadBets(msg.round_id)
-        }
-        break
-      }
         
-      case "crash":
-        loadBets(msg.round_id)
-        if (settings?.vibrationEnabled) {
-          vibrate(VIBRATION_PATTERNS.crash)
+          if (msg.user_id === user?.id) {
+            getUserById(user.id)
+              .then(freshUser => {
+                setUser(freshUser)
+              })
+              .catch(err => {
+                console.error('Failed to refresh user after cashout', err)
+              })
+        
+            const myBet = players.find(p => p.userId === user.id)
+        
+            if (myBet) {
+              setWinData({
+                giftIcon: myBet.gift ? myBet.giftIcon : null,
+                wonAmount: myBet.betAmount * msg.multiplier,
+                multiplier: msg.multiplier,
+                isGift: myBet.gift,
+              })
+              setWinModalOpen(true)
+            }
+          }
+          break
         }
-        break;
+        
+        case "bet_placed": {
+          if (roundIdRef.current) {
+            loadBets(roundIdRef.current)
+          }
+          break
+        }
+        
+        case "state": {
+          if (msg.round_id) {
+            roundIdRef.current = msg.round_id
+            loadBets(msg.round_id)
+          }
+          break
+        }
+        
+        case "round_start": {
+          if (settings?.vibrationEnabled) {
+            vibrate(VIBRATION_PATTERNS.action)
+          }
+          if (msg.round_id) {
+            roundIdRef.current = msg.round_id
+            loadBets(msg.round_id)
+          }
+          break
+        }
+        
+        case "tick": {
+          if (!roundIdRef.current && msg.round_id) {
+            roundIdRef.current = msg.round_id
+            loadBets(msg.round_id)
+          }
+          break
+        }
+          
+        case "crash":
+          loadBets(msg.round_id)
+          if (settings?.vibrationEnabled) {
+            vibrate(VIBRATION_PATTERNS.crash)
+          }
+          break;
+      }
     }
-  });
+
+    const unsubscribe = subscribe(handleMessage)
+    return unsubscribe
+  }, [subscribe, loadBets, user, players, setUser, settings])
   
   
 
@@ -552,7 +560,7 @@ useEffect(() => {
               </>
             )}
 
-{gameState === 'postflight' && (
+{gameState === 'postflight' && !explosionPlayed && (
   <Player
     autoplay
     loop={false}
@@ -562,7 +570,7 @@ useEffect(() => {
     speed={1.18}
     onEvent={(event) => {
       if (event === 'complete') {
-        // 👇 просто убираем анимацию после окончания
+        setExplosionPlayed(true)
         setGameState('postflight-done')
       }
     }}

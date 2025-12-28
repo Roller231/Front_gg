@@ -23,6 +23,8 @@ export function CrashProvider({ children }) {
   const heartbeatIntervalRef = useRef(null)
   const isUnmountedRef = useRef(false)
   const prevGameState = useRef(null)
+  const handleMessageRef = useRef(null)
+  const subscribersRef = useRef(new Set())
 
   const clearTimers = useCallback(() => {
     if (reconnectTimeoutRef.current) {
@@ -113,6 +115,11 @@ export function CrashProvider({ children }) {
     }
   }, [gameState, roundId])
 
+  // Обновляем ref при каждом рендере
+  useEffect(() => {
+    handleMessageRef.current = handleMessage
+  })
+
   const connect = useCallback(() => {
     if (isUnmountedRef.current) return
     
@@ -132,7 +139,9 @@ export function CrashProvider({ children }) {
       try {
         const msg = JSON.parse(event.data)
         if (msg.event === 'pong') return
-        handleMessage(msg)
+        handleMessageRef.current?.(msg)
+        // Уведомляем всех подписчиков
+        subscribersRef.current.forEach(callback => callback(msg))
       } catch {
         console.warn('Bad WS message', event.data)
       }
@@ -152,7 +161,7 @@ export function CrashProvider({ children }) {
         }, RECONNECT_DELAY)
       }
     }
-  }, [startHeartbeat, clearTimers, handleMessage])
+  }, [startHeartbeat, clearTimers])
 
   // Обратный отсчёт
   useEffect(() => {
@@ -225,12 +234,18 @@ export function CrashProvider({ children }) {
         wsRef.current.close()
       }
     }
-  }, [connect, clearTimers])
+  }, [])
 
   const send = useCallback((data) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify(data))
     }
+  }, [])
+
+  // Подписка на сообщения WebSocket
+  const subscribe = useCallback((callback) => {
+    subscribersRef.current.add(callback)
+    return () => subscribersRef.current.delete(callback)
   }, [])
 
   const value = {
@@ -246,6 +261,7 @@ export function CrashProvider({ children }) {
     setRoundId,
     connected,
     send,
+    subscribe,
   }
 
   return (

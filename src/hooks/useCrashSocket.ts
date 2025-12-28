@@ -99,7 +99,8 @@ export function useCrashSocket(onMessage: (msg: any) => void) {
         wsRef.current.close();
       }
     };
-  }, [connect, clearTimers]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const send = useCallback((data: any) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
