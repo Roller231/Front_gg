@@ -366,7 +366,11 @@ function BetModal({
   // Проверяем, можно ли сделать ставку
   const betAmountNum = Number(betAmount)
   const isBetAmountValid = betAmountNum > 0 && betAmountNum >= minBetInCurrency
-  const canPlaceBet = canBet && isBetAmountValid
+  
+  // Проверяем баланс
+  const balanceNum = Number(selectedCurrency?.amount?.replace(/[^0-9.,]/g, '').replace(',', '.') || 0)
+  const hasEnoughBalance = betAmountNum <= balanceNum
+  const canPlaceBet = canBet && isBetAmountValid && hasEnoughBalance
 
   const handleCoinsSubmit = async () => {
     if (!selectedCurrency?.rate || !user?.id) return
