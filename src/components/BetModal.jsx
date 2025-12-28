@@ -343,8 +343,12 @@ function BetModal({
 
   const handleMaxClick = () => {
     if (!selectedCurrency?.amount) return
-    const numeric = selectedCurrency.amount.replace(/[^0-9.]/g, '')
-    // Сохраняем десятичные значения
+    // Парсим русский формат: точки как разделители тысяч, запятая как десятичный разделитель
+    // Например: "1.234,56" -> "1234.56"
+    const normalized = selectedCurrency.amount
+      .replace(/\./g, '')  // убираем разделители тысяч
+      .replace(',', '.')   // заменяем запятую на точку
+    const numeric = normalized.replace(/[^0-9.]/g, '')
     const value = isNoDecimalCurrency 
       ? Math.floor(Number(numeric)).toString() 
       : numeric
@@ -359,16 +363,27 @@ function BetModal({
   const primaryButtonText = isWithdrawMode ? t('betModal.withdraw') : t('betModal.placeBet')
   const isRoulette = game === 'roulette'
 
+  // Проверяем, можно ли сделать ставку
+  const betAmountNum = Number(betAmount)
+  const isBetAmountValid = betAmountNum > 0 && betAmountNum >= minBetInCurrency
+  const canPlaceBet = canBet && isBetAmountValid
+
   const handleCoinsSubmit = async () => {
     if (!selectedCurrency?.rate || !user?.id) return
   
     const uiAmount = Number(betAmount)
     if (!uiAmount || uiAmount <= 0) return
+    
+    // Проверка минимальной ставки
+    if (uiAmount < minBetInCurrency) {
+      console.warn(`Minimum bet is ${minBetInCurrency}`)
+      return
+    }
   
     // конвертируем в TON
     const amountInTon = uiAmount * selectedCurrency.rate
   
-    // ✅ PvP: проверка ТОЛЬКО по user.balance
+    // PvP: проверка ТОЛЬКО по user.balance
     if (game === 'pvp') {
       const balanceTon = Number(user?.balance ?? 0)
   
@@ -514,8 +529,11 @@ function BetModal({
                   </button>
                 </div>
               </div>
-              <div className="bet-min-amount-hint">
-                {t('betModal.minBet')}: {minBetInCurrency}
+              <div className={`bet-min-amount-hint ${betAmountNum > 0 && betAmountNum < minBetInCurrency ? 'bet-min-amount-hint--error' : ''}`}>
+                {betAmountNum > 0 && betAmountNum < minBetInCurrency 
+                  ? `Минимальная ставка 0.5 TON (${minBetInCurrency} ${selectedCurrency?.name || ''})`
+                  : `${t('betModal.minBet')}: ${minBetInCurrency}`
+                }
                 <img src={currencyIcon} alt="currency" className="bet-min-coin-icon" />
               </div>
 
@@ -554,11 +572,11 @@ function BetModal({
               )}
 
               <button
-                className={`bet-submit-button ${!canBet ? 'disabled' : ''}`}
+                className={`bet-submit-button ${!canPlaceBet ? 'disabled' : ''}`}
                 onClick={handleCoinsSubmit}
-                disabled={!canBet}
+                disabled={!canPlaceBet}
               >
-                {canBet ? primaryButtonText : t('crash.betsClosed')}
+                {canPlaceBet ? primaryButtonText : t('crash.betsClosed')}
               </button>
 
             </div>
