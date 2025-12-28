@@ -520,7 +520,6 @@ function BetModal({
                   className="bet-amount-input"
                   value={betAmount}
                   onChange={(e) => {
-                    // Для валют без дробной части убираем точку
                     const regex = isNoDecimalCurrency ? /[^0-9]/g : /[^0-9.]/g
                     setBetAmount(e.target.value.replace(regex, ''))
                   }}
@@ -533,9 +532,11 @@ function BetModal({
                   </button>
                 </div>
               </div>
-              <div className={`bet-min-amount-hint ${betAmountNum > 0 && betAmountNum < minBetInCurrency ? 'bet-min-amount-hint--error' : ''}`}>
+              <div className={`bet-min-amount-hint ${betAmountNum > 0 && (betAmountNum < minBetInCurrency || !hasEnoughBalance) ? 'bet-min-amount-hint--error' : ''}`}>
                 {betAmountNum > 0 && betAmountNum < minBetInCurrency 
                   ? `Минимальная ставка 0.5 TON (${minBetInCurrency} ${selectedCurrency?.name || ''})`
+                  : betAmountNum > 0 && !hasEnoughBalance
+                  ? `Недостаточно баланса. Доступно: ${currencyAmountLabel}`
                   : `${t('betModal.minBet')}: ${minBetInCurrency}`
                 }
                 <img src={currencyIcon} alt="currency" className="bet-min-coin-icon" />
