@@ -279,7 +279,7 @@ function PartnerPage() {
                 <div key={friend.id} className="friend-item">
                   <span className="friend-rank">{index + 1}</span>
                   <img src={friend.avatar} alt={friend.name} className="friend-avatar" />
-                  <span className="friend-name">{friend.name}</span>
+                  <span className="friend-name">{friend.firstname}</span>
                   <span className="friend-earnings">
                   {formatNumber(friend.totalDEP)}
                   <img src={selectedCurrency?.icon || '/image/Coin-Icon.svg'} alt={selectedCurrency?.id || 'TON'} className="ton-icon" />
