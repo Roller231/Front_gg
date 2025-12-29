@@ -293,7 +293,7 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
 
       {/* ===== PARTNER PROGRAM ===== */}
       <img
-        src="/image/18.png"
+        src="/image/18.jpg"
         alt="Partner Program"
         className="partner-program-img"
         onClick={() => navigate('/partner')}
