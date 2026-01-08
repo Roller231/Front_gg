@@ -140,12 +140,12 @@ function WheelPage() {
   const buildInitialWheel = () => {
     const TOTAL = 10
     if (!allDrops.length) return []
-  
+
     const prizes = []
-  
+
     while (prizes.length < TOTAL) {
       const r = allDrops[Math.floor(Math.random() * allDrops.length)]
-  
+
       prizes.push({
         id: Math.random(),
         basePrice: r.price, // ✅
@@ -157,9 +157,17 @@ function WheelPage() {
       
       
     }
-  
+
     return prizes
   }
+
+  const handleRefresh = () => {
+    if (isSpinning || !allDrops.length) return
+    const newPrizes = buildInitialWheel()
+    setWheelPrizes(newPrizes)
+    setRotation(0) // Сбросить позицию колеса
+  }
+
   useEffect(() => {
     if (!allDrops.length) return
   
@@ -626,6 +634,13 @@ function WheelPage() {
 
             <button className="wheel-prizes-btn" onClick={handleOpenPrizes}>
               {t('wheel.prizesList')}
+            </button>
+            <button 
+              className="wheel-refresh-btn" 
+              onClick={handleRefresh}
+              disabled={isSpinning}
+            >
+              {t('wheel.refresh')}
             </button>
           </div>
         </div>

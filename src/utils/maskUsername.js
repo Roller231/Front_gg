@@ -1,25 +1,29 @@
 /**
- * Маскирует имя пользователя: первые 3 символа + **** + последние 3 символа
- * Например: "mr_testman" -> "mr_****man"
- * Для коротких имен (<=6 символов) показывает первые 2 + ** + последние 2
+ * Маскирует имя пользователя: первый символ + *** + последний символ
+ * Например: "Ольга" -> "О***а", "mr_testman" -> "m*****n"
  */
 export function maskUsername(name) {
   if (!name || typeof name !== 'string') return name
 
   const trimmed = name.trim()
   
-  if (trimmed.length <= 4) {
-    // Слишком короткое имя - показываем первый и последний символ
+  if (trimmed.length <= 2) {
+    // Слишком короткое имя - показываем как есть с одной звёздочкой
+    return trimmed[0] + '*'
+  }
+  
+  if (trimmed.length <= 5) {
+    // Короткое имя (3-5 символов) - первый + ** + последний
     return trimmed[0] + '**' + trimmed[trimmed.length - 1]
   }
   
-  if (trimmed.length <= 6) {
-    // Короткое имя - показываем первые 2 и последние 2
-    return trimmed.slice(0, 2) + '**' + trimmed.slice(-2)
+  if (trimmed.length <= 8) {
+    // Среднее имя (6-8 символов) - первый + *** + последний
+    return trimmed[0] + '***' + trimmed[trimmed.length - 1]
   }
   
-  // Стандартная маскировка: первые 3 + **** + последние 3
-  return trimmed.slice(0, 3) + '****' + trimmed.slice(-3)
+  // Длинное имя (>8 символов) - первый + ***** + последний
+  return trimmed[0] + '*****' + trimmed[trimmed.length - 1]
 }
 
 export default maskUsername

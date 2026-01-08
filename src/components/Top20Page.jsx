@@ -91,7 +91,7 @@ function Top20Page() {
 />
                     </div>
                     <div className="top20-name">
-                      {settings?.hideLogin ? maskUsername(player.name) : player.name}
+                      {player.isYou && settings?.hideLogin ? maskUsername(player.name) : player.name}
                     </div>
                   </div>
 

@@ -614,18 +614,19 @@ function BetModal({
                       {gift.name}
                     </div>
                     <div className="bet-gift-card-price">
-                      {gift.price?.toFixed(0) || '0'}
+                      {gift.price?.toFixed(2) || '0.00'}
                       <img src={selectedCurrency?.icon || '/image/Coin-Icon.svg'} alt="currency" />
                     </div>
                     <button
-                      className={`bet-gift-place-btn ${selectedGift === gift.id ? 'selected' : ''} ${!canBet ? 'disabled' : ''}`}
+                      className={`bet-gift-place-btn ${selectedGift === gift.id ? 'selected' : ''} ${!canBet || gift.price < 0.5 ? 'disabled' : ''}`}
                       onClick={() => {
-                        if (canBet) {
+                        if (canBet && gift.price >= 0.5) {
                           setSelectedGift(gift.id)
                           handleGiftsSubmit(gift.id)
                         }
                       }}
-                      disabled={!canBet}
+                      disabled={!canBet || gift.price < 0.5}
+                      title={gift.price < 0.5 ? 'Минимальная ставка 0.5 TON' : ''}
                     >
                       {t('betModal.placeBet')}
                     </button>

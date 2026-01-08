@@ -111,6 +111,7 @@ export const translations = {
       topUpBalance: 'Пополнить баланс',
       betHint: 'Выше ставка - больше ценность лута',
       prizesList: 'Список призов',
+      refresh: 'Обновить',
       congratulations: 'Поздравляем!',
       claim: 'Забрать',
       from: 'от',
@@ -281,7 +282,7 @@ export const translations = {
     // Task List
     tasks: {
       play10Times: 'Бонус за 10-й вход',
-      play1Times: 'Бонус за 1-й вход',
+      play1Times: 'Ежедневный бонус',
       take: 'Забрать',
       promoPlaceholder: 'ПРОМОКОД',
       apply: 'Применить',
@@ -400,6 +401,7 @@ export const translations = {
       topUpBalance: 'Top Up Balance',
       betHint: 'Higher bet - more valuable loot',
       prizesList: 'Prize List',
+      refresh: 'Refresh',
       congratulations: 'Congratulations!',
       claim: 'Claim',
       from: 'from',
@@ -570,7 +572,7 @@ export const translations = {
     // Task List
     tasks: {
       play10Times: '10th Login Bonus',
-      play1Times: 'First Login Bonus',
+      play1Times: 'Daily Bonus',
       take: 'Take',
       promoPlaceholder: 'PROMOCODE',
       apply: 'Apply',

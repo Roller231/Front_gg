@@ -206,7 +206,9 @@ const loadBets = useCallback(async (roundId) => {
         let name = 'Unknown'
         let avatar = '/image/default-avatar.png'
 
-        if (bet.user_id < 0) {
+        const isBot = bet.user_id < 0
+        
+        if (isBot) {
           const botId = Math.abs(bet.user_id)
           if (!botsCache.has(botId)) {
             botsCache.set(botId, await getCrashBotById(botId))
@@ -214,6 +216,8 @@ const loadBets = useCallback(async (roundId) => {
           const bot = botsCache.get(botId)
           name = bot?.nickname ?? 'Bot'
           avatar = bot?.avatar_url ?? avatar
+          // Боты всегда с маскировкой
+          name = maskUsername(name)
         }
 
         if (bet.user_id > 0) {
@@ -265,6 +269,7 @@ const loadBets = useCallback(async (roundId) => {
             gift: !!bet.gift,
             giftId: bet.gift_id ?? null,
             giftIcon,
+            isBot,
           }
           
           
@@ -666,7 +671,12 @@ useEffect(() => {
 
         <div className="player-details">
           <span className="player-name">
-                            {settings?.hideLogin ? maskUsername(player.name) : player.name}
+                            {player.isBot 
+                              ? player.name  // Боты уже замаскированы при загрузке
+                              : (player.userId === user?.id && settings?.hideLogin) 
+                                ? maskUsername(player.name) 
+                                : player.name
+                            }
                           </span>
 
           <div className="player-stats-row">
