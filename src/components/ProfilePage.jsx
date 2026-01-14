@@ -410,12 +410,17 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
         </div>
       </div>
 
-      {/* ===== WITHDRAW BUTTON ===== */}
+        {/* ===== WITHDRAW BUTTON ===== */}
       <button
   className="withdraw-btn gg-btn-glow"
+  disabled={!withdrawInfo?.can_withdraw || (balance < 0.5)}
   onClick={() => {
     if (!withdrawInfo?.can_withdraw) {
       showNotification(t('profile.withdrawDepositRequired', { amount: '3' }))
+      return
+    }
+    if (balance < 0.5) {
+      showNotification(t('profile.insufficientBalance'))
       return
     }
     setIsWithdrawModalOpen(true)

@@ -789,21 +789,12 @@ function WheelPage() {
                                 {category.drops.map(drop => (
                                   <div key={drop.id} className="prize-card">
                                     <div className="prize-image">
-                                      {drop.lottie_anim ? (
-                                        <Player
-                                          autoplay
-                                          loop
-                                          src={drop.lottie_anim}
-                                          className="prize-animation"
-                                        />
-                                      ) : (
-                                        <img 
-                                          src={drop.icon} 
-                                          alt={drop.name} 
-                                          className="prize-img"
-                                          loading="lazy"
-                                        />
-                                      )}
+                                      <img 
+                                        src={drop.icon} 
+                                        alt={drop.name} 
+                                        className="prize-img"
+                                        loading="lazy"
+                                      />
                                     </div>
                                     <span className="prize-price-badge">
                                       <img src={currencyIcon} alt="currency" className="prize-price-coin" />

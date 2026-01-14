@@ -216,8 +216,7 @@ const loadBets = useCallback(async (roundId) => {
           const bot = botsCache.get(botId)
           name = bot?.nickname ?? 'Bot'
           avatar = bot?.avatar_url ?? avatar
-          // Боты всегда с маскировкой
-          name = maskUsername(name)
+          // Боты НЕ маскируются - это обычные игроки
         }
 
         if (bet.user_id > 0) {
@@ -671,11 +670,9 @@ useEffect(() => {
 
         <div className="player-details">
           <span className="player-name">
-                            {player.isBot 
-                              ? player.name  // Боты уже замаскированы при загрузке
-                              : (player.userId === user?.id && settings?.hideLogin) 
-                                ? maskUsername(player.name) 
-                                : player.name
+                            {(player.userId === user?.id && settings?.hideLogin) 
+                              ? maskUsername(player.name) 
+                              : player.name
                             }
                           </span>
 
