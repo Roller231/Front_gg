@@ -287,40 +287,68 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
 
       {/* ===== PROMO BLOCKS ===== */}
       <div className="promo-section">
-        {/* Daily Promo */}
-        <div className="promo-block telegram-promo">
-          <div className="promo-icon-bg">
-            <img src="/image/teleg.svg" alt="TG" className="promo-bg-icon" onError={(e) => e.target.style.display = 'none'} />
+        {/* Telegram Promo */}
+        <div className="promo-block telegram-promo" onClick={() => window.open('https://t.me/ggcat_gift', '_blank')}>
+          {/* DECOR LAYERS */}
+          <div className="promo-decor-layer">
+            <div className="promo-blob-1"></div>
+            <div className="promo-blob-2"></div>
+            <div className="promo-accent-circle"></div>
+            <div className="promo-stripes"></div>
           </div>
-          <div className="promo-content">
-            <h3 className="promo-title">ЕЖЕДНЕВНЫЙ PROMOCODE</h3>
-            <div className="promo-code">@ggcat_gift</div>
+          
+          <div className="promo-content-left">
+            <div className="promo-icon-box">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="promo-fixed-icon">
+                <path d="M20.665 3.333L3.333 10.665L8.665 12.665L18.665 5.333L10.665 13.333L10.665 18.665L14.665 14.665L18.665 17.333L20.665 3.333Z" fill="white"/>
+              </svg>
+            </div>
+            <div className="promo-text-group">
+                <div className="promo-header-row">
+                    <h3 className="promo-title">ТВОЙ ПРОМОКОД</h3>
+                    <span className="promo-tag">DAILY</span>
+                </div>
+                <p className="promo-description">
+                    <span className="promo-highlight">@ggcat_gift</span> — подпишись на канал, чтоб не упустить выгоду
+                </p>
+            </div>
           </div>
-          <a
-            href="https://t.me/ggcat_gift"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="promo-btn"
-          >
-            Подписаться
-          </a>
+          <div className="promo-action-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 18L15 12L9 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
         </div>
 
         {/* Partner Program */}
-        <div className="promo-block partner-promo">
-          <div className="promo-icon-bg partner-bg-icon">
-            <span>🤝</span>
+        <div className="promo-block partner-promo" onClick={() => navigate('/partner')}>
+           {/* DECOR LAYERS */}
+           <div className="promo-decor-layer">
+            <div className="promo-blob-1"></div>
+            <div className="promo-blob-2"></div>
+            <div className="promo-accent-triangle"></div>
+            <div className="promo-stripes"></div>
           </div>
-          <div className="promo-content">
-            <h3 className="promo-title">ПАРТНЁРСКАЯ ПРОГРАММА</h3>
-            <p className="promo-subtitle">Приглашай друзей - вместе получай nft и ton</p>
+
+          <div className="promo-content-left">
+            <div className="promo-icon-box partner-icon-box">
+              <img src="/image/partner.svg" alt="Partner" className="promo-fixed-icon" onError={(e) => e.target.style.display = 'block'} />
+            </div>
+             <div className="promo-text-group">
+                <div className="promo-header-row">
+                    <h3 className="promo-title">ПАРТНЕРСКАЯ ПРОГРАММА</h3>
+                    <span className="promo-tag partner-tag">HOT</span>
+                </div>
+                <p className="promo-description">
+                   Зови друзей, мгновенно лови бонус на баланс + жирный % с каждого их пополнения без остановки
+                </p>
+            </div>
           </div>
-          <button
-            className="promo-btn"
-            onClick={() => navigate('/partner')}
-          >
-            Перейти
-          </button>
+          <div className="promo-action-icon">
+             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
         </div>
       </div>
 
