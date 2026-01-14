@@ -173,7 +173,7 @@ function GameCard({ title, online, type = 'default' }) {
       
       {/* Кот справа */}
       <div className="game-card-case-image">
-        <img src="/image/Group 7188.png" alt="cat" />
+        <img src="/image/Group 7188.svg" alt="cat" />
       </div>
     </div>
   )

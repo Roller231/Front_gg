@@ -13,6 +13,7 @@ const MemoHeader = memo(Header)
 const MemoNavigation = memo(Navigation)
 const MemoBetModal = memo(BetModal)
 import { getDropById } from '../api/cases'
+import { maskUsername } from '../utils/maskUsername'
 
 
 const getBodyParts = (t) => [
@@ -218,7 +219,8 @@ function PvPPage() {
 
   const canStartGame = Boolean(attackPart && defendPart && myBet && gameState === 'waiting' && !isWaitingForOpponent)
   const showMatchPanel = Boolean(myBet || isWaitingForOpponent || gameState !== 'waiting')
-  const displayUsername = user?.username ? `@${user.username}` : user?.firstname ? `@${user.firstname}` : '@Username'
+  const rawUsername = user?.username || user?.firstname || 'Username'
+const displayUsername = settings?.hideLogin ? '@' + maskUsername(rawUsername) : '@' + rawUsername
   const displayAvatar = user?.url_image || user?.photo_url || '/image/ava1.png'
   const currencyIcon = selectedCurrency?.icon || '/image/Coin-Icon.svg'
 
@@ -436,12 +438,13 @@ function PvPPage() {
   alt="Opponent"
 />
 <span className="pvp-player-name">
-  {"@" + opponentBot?.nickname || t('pvp.waiting')}
+  {opponentBot?.nickname ? '@' + maskUsername(opponentBot.nickname) : t('pvp.waiting')}
 </span>
 
               </div>
             </div>
 
+...
             <div className="pvp-bets-row">
 
             <div className="pvp-bet-card">
@@ -676,7 +679,7 @@ function PvPPage() {
                   )}
                 </div>
                 <div className="player-details">
-                  <span className="player-name">{player.name}</span>
+                  <span className="player-name">{maskUsername(player.name)}</span>
                   <div className="player-stats-row">
                   <img
   src={selectedCurrency?.icon || '/image/Coin-Icon.svg'}

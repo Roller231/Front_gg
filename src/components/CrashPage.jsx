@@ -670,7 +670,7 @@ useEffect(() => {
 
         <div className="player-details">
           <span className="player-name">
-                            {(player.userId === user?.id && settings?.hideLogin) 
+                            {(player.userId !== user?.id || settings?.hideLogin) 
                               ? maskUsername(player.name) 
                               : player.name
                             }

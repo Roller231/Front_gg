@@ -440,8 +440,7 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
 
         {/* ===== WITHDRAW BUTTON ===== */}
       <button
-  className="withdraw-btn gg-btn-glow"
-  disabled={!withdrawInfo?.can_withdraw || (balance < 0.5)}
+  className={`withdraw-btn gg-btn-glow ${(!withdrawInfo?.can_withdraw || balance < 0.5) ? 'withdraw-btn--inactive' : ''}`}
   onClick={() => {
     if (!withdrawInfo?.can_withdraw) {
       showNotification(t('profile.withdrawDepositRequired', { amount: '3' }))

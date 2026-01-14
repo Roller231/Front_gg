@@ -665,7 +665,7 @@ const canOpenCase = isPaid
           <div className="case-spin-view">
             <div className="case-spin-wrapper">
               <div className="case-spin-marker">
-                <img src="/image/Group 7188.png" alt="cat" className="case-spin-marker-cat" />
+                <img src="/image/Group 7188.svg" alt="cat" className="case-spin-marker-cat" />
                 <div className="case-spin-marker-line"></div>
               </div>
               <div className="case-spin-track" ref={spinTrackRef}>

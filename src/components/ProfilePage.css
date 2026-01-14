@@ -551,6 +551,12 @@
   transform: none;
 }
 
+.withdraw-btn--inactive {
+  background: #3D2B5A;
+  color: rgba(255, 255, 255, 0.4);
+  box-shadow: none;
+}
+
 .withdraw-btn:hover:not(:disabled):not(.gg-btn-glow) {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
