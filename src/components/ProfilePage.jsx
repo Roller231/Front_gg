@@ -284,20 +284,46 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
         </div>
       </div>
 
-      {/* ===== BONUS BANNER ===== */}
-      <img
-        src="/image/19.png"
-        alt="Bonus Banner"
-        className="bonus-banner-img"
-      />
 
-      {/* ===== PARTNER PROGRAM ===== */}
-      <img
-        src="/image/18.jpg"
-        alt="Partner Program"
-        className="partner-program-img"
-        onClick={() => navigate('/partner')}
-      />
+      {/* ===== PROMO BLOCKS ===== */}
+      <div className="promo-section">
+        {/* Daily Promo */}
+        <div className="promo-block telegram-promo">
+          <div className="promo-icon-bg">
+            <img src="/image/teleg.svg" alt="TG" className="promo-bg-icon" onError={(e) => e.target.style.display = 'none'} />
+          </div>
+          <div className="promo-content">
+            <h3 className="promo-title">ЕЖЕДНЕВНЫЙ PROMOCODE</h3>
+            <div className="promo-code">@ggcat_gift</div>
+          </div>
+          <a
+            href="https://t.me/ggcat_gift"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="promo-btn"
+          >
+            Подписаться
+          </a>
+        </div>
+
+        {/* Partner Program */}
+        <div className="promo-block partner-promo">
+          <div className="promo-icon-bg partner-bg-icon">
+            <span>🤝</span>
+          </div>
+          <div className="promo-content">
+            <h3 className="promo-title">ПАРТНЁРСКАЯ ПРОГРАММА</h3>
+            <p className="promo-subtitle">Приглашай друзей - вместе получай nft и ton</p>
+          </div>
+          <button
+            className="promo-btn"
+            onClick={() => navigate('/partner')}
+          >
+            Перейти
+          </button>
+        </div>
+      </div>
+
 
       {/* ===== INVENTORY ===== */}
       <div className="inventory-section">

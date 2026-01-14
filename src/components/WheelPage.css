@@ -136,7 +136,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding-top: 10%;
+  padding-top: 20px;
   position: relative;
   overflow: hidden;
 }
@@ -166,7 +166,7 @@
   height: 350px;
   overflow: hidden;
   margin-top: auto;
-  transform: translateY(-88px);
+  transform: translateY(-105px) scale(0.85);
 }
 
 /* Outer glow ring */
@@ -322,7 +322,7 @@
   50% { opacity: 0.7; }
 }
 
-/* Center hub */
+/* Center hub (Interactive Refresh) */
 .wheel-center-hub {
   position: absolute;
   width: 140px;
@@ -337,6 +337,28 @@
     inset 0 2px 10px rgba(255, 255, 255, 0.3),
     inset 0 -2px 10px rgba(0, 0, 0, 0.2);
   z-index: 10;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.wheel-center-hub:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+.wheel-center-hub:active {
+  transform: scale(0.95);
+}
+
+.wheel-center-hub.disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+  pointer-events: none;
+}
+
+.wheel-center-hub.disabled .wheel-center-icon {
+  animation: spinSlow 3s linear infinite;
+  opacity: 0.5;
 }
 
 .wheel-center-inner {
@@ -349,6 +371,24 @@
   border-radius: 50%;
   background: linear-gradient(145deg, #e8d98a, #c9a227);
   box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wheel-center-icon {
+  width: 70px;
+  height: 70px;
+  color: #fff;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  opacity: 0.9;
+  transition: transform 0.5s ease;
+  z-index: 2;
+}
+
+.wheel-center-hub:hover .wheel-center-icon {
+  transform: rotate(180deg);
+  color: #fff;
 }
 
 .wheel-center-shine {
@@ -360,6 +400,12 @@
   transform: translateX(-50%);
   background: linear-gradient(to bottom, rgba(255, 255, 255, 0.7), transparent);
   border-radius: 50%;
+  pointer-events: none;
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* Pointer arrow - Teardrop */
@@ -395,6 +441,12 @@
   z-index: 30;
   margin-top: -125px;
   isolation: isolate;
+  pointer-events: none; /* Allow clicks to pass through to the wheel */
+}
+
+/* Enable pointer events for actual buttons */
+.wheel-buttons-container > * {
+  pointer-events: auto;
 }
 
 .wheel-buttons-container::before {
@@ -474,39 +526,13 @@
   transform: scale(0.98);
 }
 
-/* Refresh button */
-.wheel-refresh-btn {
-  width: 100%;
-  padding: 14px 40px;
-  border: none;
-  border-radius: 16px;
-  font-size: 14px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.8);
-  background: rgba(36, 0, 88, 0.5);
-  border: 1px solid rgba(139, 92, 246, 0.2);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
+/* Refresh button (3D Icon Style) */
 
-.wheel-refresh-btn:hover {
-  background: rgba(46, 10, 98, 0.8);
-  transform: translateY(-2px);
-}
-
-.wheel-refresh-btn:active {
-  transform: scale(0.98);
-}
-
-.wheel-refresh-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
 
 @media (max-height: 560px) {
   .wheel-page {
     padding-bottom: 0;
-    --wheel-scale: 0.92;
+    --wheel-scale: 0.74;
     --wheel-top: 12px;
   }
 
@@ -544,7 +570,7 @@
 @media (max-height: 430px) {
   .wheel-page {
     padding-bottom: 0;
-    --wheel-scale: 0.82;
+    --wheel-scale: 0.65;
     --wheel-top: 6px;
   }
 

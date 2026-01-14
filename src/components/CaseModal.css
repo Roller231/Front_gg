@@ -110,8 +110,15 @@
   gap: 10px;
   width: max-content;
   position: relative;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  transform: none;
+  animation: marquee-scroll 20s linear infinite;
+  will-change: transform;
+}
+
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); } 
 }
 
 .case-preview-wrapper {
@@ -735,7 +742,7 @@
   background: linear-gradient(180deg, #FFD166 0%, #FF9F1C 50%, #FFD166 100%);
   border-radius: 2px;
   box-shadow: 0 0 10px rgba(255, 209, 102, 0.8);
-  height: 134px; /* Matches track height (100px item + 12px inner padding + 20px track padding + 2px border) */
+  height: 100px; /* Reduced height as requested */
   top: 100px; /* Matches padding-top of wrapper */
   left: 50%;
   transform: translateX(-50%);

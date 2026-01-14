@@ -691,3 +691,155 @@
   transform: translateX(20px);
   background-color: #fff;
 }
+
+/* ===== PROMO BLOCKS ===== */
+.promo-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.promo-block {
+  position: relative;
+  border-radius: 20px;
+  padding: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 80px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.promo-block:active {
+  transform: scale(0.98);
+}
+
+/* Telegram Block Styles */
+.telegram-promo {
+  background: linear-gradient(135deg, #2AABEE 0%, #229ED9 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Partner Block Styles */
+.partner-promo {
+  background: linear-gradient(135deg, #FF0080 0%, #7928CA 100%); /* Cyberpunk gradient */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Background Icons/Decorations */
+.promo-icon-bg {
+  position: absolute;
+  left: -10px;
+  bottom: -15px;
+  width: 80px;
+  height: 80px;
+  opacity: 0.15;
+  pointer-events: none;
+  font-size: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-15deg);
+}
+
+.promo-bg-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Content Layout */
+.promo-content {
+  flex: 1;
+  z-index: 1;
+  margin-right: 12px;
+  margin-left: 10px; /* Space from the bg icon */
+}
+
+.promo-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.promo-code {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  margin-top: 4px;
+  background: rgba(0, 0, 0, 0.15);
+  padding: 2px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.promo-subtitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 4px 0 0 0;
+  line-height: 1.3;
+  max-width: 90%;
+}
+
+/* Buttons */
+.promo-btn {
+  z-index: 2;
+  background: #fff;
+  color: #000;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.telegram-promo .promo-btn {
+  color: #229ED9;
+}
+
+.partner-promo .promo-btn {
+  color: #7928CA;
+}
+
+.promo-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  background: #f8f8f8;
+}
+
+.promo-btn:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 360px) {
+  .promo-block {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .promo-btn {
+    width: 100%;
+  }
+  
+  .promo-content {
+    margin-right: 0;
+  }
+}

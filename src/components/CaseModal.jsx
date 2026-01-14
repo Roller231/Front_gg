@@ -268,7 +268,7 @@ const canOpenCase = isPaid
       setTimeout(() => {
         setSpinPhase('settle')
         setSpinOffset(finalOffset)
-      }, 4600)
+      }, 2500)
     })
 
     return () => {
@@ -370,7 +370,7 @@ const canOpenCase = isPaid
       if (settings?.vibrationEnabled) {
         vibrate(VIBRATION_PATTERNS.win)
       }
-    }, 5200)
+    }, 3000)
   }
 
   const handleResultOk = () => {
@@ -479,24 +479,21 @@ const canOpenCase = isPaid
             {/* Превью кейсов — бесконечная лента */}
             <div className="case-preview-row">
               <div className="case-preview-track">
-                {[...Array(16)].map((_, i) => {
-                  const previewItem = caseItems[i % caseItems.length]
-                  return (
+                {/* Дублируем список для бесшовной прокрутки (x2) */}
+                {[...caseItems, ...caseItems].map((item, i) => (
                     <div key={`preview-${i}`} className="case-preview-wrapper">
                       <div className="case-preview-item">
                         <div className="case-preview-gift">
-                          {/* Верхний бар - только статика .webp */}
                           <AsyncImage
-                            src={previewItem?.image}
-                            alt={previewItem?.name || 'Gift'}
+                            src={item?.image}
+                            alt={item?.name || 'Gift'}
                             className="case-preview-image"
                           />
                         </div>
                       </div>
-                      {/* Верхний бар декоративный - цены убраны */}
                     </div>
                   )
-                })}
+                )}
               </div>
               <div className="case-preview-fade case-preview-fade--left" />
               <div className="case-preview-fade case-preview-fade--right" />
@@ -679,7 +676,7 @@ const canOpenCase = isPaid
                     transform: `translateX(${spinOffset}px)`,
                     transition: isSpinning
                       ? `transform ${
-                          spinPhase === 'main' ? 4.6 : spinPhase === 'settle' ? 0.4 : 0
+                          spinPhase === 'main' ? 2.5 : spinPhase === 'settle' ? 0.4 : 0
                         }s cubic-bezier(0.18, 0.89, 0.32, 1)`
                       : 'none',
                   }}
