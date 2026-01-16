@@ -668,6 +668,7 @@ const canOpenCase = isPaid
                       : 'none',
                   }}
                 >
+                  {/* Task 5: Use static images during spin for performance optimization */}
                   {spinItems.map((item, index) => (
                     <div 
                       key={item.uid}
@@ -680,20 +681,12 @@ const canOpenCase = isPaid
                       } ${item.isWinning ? 'case-spin-item--winning' : ''}`}
                     >
                       <div className="case-spin-gift">
-                        {item.type === 'animation' && item.animation ? (
-                          <Player
-                            autoplay
-                            loop
-                            src={item.animation}
-                            className="case-spin-animation"
-                          />
-                        ) : (
-                          <AsyncImage
-                            src={item.image}
-                            alt={item.name || 'Gift'}
-                            className="case-spin-image"
-                          />
-                        )}
+                        {/* Task 5: Always use static webp images during spin - no heavy JSON animations */}
+                        <AsyncImage
+                          src={item.image}
+                          alt={item.name || 'Gift'}
+                          className="case-spin-image"
+                        />
                       </div>
                       <span className="case-spin-price">
                         <img src={selectedCurrency?.icon || '/image/Coin-Icon.svg'} alt="currency" />

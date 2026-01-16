@@ -3,20 +3,25 @@ import { Player } from '@lottiefiles/react-lottie-player'
 import AsyncImage from './AsyncImage'
 
 /**
- * Component that shows webp image by default and loads Lottie animation only on hover/hold
- * This optimizes performance by not loading all JSON animations at once
+ * Task 3: Updated component to support WebM video backgrounds
+ * - By default: show WebM background (or fallback to image)
+ * - On hover: hide WebM, show only JSON animation (transparent background)
+ * - On mouse leave: WebM background reappears immediately
  */
 function HoverLottie({ 
   image, 
   animation, 
+  video, // New: WebM video background URL
   alt = 'Gift', 
   imageClassName = '', 
   animationClassName = '',
+  videoClassName = '',
   holdDelay = 200 // ms to wait before showing animation on mobile hold
 }) {
   const [isHovered, setIsHovered] = useState(false)
   const [shouldLoadAnimation, setShouldLoadAnimation] = useState(false)
   const holdTimerRef = useRef(null)
+  const videoRef = useRef(null)
   
   const handleMouseEnter = useCallback(() => {
     setIsHovered(true)
@@ -47,8 +52,22 @@ function HoverLottie({
     setIsHovered(false)
   }, [])
   
-  // If no animation, just show image
+  // If no animation, just show image or video
   if (!animation) {
+    if (video) {
+      return (
+        <video
+          ref={videoRef}
+          src={video}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className={videoClassName || imageClassName}
+          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+        />
+      )
+    }
     return (
       <AsyncImage
         src={image}
@@ -67,18 +86,39 @@ function HoverLottie({
       onTouchEnd={handleTouchEnd}
       onTouchCancel={handleTouchEnd}
     >
-      {/* Always render image as base layer */}
-      <AsyncImage
-        src={image}
-        alt={alt}
-        className={imageClassName}
-        style={{ 
-          opacity: isHovered && shouldLoadAnimation ? 0 : 1,
-          transition: 'opacity 0.2s ease'
-        }}
-      />
+      {/* Fix: Static image/video completely HIDDEN (display:none) when JSON animation is active */}
+      {video ? (
+        <video
+          ref={videoRef}
+          src={video}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className={videoClassName || imageClassName}
+          style={{ 
+            width: '100%', 
+            height: '100%', 
+            objectFit: 'contain',
+            display: isHovered && shouldLoadAnimation ? 'none' : 'block',
+            position: 'absolute',
+            top: 0,
+            left: 0
+          }}
+        />
+      ) : (
+        /* Fallback to image if no video - completely hidden when JSON plays */
+        <AsyncImage
+          src={image}
+          alt={alt}
+          className={imageClassName}
+          style={{ 
+            display: isHovered && shouldLoadAnimation ? 'none' : 'block'
+          }}
+        />
+      )}
       
-      {/* Only load and show Lottie when hovered and animation should be loaded */}
+      {/* JSON animation - only visible on hover (transparent background) */}
       {shouldLoadAnimation && (
         <Player
           autoplay={isHovered}
@@ -92,8 +132,9 @@ function HoverLottie({
             width: '100%',
             height: '100%',
             opacity: isHovered ? 1 : 0,
-            transition: 'opacity 0.2s ease',
-            pointerEvents: 'none'
+            transition: 'opacity 0.15s ease',
+            pointerEvents: 'none',
+            background: 'transparent' // Task 3: Ensure transparent background for JSON
           }}
         />
       )}

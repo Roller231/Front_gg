@@ -1,11 +1,68 @@
-.banner {
+/* Task 4: Banner Carousel Styles */
+.banner-carousel {
+  position: relative;
   border-radius: 16px;
   margin-bottom: 16px;
   overflow: hidden;
+}
+
+.banner-slides {
+  display: flex;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.banner-slide {
+  min-width: 100%;
+  flex-shrink: 0;
 }
 
 .banner-image {
   display: block;
   width: 100%;
   height: auto;
+}
+
+/* Custom Pagination - Bottom Left */
+.banner-pagination {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 10;
+  background: transparent;
+}
+
+.banner-pagination-item {
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Inactive state: small dot */
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.banner-pagination-item:hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+/* Active state: elongated white line */
+.banner-pagination-item.active {
+  width: 24px;
+  height: 6px;
+  border-radius: 3px;
+  background: #ffffff;
+}
+
+/* Legacy support */
+.banner {
+  border-radius: 16px;
+  margin-bottom: 16px;
+  overflow: hidden;
 }

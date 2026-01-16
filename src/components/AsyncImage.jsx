@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-const AsyncImage = ({ src, alt, className, placeholder = '/image/mdi_gift.svg' }) => {
+const AsyncImage = ({ src, alt, className, style, placeholder = '/image/mdi_gift.svg' }) => {
   const [loaded, setLoaded] = useState(false)
   const [currentSrc, setCurrentSrc] = useState(placeholder)
 
@@ -29,6 +29,7 @@ const AsyncImage = ({ src, alt, className, placeholder = '/image/mdi_gift.svg' }
       src={currentSrc}
       alt={alt}
       className={`${className} ${!loaded ? 'loading-placeholder' : ''}`}
+      style={style}
     />
   )
 }

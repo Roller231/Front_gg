@@ -224,8 +224,8 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
           >
             <span className="rating-icon">👑</span>
             <span className="rating-value">
-  {formatAmount(top1Balance)}
-</span>
+              {formatAmount(top1Balance)}
+            </span>
           </div>
 
           <div 
@@ -263,33 +263,29 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
       <div className="level-progress-section">
         <div className="level-progress-container">
           <div className="level-badge level-current">
-          <span className="level-number">{level}</span>
+            <span className="level-number">{level}</span>
           </div>
           <div className="level-progress-bar">
-          <div
-  className="level-progress-fill"
-  style={{ width: `${levelProgressPercent}%` }}
-/>
-
+            <div
+              className="level-progress-fill"
+              style={{ width: `${levelProgressPercent}%` }}
+            />
           </div>
           <div className="level-badge level-next">
             <span className="level-number">{(user.level || 1) + 1}</span>
           </div>
         </div>
         <div className="level-progress-info">
-        <span className="level-xp-text">
-  {xp} / {nextLevelXP} XP
-</span>
-
+          <span className="level-xp-text">
+            {xp} / {nextLevelXP} XP
+          </span>
         </div>
       </div>
 
-
-      {/* ===== PROMO BLOCKS ===== */}
+      {/* ===== PROMO BLOCKS (Daily/Hot) - After Level Progress ===== */}
       <div className="promo-section">
         {/* Telegram Promo */}
         <div className="promo-block telegram-promo" onClick={() => window.open('https://t.me/ggcat_gift', '_blank')}>
-          {/* DECOR LAYERS */}
           <div className="promo-decor-layer">
             <div className="promo-blob-1"></div>
             <div className="promo-blob-2"></div>
@@ -304,26 +300,25 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
               </svg>
             </div>
             <div className="promo-text-group">
-                <div className="promo-header-row">
-                    <h3 className="promo-title">{t('profile.promoTitle')}</h3>
-                    <span className="promo-tag">{t('profile.promoTag')}</span>
-                </div>
-                <p className="promo-description">
-                    <span className="promo-highlight">@ggcat_gift</span> {t('profile.promoDescription')}
-                </p>
+              <div className="promo-header-row">
+                <span className="promo-tag">{t('profile.promoTag')}</span>
+                <h3 className="promo-title">{t('profile.promoTitle')}</h3>
+              </div>
+              <p className="promo-description">
+                <span className="promo-highlight">@ggcat_gift</span> {t('profile.promoDescription')}
+              </p>
             </div>
           </div>
           <div className="promo-action-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M9 18L15 12L9 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M9 18L15 12L9 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
         </div>
 
         {/* Partner Program */}
         <div className="promo-block partner-promo" onClick={() => navigate('/partner')}>
-           {/* DECOR LAYERS */}
-           <div className="promo-decor-layer">
+          <div className="promo-decor-layer">
             <div className="promo-blob-1"></div>
             <div className="promo-blob-2"></div>
             <div className="promo-accent-triangle"></div>
@@ -334,24 +329,23 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
             <div className="promo-icon-box partner-icon-box">
               <img src="/image/partner.svg" alt="Partner" className="promo-fixed-icon" onError={(e) => e.target.style.display = 'block'} />
             </div>
-             <div className="promo-text-group">
-                <div className="promo-header-row">
-                    <h3 className="promo-title">{t('profile.partnerTitle')}</h3>
-                    <span className="promo-tag partner-tag">{t('profile.partnerTag')}</span>
-                </div>
-                <p className="promo-description">
-                   {t('profile.partnerDescription')}
-                </p>
+            <div className="promo-text-group">
+              <div className="promo-header-row">
+                <span className="promo-tag partner-tag">{t('profile.partnerTag')}</span>
+                <h3 className="promo-title">{t('profile.partnerTitle')}</h3>
+              </div>
+              <p className="promo-description">
+                {t('profile.partnerDescription')}
+              </p>
             </div>
           </div>
           <div className="promo-action-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M9 18L15 12L9 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M9 18L15 12L9 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
         </div>
       </div>
-
 
       {/* ===== INVENTORY ===== */}
       <div className="inventory-section">
