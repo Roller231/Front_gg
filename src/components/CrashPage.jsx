@@ -136,7 +136,7 @@ function CrashPage() {
     )
   }, [players, user])
   
-  const canCashout = gameState === 'flying' && Boolean(myActiveBet) && multiplier >= 1.25
+  const canCashout = gameState === 'flying' && Boolean(myActiveBet) && multiplier >= 1.07
 
   const usersCacheRef = useRef(new Map())
   const botsCacheRef = useRef(new Map())
