@@ -16,7 +16,8 @@
 }
 
 .preloader-logo {
-  width: 200px; /* Increased size */
+  width: 320px;
+  max-width: 80vw;
   height: auto;
   filter: drop-shadow(0 0 20px rgba(187, 253, 68, 0.3));
 }
