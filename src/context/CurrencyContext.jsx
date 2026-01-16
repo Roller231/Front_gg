@@ -31,9 +31,11 @@ export function CurrencyProvider({ children }) {
     const floored =
       decimals === 0 ? Math.floor(value) : Number(value.toFixed(decimals))
   
+    // Формат: пробел для тысяч, запятая для десятичных
+    // Пример: 86 568 667 или 1 346,08
     return floored
       .toLocaleString('ru-RU')
-      .replace(/\s/g, '.') // 👈 ключевая строка
+      .replace(/\u00A0/g, ' ') // заменяем неразрывный пробел на обычный
   }
   
   

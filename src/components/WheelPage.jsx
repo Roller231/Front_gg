@@ -566,30 +566,11 @@ function WheelPage() {
               })}
             </div>
             
-            {/* Center hub (Refresh Button) */}
-            <div 
-              className={`wheel-center-hub ${isSpinning ? 'disabled' : ''}`}
-              onClick={handleRefresh}
-              role="button"
-              tabIndex={0}
-              aria-label={t('wheel.refresh')}
-            >
-              {/* Circular text around the hub */}
-              <svg className="wheel-center-circular-text" viewBox="0 0 140 140">
-                <defs>
-                  <path id="circlePath" d="M70,70 m-50,0 a50,50 0 1,1 100,0 a50,50 0 1,1 -100,0" />
-                </defs>
-                <text>
-                  <textPath href="#circlePath" startOffset="-5%">
-                    REFRESH • REFRESH • REFRESH •
-                  </textPath>
-                </text>
-              </svg>
+            {/* Center hub (Static decorative button) */}
+            <div className="wheel-center-hub wheel-center-hub--static">
               <div className="wheel-center-inner">
                 <div className="wheel-center-shine"></div>
-                <svg viewBox="0 0 24 24" className="wheel-center-icon" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21.5 2v6h-6M2.5 22v-6h6M2 12c0-5.5 4.5-10 10-10 2.2 0 4.2.7 5.8 1.9L21.5 8M22 12c0 5.5-4.5 10-10 10-2.2 0-4.2-.7-5.8-1.9L2.5 16" />
-                </svg>
+                <span className="wheel-center-logo">GG</span>
               </div>
             </div>
             
@@ -651,10 +632,19 @@ function WheelPage() {
   </span>
 </button>
 
-
-            <button className="wheel-prizes-btn" onClick={handleOpenPrizes}>
-              {t('wheel.prizesList')}
-            </button>
+            {/* Two buttons row: Refresh prizes and Prize list */}
+            <div className="wheel-secondary-buttons">
+              <button 
+                className="wheel-refresh-btn" 
+                onClick={handleRefresh}
+                disabled={isSpinning}
+              >
+                {t('wheel.refreshPrizes')}
+              </button>
+              <button className="wheel-prizes-btn" onClick={handleOpenPrizes}>
+                {t('wheel.prizesList')}
+              </button>
+            </div>
 
           </div>
         </div>

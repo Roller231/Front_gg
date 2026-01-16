@@ -9,6 +9,7 @@ import { getCaseDrops, getDropById } from '../api/cases'
 import { useUser } from '../context/UserContext'
 import * as usersApi from '../api/users'
 import AsyncImage from './AsyncImage'
+import HoverLottie from './HoverLottie'
 import { vibrate, VIBRATION_PATTERNS } from '../utils/vibration'
 import { useNavigate } from 'react-router-dom'
 import { checkFreeCase, consumeFreeCase } from '../api/freeCases'
@@ -524,20 +525,13 @@ const canOpenCase = isPaid
                       <div className="case-item-card">
                       {item.IsNft && <span className="nft-label">NFT</span>}
                           <div className="case-item-image">
-                          {item.animation ? (
-                            <Player
-                              autoplay
-                              loop
-                              src={item.animation}
-                              className="case-item-animation"
-                            />
-                          ) : (
-                            <AsyncImage
-                              src={item.image}
-                              alt={item.name || 'Gift'}
-                              className="case-item-img"
-                            />
-                          )}
+                          <HoverLottie
+                            image={item.image}
+                            animation={item.animation}
+                            alt={item.name || 'Gift'}
+                            imageClassName="case-item-img"
+                            animationClassName="case-item-animation"
+                          />
                         </div>
                       </div>
                       <div className="case-item-price-below">
@@ -635,20 +629,13 @@ const canOpenCase = isPaid
                       <div className="case-item-card">
                         {item.IsNft && <span className="nft-label">NFT</span>}
                         <div className="case-item-image">
-                          {item.type === 'animation' && item.animation ? (
-                            <Player
-                              autoplay
-                              loop
-                              src={item.animation}
-                              className="case-item-animation"
-                            />
-                          ) : (
-                            <AsyncImage
-                              src={item.image}
-                              alt={item.name || 'Gift'}
-                              className="case-item-img"
-                            />
-                          )}
+                          <HoverLottie
+                            image={item.image}
+                            animation={item.animation}
+                            alt={item.name || 'Gift'}
+                            imageClassName="case-item-img"
+                            animationClassName="case-item-animation"
+                          />
                         </div>
                       </div>
                       <div className="case-item-price-below">

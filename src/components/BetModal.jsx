@@ -343,10 +343,10 @@ function BetModal({
 
   const handleMaxClick = () => {
     if (!selectedCurrency?.amount) return
-    // Парсим русский формат: точки как разделители тысяч, запятая как десятичный разделитель
-    // Например: "1.234,56" -> "1234.56"
+    // Парсим русский формат: пробелы как разделители тысяч, запятая как десятичный разделитель
+    // Например: "1 234,56" -> "1234.56"
     const normalized = selectedCurrency.amount
-      .replace(/\./g, '')  // убираем разделители тысяч
+      .replace(/\s/g, '')  // убираем пробелы (разделители тысяч)
       .replace(',', '.')   // заменяем запятую на точку
     const numeric = normalized.replace(/[^0-9.]/g, '')
     const value = isNoDecimalCurrency 
@@ -367,8 +367,8 @@ function BetModal({
   const betAmountNum = Number(betAmount)
   const isBetAmountValid = betAmountNum > 0 && betAmountNum >= minBetInCurrency
   
-  // Проверяем баланс
-  const balanceNum = Number(selectedCurrency?.amount?.replace(/[^0-9.,]/g, '').replace(',', '.') || 0)
+  // Проверяем баланс (формат: пробелы для тысяч, запятая для десятичных)
+  const balanceNum = Number(selectedCurrency?.amount?.replace(/\s/g, '').replace(',', '.') || 0)
   const hasEnoughBalance = betAmountNum <= balanceNum
   const canPlaceBet = canBet && isBetAmountValid && hasEnoughBalance
 

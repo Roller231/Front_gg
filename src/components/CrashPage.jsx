@@ -120,6 +120,38 @@ function CrashPage() {
 
   const [players, setPlayers] = useState([])
   const [hasBetThisRound, setHasBetThisRound] = useState(false)
+  
+  // Persist bet status with round ID to prevent double betting across page navigations
+  const BET_STATUS_KEY = 'crash_bet_status'
+  
+  const saveBetStatus = useCallback((roundId, hasBet) => {
+    if (roundId && user?.id) {
+      localStorage.setItem(BET_STATUS_KEY, JSON.stringify({ roundId, hasBet, odId: user.id }))
+    }
+  }, [user?.id])
+  
+  const loadBetStatus = useCallback((roundId) => {
+    try {
+      const saved = localStorage.getItem(BET_STATUS_KEY)
+      if (saved) {
+        const { roundId: savedRoundId, hasBet, odId } = JSON.parse(saved)
+        if (savedRoundId === roundId && odId === user?.id) {
+          return hasBet
+        }
+      }
+    } catch (e) {}
+    return false
+  }, [user?.id])
+  
+  // Check bet status on mount and when round changes
+  useEffect(() => {
+    if (roundIdRef.current) {
+      const savedBetStatus = loadBetStatus(roundIdRef.current)
+      if (savedBetStatus) {
+        setHasBetThisRound(true)
+      }
+    }
+  }, [loadBetStatus])
 
   const myActiveBet = useMemo(() => {
     if (!user?.id) return null
@@ -161,8 +193,9 @@ const handleCashout = () => {
 const handleBetPlaced = (betData) => {
   if (!user?.id) return
   
-  // Устанавливаем флаг что ставка сделана
+  // Устанавливаем флаг что ставка сделана и сохраняем в localStorage
   setHasBetThisRound(true)
+  saveBetStatus(roundIdRef.current, true)
   
   // Добавляем пользователя в список игроков сразу (оптимистичное обновление)
   const newPlayer = {
@@ -309,6 +342,7 @@ useEffect(() => {
         case "new_round": {
           roundIdRef.current = msg.round_id
           setHasBetThisRound(false)
+          saveBetStatus(msg.round_id, false) // Clear bet status for new round
           setExplosionPlayed(false)
           setPlayers([])
           loadBets(msg.round_id)
@@ -357,6 +391,11 @@ useEffect(() => {
         case "state": {
           if (msg.round_id) {
             roundIdRef.current = msg.round_id
+            // Check saved bet status for this round
+            const savedBetStatus = loadBetStatus(msg.round_id)
+            if (savedBetStatus) {
+              setHasBetThisRound(true)
+            }
             loadBets(msg.round_id)
           }
           break
@@ -392,7 +431,7 @@ useEffect(() => {
 
     const unsubscribe = subscribe(handleMessage)
     return unsubscribe
-  }, [subscribe, loadBets, user, players, setUser, settings])
+  }, [subscribe, loadBets, user, players, setUser, settings, saveBetStatus, loadBetStatus])
   
   
 

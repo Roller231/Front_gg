@@ -305,11 +305,11 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
             </div>
             <div className="promo-text-group">
                 <div className="promo-header-row">
-                    <h3 className="promo-title">ТВОЙ ПРОМОКОД</h3>
-                    <span className="promo-tag">DAILY</span>
+                    <h3 className="promo-title">{t('profile.promoTitle')}</h3>
+                    <span className="promo-tag">{t('profile.promoTag')}</span>
                 </div>
                 <p className="promo-description">
-                    <span className="promo-highlight">@ggcat_gift</span> — подпишись на канал, чтоб не упустить выгоду
+                    <span className="promo-highlight">@ggcat_gift</span> {t('profile.promoDescription')}
                 </p>
             </div>
           </div>
@@ -336,17 +336,17 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
             </div>
              <div className="promo-text-group">
                 <div className="promo-header-row">
-                    <h3 className="promo-title">ПАРТНЕРСКАЯ ПРОГРАММА</h3>
-                    <span className="promo-tag partner-tag">HOT</span>
+                    <h3 className="promo-title">{t('profile.partnerTitle')}</h3>
+                    <span className="promo-tag partner-tag">{t('profile.partnerTag')}</span>
                 </div>
                 <p className="promo-description">
-                   Зови друзей, мгновенно лови бонус на баланс + жирный % с каждого их пополнения без остановки
+                   {t('profile.partnerDescription')}
                 </p>
             </div>
           </div>
           <div className="promo-action-icon">
-             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 18L15 12L9 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
         </div>

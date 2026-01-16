@@ -182,6 +182,25 @@ function PartnerPage() {
           </button>
         </div>
 
+        {/* Bonus Text Section */}
+        <div className="bonus-text-section">
+          <p 
+            className="bonus-text"
+            dangerouslySetInnerHTML={{ __html: t('partner.bonusText', { percent: '15' }) }}
+          />
+          <div className="users-info-row">
+            <div className="user-avatars">
+              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=user1" alt="user" className="user-mini-avatar" />
+              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=user2" alt="user" className="user-mini-avatar" />
+              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=user3" alt="user" className="user-mini-avatar" />
+              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=user4" alt="user" className="user-mini-avatar" />
+            </div>
+            <span className="total-users-text">
+              <strong>214 981</strong> {t('partner.totalUsers')}
+            </span>
+          </div>
+        </div>
+
         <p className="partner-description">
           {t('partner.description')}
         </p>
@@ -288,6 +307,32 @@ function PartnerPage() {
               ))}
             </div>
           )}
+        </div>
+
+        {/* Statistics Section */}
+        <div className="statistics-section">
+          <h2 className="promo-title">{t('partner.statistics')}</h2>
+          <div className="stats-grid">
+            <div className="stat-card">
+              <span className="stat-value">{friends.length}</span>
+              <span className="stat-label">{t('partner.partners')}</span>
+            </div>
+            <div className="stat-card">
+              <span className="stat-value">
+                {formatNumber(0.00)} 
+                <span className="stat-currency"> TON</span>
+              </span>
+              <span className="stat-label">{t('partner.earned')}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Rules Section */}
+        <div className="rules-section">
+          <h2 className="promo-title">{t('partner.rulesTitle')}</h2>
+          <p className="rules-description">
+            {t('partner.rulesDescription')}
+          </p>
         </div>
       </main>
 

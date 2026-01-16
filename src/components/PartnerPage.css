@@ -81,6 +81,62 @@
   margin-bottom: 24px;
 }
 
+/* Bonus Text Section (NEW) */
+.bonus-text-section {
+  margin-bottom: 24px;
+}
+
+.bonus-text {
+  color: #FFFFFF;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.bonus-text .highlight {
+  background: linear-gradient(90deg, #2C7DF8 0%, #951BF9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.users-info-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatars {
+  display: flex;
+  margin-right: 4px;
+}
+
+.user-mini-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #240058;
+  margin-left: -8px;
+  background: #333;
+}
+
+.user-mini-avatar:first-child {
+  margin-left: 0;
+}
+
+.total-users-text {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+}
+
+.total-users-text strong {
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+
 /* Promo Section */
 .promo-section {
   margin-bottom: 24px;
@@ -220,6 +276,7 @@
   background: transparent;
   border-radius: 20px;
   padding: 16px;
+  margin-bottom: 24px;
 }
 
 .friends-title {
@@ -313,4 +370,65 @@
 .ton-icon {
   width: 18px;
   height: 18px;
+}
+
+
+/* Statistics Section (NEW) */
+.statistics-section {
+  margin-bottom: 32px;
+  padding: 0 16px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.stat-card {
+  background: #291E42; /* В цвет инпутов */
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  background: linear-gradient(90deg, #2C7DF8 0%, #951BF9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.stat-currency {
+  font-size: 14px;
+  background: linear-gradient(90deg, #2C7DF8 0%, #951BF9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.stat-label {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+}
+
+/* Rules Section (NEW) */
+.rules-section {
+  padding: 0 16px;
+  margin-bottom: 20px;
+}
+
+.rules-description {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  line-height: 1.5;
 }

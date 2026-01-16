@@ -415,6 +415,26 @@
   color: #fff;
 }
 
+/* Static center hub - no interaction */
+.wheel-center-hub--static {
+  cursor: default;
+  pointer-events: none;
+}
+
+.wheel-center-hub--static:hover {
+  transform: none;
+  filter: none;
+}
+
+.wheel-center-logo {
+  font-size: 32px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 2px;
+  z-index: 2;
+}
+
 .wheel-center-shine {
   position: absolute;
   width: 40px;
@@ -478,10 +498,9 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: -155px;
+  top: -140px;
   bottom: 0;
-  background: linear-gradient(to top, var(--page-bg) 0%, var(--page-bg) 55%, transparent 90%);
-  opacity: 0.85;
+  background: linear-gradient(to top, var(--page-bg) 0%, var(--page-bg) 65%, transparent 100%);
   z-index: -1;
 }
 
@@ -527,13 +546,49 @@
   transform: translateY(-1px) scale(0.98);
 }
 
-/* Prizes button */
-.wheel-prizes-btn {
+/* Secondary buttons row */
+.wheel-secondary-buttons {
+  display: flex;
+  gap: 12px;
   width: 100%;
-  padding: 18px 40px;
+}
+
+/* Refresh button */
+.wheel-refresh-btn {
+  flex: 1;
+  padding: 16px 20px;
   border: none;
   border-radius: 16px;
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(36, 0, 88, 0.8);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.wheel-refresh-btn:hover:not(:disabled) {
+  background: rgba(46, 10, 98, 1);
+  transform: translateY(-2px);
+}
+
+.wheel-refresh-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.wheel-refresh-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Prizes button */
+.wheel-prizes-btn {
+  flex: 1;
+  padding: 16px 20px;
+  border: none;
+  border-radius: 16px;
+  font-size: 14px;
   font-weight: 600;
   color: #fff;
   background: rgba(36, 0, 88, 0.8);
