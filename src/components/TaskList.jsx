@@ -19,6 +19,8 @@ function TaskList() {
   const [selectedOption, setSelectedOption] = useState(1)
   const [promoCode, setPromoCode] = useState('')
   const [loading, setLoading] = useState(false)
+
+
   const { refreshFreeSpin } = useFreeSpin()
     const handleSelect = (option) => {
     setSelectedOption(option)
@@ -90,7 +92,9 @@ function TaskList() {
     }
   }
   
-
+  const tenDaysCompleted =
+  rewards?.ten_days_reward.used_count > 0 &&
+  rewards?.ten_days_reward.progress === 0
   const handleApplyPromo = async () => {
     if (!promoCode.trim()) return
     if (!user) {
@@ -174,13 +178,14 @@ function TaskList() {
       {/* TEN DAYS BONUS */}
       <div className="task-item">
         <div className="task-left">
-          <span
-            className={`task-check ${
-              rewards?.ten_days_reward.used ? 'completed' : ''
-            }`}
-          >
-            {rewards?.ten_days_reward.used && '✓'}
-          </span>
+        <span
+  className={`task-check ${
+    tenDaysCompleted ? 'completed' : ''
+  }`}
+>
+  {tenDaysCompleted && '✓'}
+</span>
+
   
           <span
             className={`task-text ${
