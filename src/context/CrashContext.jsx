@@ -17,6 +17,9 @@ export function CrashProvider({ children }) {
   const [coefficientHistory, setCoefficientHistory] = useState(initialHistory)
   const [roundId, setRoundId] = useState(null)
   const [connected, setConnected] = useState(false)
+  const [players, setPlayers] = useState([])
+  const [hasBetThisRound, setHasBetThisRound] = useState(false)
+  const [explosionPlayed, setExplosionPlayed] = useState(false)
   
   const wsRef = useRef(null)
   const reconnectTimeoutRef = useRef(null)
@@ -54,6 +57,9 @@ export function CrashProvider({ children }) {
         setRoundId(msg.round_id)
         setGameState('countdown')
         setMultiplier(1.0)
+        setPlayers([])
+        setHasBetThisRound(false)
+        setExplosionPlayed(false)
         
         if (msg.betting_ends_at) {
           const now = Date.now() / 1000
@@ -262,6 +268,12 @@ export function CrashProvider({ children }) {
     connected,
     send,
     subscribe,
+    players,
+    setPlayers,
+    hasBetThisRound,
+    setHasBetThisRound,
+    explosionPlayed,
+    setExplosionPlayed,
   }
 
   return (

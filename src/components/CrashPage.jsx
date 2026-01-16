@@ -100,6 +100,12 @@ function CrashPage() {
     send,
     connected,
     subscribe,
+    players,
+    setPlayers,
+    hasBetThisRound,
+    setHasBetThisRound,
+    explosionPlayed,
+    setExplosionPlayed,
   } = useCrashContext()
   
   const coeffHistoryRef = useRef(null)
@@ -110,48 +116,17 @@ function CrashPage() {
   const [giftIconIndex, setGiftIconIndex] = useState(0)
   const [winModalOpen, setWinModalOpen] = useState(false)
   const [winData, setWinData] = useState(null) // { giftIcon, wonAmount, multiplier }
-  const [explosionPlayed, setExplosionPlayed] = useState(false)
   const [bets, setBets] = useState({});
   const { user, setUser, settings } = useUser();
     const roundIdRef = useRef(null);
     const { selectedCurrency, formatAmount, formatWinAmount } = useCurrency()
 
-  
-
-  const [players, setPlayers] = useState([])
-  const [hasBetThisRound, setHasBetThisRound] = useState(false)
-  
-  // Persist bet status with round ID to prevent double betting across page navigations
-  const BET_STATUS_KEY = 'crash_bet_status'
-  
-  const saveBetStatus = useCallback((roundId, hasBet) => {
-    if (roundId && user?.id) {
-      localStorage.setItem(BET_STATUS_KEY, JSON.stringify({ roundId, hasBet, odId: user.id }))
-    }
-  }, [user?.id])
-  
-  const loadBetStatus = useCallback((roundId) => {
-    try {
-      const saved = localStorage.getItem(BET_STATUS_KEY)
-      if (saved) {
-        const { roundId: savedRoundId, hasBet, odId } = JSON.parse(saved)
-        if (savedRoundId === roundId && odId === user?.id) {
-          return hasBet
-        }
-      }
-    } catch (e) {}
-    return false
-  }, [user?.id])
-  
-  // Check bet status on mount and when round changes
+  // Sync roundIdRef with context roundId on mount and when it changes
   useEffect(() => {
-    if (roundIdRef.current) {
-      const savedBetStatus = loadBetStatus(roundIdRef.current)
-      if (savedBetStatus) {
-        setHasBetThisRound(true)
-      }
+    if (contextRoundId) {
+      roundIdRef.current = contextRoundId
     }
-  }, [loadBetStatus])
+  }, [contextRoundId])
 
   const myActiveBet = useMemo(() => {
     if (!user?.id) return null
@@ -193,9 +168,8 @@ const handleCashout = () => {
 const handleBetPlaced = (betData) => {
   if (!user?.id) return
   
-  // Устанавливаем флаг что ставка сделана и сохраняем в localStorage
+  // Устанавливаем флаг что ставка сделана (сохраняется в контексте)
   setHasBetThisRound(true)
-  saveBetStatus(roundIdRef.current, true)
   
   // Добавляем пользователя в список игроков сразу (оптимистичное обновление)
   const newPlayer = {
@@ -318,7 +292,7 @@ const loadBets = useCallback(async (roundId) => {
   } catch (err) {
     console.error('Failed to load bets', err)
   }
-}, [])
+}, [setPlayers])
 
 useEffect(() => {
   if (!roundIdRef.current) return
@@ -341,10 +315,6 @@ useEffect(() => {
       switch (msg.event) {
         case "new_round": {
           roundIdRef.current = msg.round_id
-          setHasBetThisRound(false)
-          saveBetStatus(msg.round_id, false) // Clear bet status for new round
-          setExplosionPlayed(false)
-          setPlayers([])
           loadBets(msg.round_id)
           break
         }
@@ -391,11 +361,6 @@ useEffect(() => {
         case "state": {
           if (msg.round_id) {
             roundIdRef.current = msg.round_id
-            // Check saved bet status for this round
-            const savedBetStatus = loadBetStatus(msg.round_id)
-            if (savedBetStatus) {
-              setHasBetThisRound(true)
-            }
             loadBets(msg.round_id)
           }
           break
@@ -431,7 +396,7 @@ useEffect(() => {
 
     const unsubscribe = subscribe(handleMessage)
     return unsubscribe
-  }, [subscribe, loadBets, user, players, setUser, settings, saveBetStatus, loadBetStatus])
+  }, [subscribe, loadBets, user, players, setUser, settings])
   
   
 
