@@ -33,11 +33,11 @@
 .logo {
   display: flex;
   align-items: center;
-  height: 40px;
+  height: 13px;
 }
 
 .logo img {
-  height: 40px;
+  height: 13px;
   display: block;
 }
 
