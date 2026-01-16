@@ -4,7 +4,7 @@ function Preloader({ progress = 0 }) {
   return (
     <div className="preloader">
       <div className="preloader-content">
-        <img src="/image/Text.svg" alt="GG Cat Logo" className="preloader-logo" />
+        <img src="/image/Logo.svg" alt="GG Cat Logo" className="preloader-logo" />
 
         <div className="preloader-progress-container">
           <div

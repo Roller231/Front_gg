@@ -51,7 +51,7 @@ const {
   return (
     <header className="header">
       <Link className="logo" to="/" aria-label="На главную">
-        <img src="/image/Logo.svg" alt="GG Cat logo" />
+        <img src="/image/Text.svg" alt="GG Cat logo" />
       </Link>
       
       <div className="header-right">
