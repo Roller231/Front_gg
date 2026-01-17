@@ -812,6 +812,13 @@
   flex-wrap: nowrap; /* Force title and tag on same line */
 }
 
+.partner-promo .promo-description {
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  overflow: visible;
+}
+
 .partner-promo .promo-decor-layer {
   background: linear-gradient(100deg, #1C1139 0%, #0F0524 100%);
 }
@@ -1008,7 +1015,7 @@
 
 .promo-description {
   margin: 0;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.8);
   line-height: 1.3;

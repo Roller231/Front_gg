@@ -301,7 +301,6 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
             </div>
             <div className="promo-text-group">
               <div className="promo-header-row">
-                <span className="promo-tag">{t('profile.promoTag')}</span>
                 <h3 className="promo-title">{t('profile.promoTitle')}</h3>
               </div>
               <p className="promo-description">
@@ -331,7 +330,6 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
             </div>
             <div className="promo-text-group">
               <div className="promo-header-row">
-                <span className="promo-tag partner-tag">{t('profile.partnerTag')}</span>
                 <h3 className="promo-title">{t('profile.partnerTitle')}</h3>
               </div>
               <p className="promo-description">

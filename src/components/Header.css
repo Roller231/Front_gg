@@ -33,14 +33,12 @@
 .logo {
   display: flex;
   align-items: center;
-  height: 13px;
-  /* Task 1: Increase logo size by 5% */
-  transform: scale(1.05);
+  height: 18px;
   transform-origin: left center;
 }
 
 .logo img {
-  height: 13px;
+  height: 18px;
   display: block;
 }
 
