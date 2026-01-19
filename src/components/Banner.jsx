@@ -5,9 +5,8 @@ import 'swiper/css/pagination'
 import './Banner.css'
 
 const bannerSlides = [
-  { id: 1, image: '/image/Banner1.png', alt: 'Promo banner 1' },
-  { id: 2, image: '/image/Slide1.webp', alt: 'Promo banner 2' },
-  { id: 3, image: '/image/Slide2.webp', alt: 'Promo banner 3' },
+  { id: 1, image: '/image/Slide1.webp', alt: 'Promo banner 2' },
+  { id: 2, image: '/image/Slide2.webp', alt: 'Promo banner 3' },
 ]
 
 function Banner() {
