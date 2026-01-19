@@ -16,7 +16,6 @@ function DepositModal({ isOpen, onClose }) {
   const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState('gifts')
   const [depositCurrency, setDepositCurrency] = useState(DEPOSIT_CURRENCIES[0])
-  const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false)
   const [amount, setAmount] = useState('')
   
   const modalRef = useRef(null)
@@ -84,16 +83,10 @@ function DepositModal({ isOpen, onClose }) {
       currentTranslateY.current = 0
       setActiveTab('gifts')
       setDepositCurrency(DEPOSIT_CURRENCIES[0])
-      setIsCurrencyDropdownOpen(false)
       setAmount('')
     }
   }, [isOpen])
 
-  const handleCurrencySelect = (currency) => {
-    setDepositCurrency(currency)
-    setIsCurrencyDropdownOpen(false)
-    setAmount('')
-  }
 
   const getConvertedAmount = () => {
     if (!amount || !depositCurrency) return '0'
@@ -279,7 +272,7 @@ function DepositModal({ isOpen, onClose }) {
 
           {/* Вкладка Кошелёк */}
           <div className={`deposit-tab-panel ${activeTab === 'wallet' ? 'active' : ''}`}>
-            <div className="deposit-wallet-content">
+            <div className="deposit-stars-content">
               <div className="deposit-input-row">
                 <input
                   type="text"
@@ -298,44 +291,8 @@ function DepositModal({ isOpen, onClose }) {
                     setAmount(value)
                   }}
                 />
-                
-                <div className="deposit-currency-compact">
-                  <div 
-                    className="deposit-currency-badge"
-                    onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
-                  >
-                    <img 
-                      src={depositCurrency.icon} 
-                      alt={depositCurrency.name} 
-                      className="deposit-badge-icon"
-                    />
-                    <svg 
-                      className={`deposit-badge-arrow ${isCurrencyDropdownOpen ? 'open' : ''}`}
-                      width="10" 
-                      height="10" 
-                      viewBox="0 0 12 12"
-                    >
-                      <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                    </svg>
-                  </div>
-                  
-                  {isCurrencyDropdownOpen && (
-                    <div className="deposit-currency-dropdown-compact">
-                      {DEPOSIT_CURRENCIES.map((currency) => (
-                        <div
-                          key={currency.id}
-                          className={`deposit-currency-option-compact ${depositCurrency.id === currency.id ? 'active' : ''}`}
-                          onClick={() => handleCurrencySelect(currency)}
-                        >
-                          <img 
-                            src={currency.icon} 
-                            alt={currency.name} 
-                            className="deposit-badge-icon"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                <div className="deposit-currency-badge">
+                  <img src="/image/ton_symbol.svg" alt="TON" className="deposit-badge-icon" />
                 </div>
               </div>
 
@@ -366,7 +323,7 @@ function DepositModal({ isOpen, onClose }) {
                     onClick={handleTonPay}
                     disabled={!amount || isPaying}
                   >
-                    {isPaying ? t('deposit.processing') : t('deposit.payWith') + ' ' + depositCurrency.name}
+                    {isPaying ? t('deposit.processing') : t('deposit.payWith') + ' TON'}
                   </button>
                 </>
               )}
