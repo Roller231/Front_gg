@@ -10,7 +10,7 @@ const SETTINGS_KEY = 'gg_user_settings'
 
 // Настройки по умолчанию
 const DEFAULT_SETTINGS = {
-  hideLogin: false,      // Скрывать логин по умолчанию
+  hideLogin: true,       // Скрывать логин по умолчанию
   vibrationEnabled: true, // Вибрация включена по умолчанию
 }
 
@@ -24,11 +24,6 @@ export function UserProvider({ children }) {
       const saved = localStorage.getItem(SETTINGS_KEY)
       if (saved) {
         const parsed = JSON.parse(saved)
-        // Force reset hideLogin to new default if it was true (old behavior)
-        if (parsed.hideLogin === true) {
-          parsed.hideLogin = false
-          localStorage.setItem(SETTINGS_KEY, JSON.stringify({ ...DEFAULT_SETTINGS, ...parsed }))
-        }
         return { ...DEFAULT_SETTINGS, ...parsed }
       }
       return DEFAULT_SETTINGS

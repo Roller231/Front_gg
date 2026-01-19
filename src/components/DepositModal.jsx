@@ -6,16 +6,19 @@ import * as usersApi from '../api/users'
 import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react'
 import { apiFetch } from '../api/client'
 
-
-
+const DEPOSIT_CURRENCIES = [
+  { id: 'ton', name: 'TON', icon: '/image/ton_symbol.svg', rate: 1 },
+  { id: 'usdt', name: 'USDT', icon: '/image/usdt-icon.svg', rate: 1 },
+  { id: 'stars', name: 'Stars', icon: '/image/telegram-star.svg', rate: 0.02 },
+]
 
 function DepositModal({ isOpen, onClose }) {
   const { t } = useLanguage()
-  const [activeTab, setActiveTab] = useState('stars')
-  const [selectedCurrency, setSelectedCurrency] = useState(null)
+  const [activeTab, setActiveTab] = useState('gifts')
+  const [depositCurrency, setDepositCurrency] = useState(DEPOSIT_CURRENCIES[0])
+  const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false)
   const [amount, setAmount] = useState('')
   
-  // Для свайпа
   const modalRef = useRef(null)
   const contentRef = useRef(null)
   const dragStartY = useRef(0)
@@ -23,83 +26,85 @@ function DepositModal({ isOpen, onClose }) {
   const isDragging = useRef(false)
 
   const API_URL = import.meta.env.VITE_API_URL
-
   const { user, loading, setUser } = useUser()
-  
-
   const [tonConnectUI] = useTonConnectUI()
-const tonWallet = useTonWallet()
-const [isPaying, setIsPaying] = useState(false)
+  const tonWallet = useTonWallet()
+  const [isPaying, setIsPaying] = useState(false)
 
-const toNano = (value) => {
-  return Math.floor(Number(value) * 1e9).toString()
-}
-
-
-const handleTonPay = async () => {
-  const tonAmount = Number(amount)
-  if (!tonAmount || tonAmount <= 0 || isPaying) return
-
-  setIsPaying(true)
-
-  try {
-    // 1️⃣ create (учёт)
-    await apiFetch('/api/ton/create', {
-      method: 'POST',
-      body: JSON.stringify({
-        user_id: user.id,
-        amount: tonAmount
-      })
-    })
-
-    // 2️⃣ отправка TON
-    await tonConnectUI.sendTransaction({
-      validUntil: Math.floor(Date.now() / 1000) + 60,
-      messages: [
-        {
-          address: import.meta.env.VITE_TON_RECEIVER,
-          amount: toNano(tonAmount)
-        }
-      ]
-    })
-
-    // 3️⃣ success — ТОЛЬКО user_id
-    await apiFetch('/api/ton/success', {
-      method: 'POST',
-      body: JSON.stringify({
-        user_id: user.id
-      })
-    })
-
-    // 4️⃣ обновляем пользователя
-    const updatedUser = await usersApi.getUserById(user.id)
-    setUser(updatedUser)
-
-    onClose()
-  } catch (e) {
-    console.error('TON pay error', e)
-  } finally {
-    setIsPaying(false)
+  const toNano = (value) => {
+    return Math.floor(Number(value) * 1e9).toString()
   }
-}
 
+  const handleTonPay = async () => {
+    const inputAmount = Number(amount)
+    if (!inputAmount || inputAmount <= 0 || isPaying) return
 
+    const tonAmount = inputAmount * depositCurrency.rate
+    setIsPaying(true)
 
+    try {
+      await apiFetch('/api/ton/create', {
+        method: 'POST',
+        body: JSON.stringify({
+          user_id: user.id,
+          amount: tonAmount,
+          currency: depositCurrency.id,
+          originalAmount: inputAmount
+        })
+      })
 
-  // Сброс позиции при открытии
+      await tonConnectUI.sendTransaction({
+        validUntil: Math.floor(Date.now() / 1000) + 60,
+        messages: [
+          {
+            address: import.meta.env.VITE_TON_RECEIVER,
+            amount: toNano(tonAmount)
+          }
+        ]
+      })
+
+      await apiFetch('/api/ton/success', {
+        method: 'POST',
+        body: JSON.stringify({ user_id: user.id })
+      })
+
+      const updatedUser = await usersApi.getUserById(user.id)
+      setUser(updatedUser)
+      onClose()
+    } catch (e) {
+      console.error('TON pay error', e)
+    } finally {
+      setIsPaying(false)
+    }
+  }
+
   useEffect(() => {
     if (isOpen && contentRef.current) {
       contentRef.current.style.transform = 'translateY(0)'
       currentTranslateY.current = 0
       setActiveTab('gifts')
-      setSelectedCurrency(null)
+      setDepositCurrency(DEPOSIT_CURRENCIES[0])
+      setIsCurrencyDropdownOpen(false)
       setAmount('')
     }
   }, [isOpen])
-if (loading || !user) {
-  return null // или disabled кнопки
-}
 
+  const handleCurrencySelect = (currency) => {
+    setDepositCurrency(currency)
+    setIsCurrencyDropdownOpen(false)
+    setAmount('')
+  }
+
+  const getConvertedAmount = () => {
+    if (!amount || !depositCurrency) return '0'
+    const numAmount = Number(amount)
+    const tonValue = numAmount * depositCurrency.rate
+    return tonValue.toFixed(4)
+  }
+
+  if (loading || !user) {
+    return null
+  }
 
   const handleStarsPay = async () => {
     if (!amount || Number(amount) <= 0) return
@@ -119,9 +124,7 @@ if (loading || !user) {
       }
   
       const data = await res.json()
-  
       window.Telegram.WebApp.openInvoice(data.invoice_link)
-  
     } catch (e) {
       console.error('Stars pay error', e)
     }
@@ -129,27 +132,17 @@ if (loading || !user) {
   
   useEffect(() => {
     const handler = async (event) => {
-      console.log('invoiceClosed event:', event)
-  
       if (event.status === 'paid') {
         try {
-          // 1️⃣ подтверждаем депозит
           await fetch(`${API_URL}/api/stars/success`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              user_id: user.id
-            })
+            body: JSON.stringify({ user_id: user.id })
           })
-  
-          // 2️⃣ получаем обновлённого пользователя
           const updatedUser = await usersApi.getUserById(user.id)
-  
-          // 3️⃣ обновляем контекст
           setUser(updatedUser)
-  
         } catch (err) {
-          console.error('Stars success / user refresh error', err)
+          console.error('Stars success error', err)
         } finally {
           onClose()
         }
@@ -159,48 +152,32 @@ if (loading || !user) {
     window.Telegram.WebApp.onEvent('invoiceClosed', handler)
     return () => window.Telegram.WebApp.offEvent('invoiceClosed', handler)
   }, [API_URL, user.id, setUser, onClose])
-  
-  
-  
-  
-  
-  // Начало свайпа/drag
+
   const handleDragStart = (e) => {
     isDragging.current = true
     const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY
     dragStartY.current = clientY - currentTranslateY.current
-    
     if (contentRef.current) {
       contentRef.current.style.transition = 'none'
     }
   }
 
-  // Движение свайпа/drag
   const handleDragMove = (e) => {
     if (!isDragging.current) return
-    
     const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY
     let newTranslateY = clientY - dragStartY.current
-    
-    // Ограничиваем движение только вниз
     if (newTranslateY < 0) newTranslateY = 0
-    
     currentTranslateY.current = newTranslateY
-    
     if (contentRef.current) {
       contentRef.current.style.transform = `translateY(${newTranslateY}px)`
     }
   }
 
-  // Конец свайпа/drag
   const handleDragEnd = () => {
     if (!isDragging.current) return
     isDragging.current = false
-    
     if (contentRef.current) {
       contentRef.current.style.transition = 'transform 0.3s ease-out'
-      
-      // Если свайпнули больше чем на 100px - закрываем
       if (currentTranslateY.current > 100) {
         contentRef.current.style.transform = 'translateY(100%)'
         setTimeout(() => {
@@ -214,23 +191,19 @@ if (loading || !user) {
     }
   }
 
-  // Обработчики для mouse events на document
   useEffect(() => {
     const handleMouseMove = (e) => handleDragMove(e)
     const handleMouseUp = () => handleDragEnd()
-
     if (isOpen) {
       document.addEventListener('mousemove', handleMouseMove)
       document.addEventListener('mouseup', handleMouseUp)
     }
-
     return () => {
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
     }
   }, [isOpen])
 
-  // Клик по оверлею закрывает модал
   const handleOverlayClick = (e) => {
     if (e.target === modalRef.current) {
       onClose()
@@ -252,18 +225,12 @@ if (loading || !user) {
         onTouchMove={handleDragMove}
         onTouchEnd={handleDragEnd}
       >
-        {/* Ручка для свайпа */}
-        <div 
-          className="deposit-modal-handle"
-          onMouseDown={handleDragStart}
-        >
+        <div className="deposit-modal-handle" onMouseDown={handleDragStart}>
           <div className="deposit-modal-handle-bar"></div>
         </div>
 
-        {/* Заголовок */}
         <h2 className="deposit-modal-title">{t('deposit.title')}</h2>
 
-        {/* Табы */}
         <div className="deposit-modal-tabs">
           <button 
             className={`deposit-modal-tab ${activeTab === 'gifts' ? 'active' : ''}`}
@@ -277,123 +244,53 @@ if (loading || !user) {
           >
             {t('deposit.wallet')}
           </button>
-          {/* Криптобот временно отключен */}
-          {/* <button 
-            className={`deposit-modal-tab ${activeTab === 'crypto' ? 'active' : ''}`}
-            onClick={() => setActiveTab('crypto')}
-          >
-            {t('deposit.cryptoBot')}
-          </button> */}
         </div>
 
-        {/* Контент табов */}
         <div className="deposit-modal-tabs-content">
-          {/* Вкладка Подарки */}
+          {/* Вкладка Звезды */}
           <div className={`deposit-tab-panel ${activeTab === 'gifts' ? 'active' : ''}`}>
-          <div className="deposit-stars-content">
-  <div className="deposit-amount-wrapper">
-    <input
-      type="text"
-      inputMode="numeric"
-      className="deposit-amount-input"
-      placeholder={t('deposit.amount')}
-      value={amount}
-      onChange={(e) => {
-        const value = e.target.value.replace(/[^0-9]/g, '')
-        setAmount(value)
-      }}
-    />
-  </div>
-
-  <button
-    className="deposit-wallet-button"
-    onClick={handleStarsPay}
-    disabled={!amount}
-  >
-    {t('deposit.payStars')}
-  </button>
-</div>
-
-          </div>
-
-{/* Вкладка Кошелёк */}
-<div className={`deposit-tab-panel ${activeTab === 'wallet' ? 'active' : ''}`}>
-  <div className="deposit-wallet-content">
-
-    {/* 1️⃣ КНОПКА ПОДКЛЮЧЕНИЯ */}
-    {!tonWallet && (
-      <button
-        className="deposit-wallet-button"
-        onClick={() => tonConnectUI.openModal()}
-      >
-        {t('deposit.connectWallet')}
-      </button>
-    )}
-
-    {/* 2️⃣ КОШЕЛЁК ПОДКЛЮЧЕН */}
-    {tonWallet && (
-      <>
-        <div className="deposit-wallet-message">
-          {tonWallet.account.address.slice(0, 6)}...
-          {tonWallet.account.address.slice(-4)}
-        </div>
-
-        {/* 3️⃣ ВВОД СУММЫ */}
-        <div className="deposit-amount-wrapper">
-          <input
-            type="text"
-            inputMode="decimal"
-            className="deposit-amount-input"
-            placeholder={t('deposit.amount')}
-            value={amount}
-            onChange={(e) => {
-              let value = e.target.value
-              // Заменяем запятые на точки для унификации
-              value = value.replace(/,/g, '.')
-              // Удаляем все символы кроме цифр и точек
-              value = value.replace(/[^0-9.]/g, '')
-              // Предотвращаем множественные точки
-              const parts = value.split('.')
-              if (parts.length > 2) {
-                value = parts[0] + '.' + parts.slice(1).join('')
-              }
-              setAmount(value)
-            }}
-          />
-        </div>
-
-        {/* 4️⃣ ОПЛАТА */}
-        <button
-          className="deposit-wallet-button"
-          onClick={handleTonPay}
-          disabled={!amount || isPaying}
-        >
-          {isPaying ? 'Processing...' : 'Pay with TON'}
-        </button>
-      </>
-    )}
-
-  </div>
-</div>
-
-
-          {/* Вкладка Crypto Bot */}
-          <div className={`deposit-tab-panel ${activeTab === 'crypto' ? 'active' : ''}`}>
-            <div className="deposit-crypto-content">
-              <div className="deposit-amount-wrapper">
+            <div className="deposit-stars-content">
+              <div className="deposit-input-row">
                 <input
                   type="text"
-                  inputMode="decimal"
+                  inputMode="numeric"
                   className="deposit-amount-input"
                   placeholder={t('deposit.amount')}
                   value={amount}
                   onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9]/g, '')
+                    setAmount(value)
+                  }}
+                />
+                <div className="deposit-currency-badge">
+                  <img src="/image/telegram-star.svg" alt="Stars" className="deposit-badge-icon" />
+                </div>
+              </div>
+
+              <button
+                className="deposit-wallet-button"
+                onClick={handleStarsPay}
+                disabled={!amount}
+              >
+                {t('deposit.payStars')}
+              </button>
+            </div>
+          </div>
+
+          {/* Вкладка Кошелёк */}
+          <div className={`deposit-tab-panel ${activeTab === 'wallet' ? 'active' : ''}`}>
+            <div className="deposit-wallet-content">
+              <div className="deposit-input-row">
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  className="deposit-amount-input"
+                  placeholder="0"
+                  value={amount}
+                  onChange={(e) => {
                     let value = e.target.value
-                    // Заменяем запятые на точки для унификации
                     value = value.replace(/,/g, '.')
-                    // Удаляем все символы кроме цифр и точек
                     value = value.replace(/[^0-9.]/g, '')
-                    // Предотвращаем множественные точки
                     const parts = value.split('.')
                     if (parts.length > 2) {
                       value = parts[0] + '.' + parts.slice(1).join('')
@@ -401,27 +298,78 @@ if (loading || !user) {
                     setAmount(value)
                   }}
                 />
+                
+                <div className="deposit-currency-compact">
+                  <div 
+                    className="deposit-currency-badge"
+                    onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
+                  >
+                    <img 
+                      src={depositCurrency.icon} 
+                      alt={depositCurrency.name} 
+                      className="deposit-badge-icon"
+                    />
+                    <svg 
+                      className={`deposit-badge-arrow ${isCurrencyDropdownOpen ? 'open' : ''}`}
+                      width="10" 
+                      height="10" 
+                      viewBox="0 0 12 12"
+                    >
+                      <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                    </svg>
+                  </div>
+                  
+                  {isCurrencyDropdownOpen && (
+                    <div className="deposit-currency-dropdown-compact">
+                      {DEPOSIT_CURRENCIES.map((currency) => (
+                        <div
+                          key={currency.id}
+                          className={`deposit-currency-option-compact ${depositCurrency.id === currency.id ? 'active' : ''}`}
+                          onClick={() => handleCurrencySelect(currency)}
+                        >
+                          <img 
+                            src={currency.icon} 
+                            alt={currency.name} 
+                            className="deposit-badge-icon"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="deposit-currency-grid">
-                <button 
-                  className={`deposit-currency-button ${selectedCurrency === 'TON' ? 'active' : ''}`}
-                  onClick={() => setSelectedCurrency('TON')}
+
+              {amount && Number(amount) > 0 && (
+                <div className="deposit-conversion-info">
+                  <span className="deposit-conversion-label">{t('deposit.youWillGet')}</span>
+                  <span className="deposit-conversion-value">
+                    ≈ {getConvertedAmount()} TON
+                  </span>
+                </div>
+              )}
+
+              {!tonWallet ? (
+                <button
+                  className="deposit-wallet-button"
+                  onClick={() => tonConnectUI.openModal()}
                 >
-                  TON
+                  {t('deposit.connectWallet')}
                 </button>
-                <button 
-                  className={`deposit-currency-button ${selectedCurrency === 'USDT' ? 'active' : ''}`}
-                  onClick={() => setSelectedCurrency('USDT')}
-                >
-                  USDT
-                </button>
-                <button 
-                  className={`deposit-currency-button ${selectedCurrency === 'TRX' ? 'active' : ''}`}
-                  onClick={() => setSelectedCurrency('TRX')}
-                >
-                  TRX
-                </button>
-              </div>
+              ) : (
+                <>
+                  <div className="deposit-wallet-message">
+                    {tonWallet.account.address.slice(0, 6)}...
+                    {tonWallet.account.address.slice(-4)}
+                  </div>
+                  <button
+                    className="deposit-wallet-button"
+                    onClick={handleTonPay}
+                    disabled={!amount || isPaying}
+                  >
+                    {isPaying ? t('deposit.processing') : t('deposit.payWith') + ' ' + depositCurrency.name}
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

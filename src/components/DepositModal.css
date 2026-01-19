@@ -220,6 +220,99 @@
   transform: translateY(0);
 }
 
+/* Stars Content */
+.deposit-stars-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 0;
+}
+
+/* Input Row - поле ввода + иконка валюты */
+.deposit-input-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+}
+
+/* Currency Badge - компактная иконка валюты */
+.deposit-currency-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.deposit-currency-compact .deposit-currency-badge {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+
+.deposit-currency-compact .deposit-currency-badge:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.deposit-badge-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.deposit-badge-arrow {
+  color: rgba(255, 255, 255, 0.6);
+  transition: transform 0.2s ease;
+}
+
+.deposit-badge-arrow.open {
+  transform: rotate(180deg);
+}
+
+/* Compact Currency Selector */
+.deposit-currency-compact {
+  position: relative;
+}
+
+.deposit-currency-dropdown-compact {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #1A1035;
+  border-radius: 12px;
+  border: 1px solid rgba(44, 125, 248, 0.3);
+  padding: 8px;
+  z-index: 100;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  animation: depositDropdownFadeIn 0.2s ease;
+}
+
+.deposit-currency-option-compact {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.deposit-currency-option-compact:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.deposit-currency-option-compact.active {
+  background: rgba(44, 125, 248, 0.3);
+}
+
 /* Вкладка Crypto Bot */
 .deposit-crypto-content {
   display: flex;
@@ -236,8 +329,8 @@
 }
 
 .deposit-amount-input {
-  width: 100%;
-  max-width: 260px;
+  flex: 1;
+  max-width: 200px;
   text-align: center;
   background: transparent;
   border: none;
@@ -285,6 +378,144 @@
 
 .deposit-currency-button:active {
   transform: scale(0.98);
+}
+
+/* Currency Selector */
+.deposit-currency-selector {
+  position: relative;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.deposit-currency-selected {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.deposit-currency-selected:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(44, 125, 248, 0.3);
+}
+
+.deposit-currency-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.deposit-currency-name {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.deposit-currency-arrow {
+  color: rgba(255, 255, 255, 0.6);
+  transition: transform 0.2s ease;
+}
+
+.deposit-currency-arrow.open {
+  transform: rotate(180deg);
+}
+
+.deposit-currency-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: #1A1035;
+  border-radius: 14px;
+  border: 1px solid rgba(44, 125, 248, 0.3);
+  overflow: hidden;
+  z-index: 100;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  animation: depositDropdownFadeIn 0.2s ease;
+}
+
+@keyframes depositDropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.deposit-currency-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.deposit-currency-option:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.deposit-currency-option.active {
+  background: linear-gradient(135deg, rgba(44, 125, 248, 0.3) 0%, rgba(30, 95, 217, 0.2) 100%);
+}
+
+/* Amount Input Wrapper */
+.deposit-amount-input-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  margin-bottom: 12px;
+}
+
+.deposit-amount-input-wrapper .deposit-amount-input {
+  flex: 1;
+  max-width: 200px;
+}
+
+.deposit-input-currency-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+/* Conversion Info */
+.deposit-conversion-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px;
+  background: rgba(44, 125, 248, 0.1);
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.deposit-conversion-label {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.deposit-conversion-value {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #2C7DF8;
 }
 
 /* Адаптация для мобильных устройств */

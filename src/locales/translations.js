@@ -184,7 +184,9 @@ export const translations = {
         'Для вывода требуется 2 уровень и депозит от 3 TON.',
       remainingDeposit: 'Осталось пополнить',
       coins: 'TON',
-      gifts: 'Подарки'
+      gifts: 'Подарки',
+      availableBalance: 'Доступный баланс',
+      selectCurrency: 'Выберите валюту',
     },
 
     // Deposit Modal
@@ -205,7 +207,11 @@ export const translations = {
       walletNotConnected: 'Кошелёк не подключен.',
       connectWallet: 'Привязать кошелёк',
       amount: 'Сумма',
-      payStars: 'Пополнить'
+      payStars: 'Пополнить',
+      selectCurrency: 'Выберите валюту',
+      youWillGet: 'Вы получите',
+      payWith: 'Оплатить',
+      processing: 'Обработка...',
     },
 
     // Partner Page
@@ -223,7 +229,7 @@ export const translations = {
       noFriends: 'Пока нет приглашенных друзей',
       shareText: 'Присоединяйся к GGCat и зарабатывай TON!',
       bonusText: 'Приглашайте партнеров по ссылке, получайте <span class="highlight">{{percent}}%</span> с депозитов',
-      totalUsers: 'Всего пользователей Rocket',
+      totalUsers: 'Всего пользователей ggCat',
       statistics: 'Статистика',
       partners: 'Партнеров',
       earned: 'Заработано',
@@ -501,8 +507,10 @@ export const translations = {
       cantWithdrawText:
         'You need level 2 and at least 3 TON deposited.',
       remainingDeposit: 'Remaining deposit',
-            coins: 'TON',
-      gifts: 'Gifts'
+      coins: 'TON',
+      gifts: 'Gifts',
+      availableBalance: 'Available balance',
+      selectCurrency: 'Select currency',
     },
 
     // Deposit Modal
@@ -523,7 +531,11 @@ export const translations = {
       walletNotConnected: 'Wallet not connected.',
       connectWallet: 'Connect Wallet',
       amount: 'Amount',
-      payStars: 'Top up'
+      payStars: 'Top up',
+      selectCurrency: 'Select currency',
+      youWillGet: 'You will get',
+      payWith: 'Pay with',
+      processing: 'Processing...',
     },
 
     // Partner Page
@@ -541,7 +553,7 @@ export const translations = {
       noFriends: 'No invited friends yet',
       shareText: 'Join GGCat and earn TON!',
       bonusText: 'Invite partners via link, get <span class="highlight">{{percent}}%</span> from deposits',
-      totalUsers: 'Total Rocket Users',
+      totalUsers: 'Total ggCat Users',
       statistics: 'Statistics',
       partners: 'Partners',
       earned: 'Earned',

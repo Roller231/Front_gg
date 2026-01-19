@@ -7,14 +7,22 @@ import { createTonWithdraw, createDropWithdraw } from '../api/withdraw'
 import { getUserById } from '../api/users'
 import { getDropById } from '../api/cases'
 
+const WITHDRAW_CURRENCIES = [
+  { id: 'ton', name: 'TON', icon: '/image/ton_symbol.svg', rate: 1 },
+  { id: 'usdt', name: 'USDT', icon: '/image/usdt-icon.svg', rate: 1 },
+  { id: 'stars', name: 'Stars', icon: '/image/telegram-star.svg', rate: 0.02 },
+]
+
 function WithdrawModal({ isOpen, onClose }) {
   const { t } = useLanguage()
   const { user, setUser } = useUser()
-  const { selectedCurrency } = useCurrency()
+  const { selectedCurrency, currencyOptions } = useCurrency()
 
   const [activeTab, setActiveTab] = useState('coins')
   const [amount, setAmount] = useState('')
   const [selectedGift, setSelectedGift] = useState(null)
+  const [withdrawCurrency, setWithdrawCurrency] = useState(WITHDRAW_CURRENCIES[0])
+  const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false)
 
   const modalRef = useRef(null)
   const contentRef = useRef(null)
@@ -62,14 +70,49 @@ function WithdrawModal({ isOpen, onClose }) {
     setUser(fresh)
   }
 
+  /* ================= BALANCE CONVERSION ================= */
+  const userBalance = Number(user?.balance) || 0
+  
+  const getConvertedBalance = () => {
+    if (!withdrawCurrency) return '0'
+    const converted = userBalance / withdrawCurrency.rate
+    if (withdrawCurrency.id === 'stars') {
+      return Math.floor(converted).toLocaleString('ru-RU').replace(/\u00A0/g, ' ')
+    }
+    return converted.toFixed(2)
+  }
+
+  const getMaxAmount = () => {
+    if (!withdrawCurrency) return 0
+    return userBalance / withdrawCurrency.rate
+  }
+
+  const handleSetMax = () => {
+    const max = getMaxAmount()
+    if (withdrawCurrency.id === 'stars') {
+      setAmount(Math.floor(max).toString())
+    } else {
+      setAmount(max.toFixed(2))
+    }
+  }
+
+  const handleCurrencySelect = (currency) => {
+    setWithdrawCurrency(currency)
+    setIsCurrencyDropdownOpen(false)
+    setAmount('')
+  }
+
   /* ================= TON ================= */
   const handleCoinsWithdraw = async () => {
     const value = Number(amount)
     if (!value || value <= 0) return
 
+    const tonAmount = value * withdrawCurrency.rate
+
     await createTonWithdraw({
       userId: user.id,
-      amount: value,
+      amount: tonAmount,
+      currency: withdrawCurrency.id,
     })
 
     await refreshUser()
@@ -196,29 +239,91 @@ function WithdrawModal({ isOpen, onClose }) {
         {/* COINS */}
         {activeTab === 'coins' && (
           <div className="withdraw-coins">
-            <input
-              className="withdraw-amount-input"
-              type="text"
-              placeholder="0"
-              value={amount}
-              onChange={(e) => {
-                let value = e.target.value
-                // Заменяем запятые на точки для унификации
-                value = value.replace(/,/g, '.')
-                // Удаляем все символы кроме цифр и точек
-                value = value.replace(/[^0-9.]/g, '')
-                // Предотвращаем множественные точки
-                const parts = value.split('.')
-                if (parts.length > 2) {
-                  value = parts[0] + '.' + parts.slice(1).join('')
-                }
-                setAmount(value)
-              }}
-            />
+            {/* Currency Selector */}
+            <div className="withdraw-currency-selector">
+              <div 
+                className="withdraw-currency-selected"
+                onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
+              >
+                <img 
+                  src={withdrawCurrency.icon} 
+                  alt={withdrawCurrency.name} 
+                  className="withdraw-currency-icon"
+                />
+                <span className="withdraw-currency-name">{withdrawCurrency.name}</span>
+                <svg 
+                  className={`withdraw-currency-arrow ${isCurrencyDropdownOpen ? 'open' : ''}`}
+                  width="12" 
+                  height="12" 
+                  viewBox="0 0 12 12"
+                >
+                  <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                </svg>
+              </div>
+              
+              {isCurrencyDropdownOpen && (
+                <div className="withdraw-currency-dropdown">
+                  {WITHDRAW_CURRENCIES.map((currency) => (
+                    <div
+                      key={currency.id}
+                      className={`withdraw-currency-option ${withdrawCurrency.id === currency.id ? 'active' : ''}`}
+                      onClick={() => handleCurrencySelect(currency)}
+                    >
+                      <img 
+                        src={currency.icon} 
+                        alt={currency.name} 
+                        className="withdraw-currency-icon"
+                      />
+                      <span className="withdraw-currency-name">{currency.name}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Balance Display */}
+            <div className="withdraw-balance-info">
+              <span className="withdraw-balance-label">{t('withdraw.availableBalance')}</span>
+              <span className="withdraw-balance-value">
+                {getConvertedBalance()}
+                <img 
+                  src={withdrawCurrency.icon} 
+                  alt={withdrawCurrency.name} 
+                  className="withdraw-balance-icon"
+                />
+              </span>
+            </div>
+
+            {/* Amount Input */}
+            <div className="withdraw-amount-wrapper">
+              <input
+                className="withdraw-amount-input"
+                type="text"
+                placeholder="0"
+                value={amount}
+                onChange={(e) => {
+                  let value = e.target.value
+                  value = value.replace(/,/g, '.')
+                  value = value.replace(/[^0-9.]/g, '')
+                  const parts = value.split('.')
+                  if (parts.length > 2) {
+                    value = parts[0] + '.' + parts.slice(1).join('')
+                  }
+                  setAmount(value)
+                }}
+              />
+              <button 
+                className="withdraw-max-button"
+                onClick={handleSetMax}
+              >
+                MAX
+              </button>
+            </div>
+
             <button
               className="withdraw-submit-button"
               onClick={handleCoinsWithdraw}
-              disabled={!amount}
+              disabled={!amount || Number(amount) <= 0 || Number(amount) > getMaxAmount()}
             >
               {t('withdraw.withdrawButton')}
             </button>

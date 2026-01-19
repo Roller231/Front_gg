@@ -5,6 +5,7 @@ import './WheelPage.css'
 import Header from './Header'
 import Navigation from './Navigation'
 import { Player } from '@lottiefiles/react-lottie-player'
+import HoverLottie from './HoverLottie'
 import BetModal from './BetModal'
 import { useLiveFeed } from '../context/LiveFeedContext'
 import { getDropById, getAllDrops } from '../api/cases'
@@ -532,15 +533,6 @@ function WheelPage() {
               {wheelPrizes.map((prize, index) => {
                 const angle = (index * 360 / wheelPrizes.length) + (180 / wheelPrizes.length)
                 
-                // Оптимизация: JSON анимация только для 3 верхних сегментов (под стрелкой)
-                // Вычисляем позицию сегмента относительно верха колеса
-                const segmentAngle = 360 / wheelPrizes.length
-                const normalizedRotation = ((rotation % 360) + 360) % 360
-                const segmentPosition = (index * segmentAngle + normalizedRotation) % 360
-                // Сегмент "наверху" если его позиция близка к 0 или 360 (±1 сегмент)
-                const isNearTop = segmentPosition < segmentAngle * 1.5 || segmentPosition > 360 - segmentAngle * 1.5
-                const shouldAnimate = isNearTop && prize.contentType === 'animation'
-                
                 return (
                   <div
                     key={`content-${prize.id}`}
@@ -551,16 +543,13 @@ function WheelPage() {
                       <img src={currencyIcon} alt="currency" className="wheel-segment-coin" />
                       {formatAmount(prize.basePrice)}
                       </span>
-                    {prize.contentType === 'animation' ? (
-                      <Player
-                        autoplay
-                        loop
-                        src={prize.animation}
-                        className="wheel-segment-animation"
-                      />
-                    ) : (
-                      <img src={prize.image} alt="prize" className="wheel-segment-image" />
-                    )}
+                    <HoverLottie
+                      image={prize.image}
+                      animation={prize.contentType === 'animation' ? prize.animation : null}
+                      alt="prize"
+                      imageClassName="wheel-segment-image"
+                      animationClassName="wheel-segment-animation"
+                    />
                   </div>
                 )
               })}

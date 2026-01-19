@@ -1,4 +1,4 @@
-/* Task 4: Banner Carousel Styles */
+/* Task 4: Banner Carousel Styles - Swiper */
 .banner-carousel {
   position: relative;
   border-radius: 16px;
@@ -6,21 +6,49 @@
   overflow: hidden;
 }
 
-.banner-slides {
-  display: flex;
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: transform;
+.banner-swiper {
+  width: 100%;
+  border-radius: 16px;
 }
 
-.banner-slide {
-  min-width: 100%;
-  flex-shrink: 0;
+.banner-swiper .swiper-slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 16 / 5;
+  overflow: hidden;
 }
 
 .banner-image {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  border-radius: 16px;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Swiper Pagination */
+.banner-swiper .swiper-pagination {
+  bottom: 12px !important;
+  left: 16px !important;
+  width: auto !important;
+  text-align: left !important;
+}
+
+.banner-swiper .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.4);
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
+.banner-swiper .swiper-pagination-bullet-active {
+  width: 24px;
+  height: 6px;
+  border-radius: 3px;
+  background: #ffffff;
 }
 
 /* Custom Pagination - Bottom Left */
