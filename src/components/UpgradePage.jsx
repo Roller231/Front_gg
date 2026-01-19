@@ -39,12 +39,19 @@ function UpgradePage() {
   // Рассчёт шанса на основе цен
   useEffect(() => {
     if (sourceItem && targetItem) {
-      const calculatedChance = Math.min(95, Math.max(5, (sourceItem.price / targetItem.price) * 100))
-      setChance(Math.round(calculatedChance * 100) / 100)
+      const rawChance = (sourceItem.price / targetItem.price) * 100
+  
+      const clampedChance = Math.min(
+        99,
+        Math.max(0.1, rawChance)
+      )
+  
+      setChance(Math.round(clampedChance * 100) / 100)
     } else {
       setChance(50)
     }
   }, [sourceItem, targetItem])
+  
   useEffect(() => {
     getAllDrops().then(setAllDrops)
   }, [])
