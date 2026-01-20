@@ -432,16 +432,17 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
 
         {/* ===== WITHDRAW BUTTON ===== */}
       <button
-  className={`withdraw-btn gg-btn-glow ${(!withdrawInfo?.can || balance < 0.5) ? 'withdraw-btn--inactive' : ''}`}
+  className={`withdraw-btn gg-btn-glow`}
   onClick={() => {
-    if (!withdrawInfo?.can) {
-      showNotification(t('profile.withdrawDepositRequired', { amount: '3' }))
-      return
-    }
-    if (balance < 0.5) {
-      showNotification(t('profile.insufficientBalance'))
-      return
-    }
+    // TEMP: убраны проверки для теста
+    // if (!withdrawInfo?.can) {
+    //   showNotification(t('profile.withdrawDepositRequired', { amount: '3' }))
+    //   return
+    // }
+    // if (balance < 0.5) {
+    //   showNotification(t('profile.insufficientBalance'))
+    //   return
+    // }
     setIsWithdrawModalOpen(true)
   }}
 >

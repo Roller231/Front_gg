@@ -215,6 +215,39 @@ function WithdrawModal({ isOpen, onClose }) {
     }
   }, [isOpen])
 
+  // Обработка клавиатуры - поднимаем модалку когда клавиатура открыта
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handleResize = () => {
+      if (!contentRef.current) return
+      
+      const viewport = window.visualViewport
+      if (viewport) {
+        const keyboardHeight = window.innerHeight - viewport.height
+        if (keyboardHeight > 100) {
+          // Клавиатура открыта - поднимаем модалку
+          contentRef.current.style.transform = `translateY(-${keyboardHeight}px)`
+        } else {
+          // Клавиатура закрыта
+          contentRef.current.style.transform = 'translateY(0)'
+        }
+      }
+    }
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleResize)
+      window.visualViewport.addEventListener('scroll', handleResize)
+    }
+
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleResize)
+        window.visualViewport.removeEventListener('scroll', handleResize)
+      }
+    }
+  }, [isOpen])
+
   if (!isOpen) return null
 
   return (
@@ -245,7 +278,7 @@ function WithdrawModal({ isOpen, onClose }) {
             className={`withdraw-modal-tab ${activeTab === 'coins' ? 'active' : ''}`}
             onClick={() => setActiveTab('coins')}
           >
-            {t('withdraw.coins')}
+            {getCurrencyDisplayName(withdrawCurrency) || 'TON'}
           </button>
           <button
             className={`withdraw-modal-tab ${activeTab === 'gifts' ? 'active' : ''}`}
