@@ -427,7 +427,6 @@ const displayUsername = settings?.hideLogin ? '@' + maskUsername(rawUsername) : 
               </div>
             </div>
 
-...
             <div className="pvp-bets-row">
 
             <div className="pvp-bet-card">
