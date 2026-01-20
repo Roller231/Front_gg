@@ -168,26 +168,9 @@ function PvPPage() {
   // Результат боя
   const [battleResult, setBattleResult] = useState(null) // 'win' | 'lose' | 'draw'
   
-  // Точки ожидания
-  const [waitingDots, setWaitingDots] = useState('')
-  
   // Автовыбор через 5 секунд
   const [autoPickCountdown, setAutoPickCountdown] = useState(null)
 
-
-  // Анимация точек ожидания
-  useEffect(() => {
-    if (!isWaitingForOpponent) return
-    
-    const interval = setInterval(() => {
-      setWaitingDots(prev => {
-        if (prev.length >= 3) return ''
-        return prev + '.'
-      })
-    }, 500)
-    
-    return () => clearInterval(interval)
-  }, [isWaitingForOpponent])
 
   // Обратный отсчёт
 
@@ -434,7 +417,7 @@ const displayUsername = settings?.hideLogin ? '@' + maskUsername(rawUsername) : 
               <div className="pvp-player-chip pvp-player-chip--right">
               <img
   className="pvp-player-avatar"
-  src={opponentBot?.avatar_url || '/image/ava2.png'}
+  src={!opponentBot ? '/image/question-mark-icon.svg' : opponentBot.avatar_url}
   alt="Opponent"
 />
 <span className="pvp-player-name">
@@ -528,10 +511,10 @@ const displayUsername = settings?.hideLogin ? '@' + maskUsername(rawUsername) : 
 >
 
 
-          {isGameInProgress ? (
+          {isWaitingForOpponent ? (
             <span className="waiting-text">
               <span className="pvp-waiting-spinner" aria-hidden="true" />
-              {t('pvp.waiting')}{waitingDots}
+              {t('pvp.waiting')}
             </span>
           ) : (
             t('pvp.placeBet')

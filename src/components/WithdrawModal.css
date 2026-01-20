@@ -4,12 +4,14 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.75);
   z-index: 1001;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  animation: withdraw-overlay-fade-in 0.3s ease-out;
+  animation: withdraw-overlay-fade-in 0.2s ease-out;
+  will-change: opacity;
+  transform: translateZ(0);
 }
 
 @keyframes withdraw-overlay-fade-in {
@@ -108,14 +110,16 @@
   background: linear-gradient(180deg, #1F1145 0%, #0D0326 100%);
   border-radius: 24px 24px 0 0;
   padding: 20px 24px 36px;
-  animation: withdraw-modal-slide-up 0.3s ease-out;
+  animation: withdraw-modal-slide-up 0.25s ease-out;
   touch-action: none;
   user-select: none;
-  height: 65vh;
+  max-height: 80vh;
   display: flex;
   flex-direction: column;
   box-shadow: 0 -10px 60px rgba(91, 62, 245, 0.4);
   border-top: 1px solid rgba(139, 92, 246, 0.3);
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 
@@ -130,70 +134,109 @@
     padding: 16px 0;
   }
 
-/* Currency Selector */
-.withdraw-currency-selector {
-  position: relative;
-  width: 100%;
-}
-
-.withdraw-currency-selected {
+/* Balance Row - баланс слева, селектор справа */
+.withdraw-balance-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 14px 20px;
-  background: rgba(255, 255, 255, 0.08);
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.04);
   border-radius: 14px;
+}
+
+/* Compact Balance Info */
+.withdraw-balance-info-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.withdraw-balance-label {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.withdraw-balance-value-compact {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.withdraw-balance-icon-small {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+/* Compact Currency Selector */
+.withdraw-currency-selector-compact {
+  position: relative;
+}
+
+.withdraw-currency-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.withdraw-currency-selected:hover {
-  background: rgba(255, 255, 255, 0.12);
+.withdraw-currency-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
   border-color: rgba(139, 92, 246, 0.3);
 }
 
-.withdraw-currency-icon {
-  width: 24px;
-  height: 24px;
+.withdraw-currency-icon-small {
+  width: 18px;
+  height: 18px;
   object-fit: contain;
 }
 
-.withdraw-currency-name {
+.withdraw-currency-name-small {
   font-family: 'Open Sans', sans-serif;
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 600;
   color: #fff;
 }
 
-.withdraw-currency-arrow {
+.withdraw-currency-arrow-small {
   color: rgba(255, 255, 255, 0.6);
   transition: transform 0.2s ease;
 }
 
-.withdraw-currency-arrow.open {
+.withdraw-currency-arrow-small.open {
   transform: rotate(180deg);
 }
 
-.withdraw-currency-dropdown {
+.withdraw-currency-dropdown-compact {
   position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
+  top: calc(100% + 6px);
   right: 0;
+  min-width: 120px;
   background: #1F1145;
-  border-radius: 14px;
+  border-radius: 10px;
   border: 1px solid rgba(139, 92, 246, 0.3);
   overflow: hidden;
   z-index: 100;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  animation: dropdownFadeIn 0.2s ease;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  animation: dropdownFadeIn 0.15s ease;
 }
 
 @keyframes dropdownFadeIn {
   from {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateY(-4px);
   }
   to {
     opacity: 1;
@@ -201,55 +244,21 @@
   }
 }
 
-.withdraw-currency-option {
+.withdraw-currency-option-compact {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 20px;
+  gap: 8px;
+  padding: 10px 12px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.withdraw-currency-option:hover {
+.withdraw-currency-option-compact:hover {
   background: rgba(255, 255, 255, 0.08);
 }
 
-.withdraw-currency-option.active {
+.withdraw-currency-option-compact.active {
   background: linear-gradient(135deg, rgba(91, 62, 245, 0.3) 0%, rgba(139, 92, 246, 0.2) 100%);
-}
-
-/* Balance Info */
-.withdraw-balance-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 14px;
-}
-
-.withdraw-balance-label {
-  font-family: 'Open Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.withdraw-balance-value {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: 'Open Sans', sans-serif;
-  font-size: 28px;
-  font-weight: 700;
-  color: #fff;
-}
-
-.withdraw-balance-icon {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
 }
 
 /* Amount Wrapper */

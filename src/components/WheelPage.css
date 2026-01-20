@@ -148,16 +148,14 @@
   height: 400px;
   bottom: 0;
   left: 0;
-  background: radial-gradient(ellipse at 50% 100%, rgba(139, 92, 246, 0.5) 0%, rgba(59, 130, 246, 0.3) 30%, transparent 60%);
-  filter: blur(40px);
+  background: radial-gradient(ellipse at 50% 100%, rgba(139, 92, 246, 0.4) 0%, rgba(59, 130, 246, 0.2) 30%, transparent 60%);
   pointer-events: none;
-  animation: bgGlowPulse 3s ease-in-out infinite;
+  opacity: 0.8;
+  will-change: opacity;
+  transform: translateZ(0);
 }
 
-@keyframes bgGlowPulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
+/* bgGlowPulse removed for mobile performance */
 
 /* Wheel container */
 .wheel-container {
@@ -180,14 +178,16 @@
   border-radius: 50%;
   background: conic-gradient(
     from 0deg,
-    rgba(139, 92, 246, 0.5),
-    rgba(59, 130, 246, 0.5),
-    rgba(139, 92, 246, 0.5),
-    rgba(59, 130, 246, 0.5),
-    rgba(139, 92, 246, 0.5)
+    rgba(139, 92, 246, 0.35),
+    rgba(59, 130, 246, 0.35),
+    rgba(139, 92, 246, 0.35),
+    rgba(59, 130, 246, 0.35),
+    rgba(139, 92, 246, 0.35)
   );
-  filter: blur(15px);
-  animation: outerGlowRotate 8s linear infinite;
+  opacity: 0.7;
+  will-change: transform;
+  transform: translateZ(0);
+  animation: outerGlowRotate 12s linear infinite;
 }
 
 @keyframes outerGlowRotate {
@@ -216,15 +216,12 @@
   transform-origin: center center;
   transform: rotate(var(--light-angle)) translateY(-392px) translateX(-7px);
   background: radial-gradient(circle, rgba(255, 200, 100, 0.3) 0%, transparent 70%);
-  transition: all 0.15s ease;
+  will-change: background, box-shadow;
 }
 
 .wheel-light--lit {
-  background: radial-gradient(circle, #FFD700 0%, #FFA500 50%, rgba(255, 165, 0, 0.5) 80%, transparent 100%);
-  box-shadow: 
-    0 0 10px #FFD700,
-    0 0 20px rgba(255, 165, 0, 0.6),
-    0 0 30px rgba(255, 100, 0, 0.3);
+  background: radial-gradient(circle, #FFD700 0%, #FFA500 60%, transparent 100%);
+  box-shadow: 0 0 8px #FFD700;
 }
 
 /* Main wheel */
@@ -728,13 +725,14 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: overlayFadeIn 0.3s ease;
+  animation: overlayFadeIn 0.2s ease;
+  will-change: opacity;
+  transform: translateZ(0);
 }
 
 @keyframes overlayFadeIn {
@@ -770,17 +768,13 @@
   width: 520px;
   height: 520px;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.55) 0%, rgba(59, 130, 246, 0.35) 35%, rgba(255, 255, 255, 0.12) 55%, transparent 72%);
-  filter: blur(6px);
-  opacity: 0.9;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.5) 0%, rgba(59, 130, 246, 0.3) 35%, transparent 65%);
+  opacity: 0.85;
   pointer-events: none;
-  animation: resultGlow 2.4s ease-in-out infinite;
+  will-change: transform;
 }
 
-@keyframes resultGlow {
-  0%, 100% { opacity: 0.65; transform: translate(-50%, -50%) scale(0.92); }
-  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
-}
+/* resultGlow animation removed for mobile performance */
 
 .wheel-result-title {
   font-size: 24px;
@@ -926,12 +920,14 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.75);
   z-index: 1000;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  animation: overlay-fade-in 0.3s ease-out;
+  animation: overlay-fade-in 0.2s ease-out;
+  will-change: opacity;
+  transform: translateZ(0);
 }
 
 @keyframes overlay-fade-in {
@@ -948,11 +944,14 @@
   background: #2E2247;
   border-radius: 24px 24px 0 0;
   padding: 12px 20px 32px;
-  animation: modal-slide-up 0.3s ease-out;
+  animation: modal-slide-up 0.25s ease-out;
   user-select: none;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 @keyframes modal-slide-up {
@@ -1078,25 +1077,7 @@
   aspect-ratio: 1 / 1;
 }
 
-.prize-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  animation: prize-shimmer 3s infinite;
-}
-
-@keyframes prize-shimmer {
-  0% {
-    left: -100%;
-  }
-  50%, 100% {
-    left: 100%;
-  }
-}
+/* shimmer animation removed for mobile performance */
 
 .prize-price-badge {
   display: flex;

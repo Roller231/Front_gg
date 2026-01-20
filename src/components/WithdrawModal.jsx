@@ -7,22 +7,31 @@ import { createTonWithdraw, createDropWithdraw } from '../api/withdraw'
 import { getUserById } from '../api/users'
 import { getDropById } from '../api/cases'
 
-const WITHDRAW_CURRENCIES = [
-  { id: 'ton', name: 'TON', icon: '/image/ton_symbol.svg', rate: 1 },
-  { id: 'usdt', name: 'USDT', icon: '/image/usdt-icon.svg', rate: 1 },
-  { id: 'stars', name: 'Stars', icon: '/image/telegram-star.svg', rate: 0.02 },
-]
+// Валюты для вывода - только TON и Stars (курсы берутся из бэкенда)
+const WITHDRAW_CURRENCY_IDS = ['coins', 'stars']
 
 function WithdrawModal({ isOpen, onClose }) {
   const { t } = useLanguage()
   const { user, setUser } = useUser()
   const { selectedCurrency, currencyOptions } = useCurrency()
 
+  // Фильтруем только доступные для вывода валюты из currencyOptions (данные из бэкенда)
+  const withdrawCurrencies = useMemo(() => {
+    return currencyOptions.filter(c => WITHDRAW_CURRENCY_IDS.includes(c.id))
+  }, [currencyOptions])
+
   const [activeTab, setActiveTab] = useState('coins')
   const [amount, setAmount] = useState('')
   const [selectedGift, setSelectedGift] = useState(null)
-  const [withdrawCurrency, setWithdrawCurrency] = useState(WITHDRAW_CURRENCIES[0])
+  const [withdrawCurrency, setWithdrawCurrency] = useState(null)
   const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false)
+
+  // Инициализируем выбранную валюту когда загрузятся данные
+  useEffect(() => {
+    if (withdrawCurrencies.length > 0 && !withdrawCurrency) {
+      setWithdrawCurrency(withdrawCurrencies[0])
+    }
+  }, [withdrawCurrencies])
 
   const modalRef = useRef(null)
   const contentRef = useRef(null)
@@ -73,23 +82,25 @@ function WithdrawModal({ isOpen, onClose }) {
   /* ================= BALANCE CONVERSION ================= */
   const userBalance = Number(user?.balance) || 0
   
+  const isNoDecimalCurrency = withdrawCurrency?.id === 'stars'
+  
   const getConvertedBalance = () => {
-    if (!withdrawCurrency) return '0'
+    if (!withdrawCurrency?.rate) return '0'
     const converted = userBalance / withdrawCurrency.rate
-    if (withdrawCurrency.id === 'stars') {
+    if (isNoDecimalCurrency) {
       return Math.floor(converted).toLocaleString('ru-RU').replace(/\u00A0/g, ' ')
     }
     return converted.toFixed(2)
   }
 
   const getMaxAmount = () => {
-    if (!withdrawCurrency) return 0
+    if (!withdrawCurrency?.rate) return 0
     return userBalance / withdrawCurrency.rate
   }
 
   const handleSetMax = () => {
     const max = getMaxAmount()
-    if (withdrawCurrency.id === 'stars') {
+    if (isNoDecimalCurrency) {
       setAmount(Math.floor(max).toString())
     } else {
       setAmount(max.toFixed(2))
@@ -100,6 +111,14 @@ function WithdrawModal({ isOpen, onClose }) {
     setWithdrawCurrency(currency)
     setIsCurrencyDropdownOpen(false)
     setAmount('')
+  }
+  
+  // Название валюты для отображения
+  const getCurrencyDisplayName = (currency) => {
+    if (!currency) return ''
+    if (currency.id === 'coins') return 'TON'
+    if (currency.id === 'stars') return 'Stars'
+    return currency.id.toUpperCase()
   }
 
   /* ================= TON ================= */
@@ -237,61 +256,63 @@ function WithdrawModal({ isOpen, onClose }) {
         </div>
 
         {/* COINS */}
-        {activeTab === 'coins' && (
+        {activeTab === 'coins' && withdrawCurrency && (
           <div className="withdraw-coins">
-            {/* Currency Selector */}
-            <div className="withdraw-currency-selector">
-              <div 
-                className="withdraw-currency-selected"
-                onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
-              >
-                <img 
-                  src={withdrawCurrency.icon} 
-                  alt={withdrawCurrency.name} 
-                  className="withdraw-currency-icon"
-                />
-                <span className="withdraw-currency-name">{withdrawCurrency.name}</span>
-                <svg 
-                  className={`withdraw-currency-arrow ${isCurrencyDropdownOpen ? 'open' : ''}`}
-                  width="12" 
-                  height="12" 
-                  viewBox="0 0 12 12"
-                >
-                  <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                </svg>
+            {/* Balance Row с компактным селектором валюты */}
+            <div className="withdraw-balance-row">
+              <div className="withdraw-balance-info-compact">
+                <span className="withdraw-balance-label">{t('withdraw.availableBalance')}</span>
+                <span className="withdraw-balance-value-compact">
+                  {getConvertedBalance()}
+                  <img 
+                    src={withdrawCurrency.icon} 
+                    alt={getCurrencyDisplayName(withdrawCurrency)} 
+                    className="withdraw-balance-icon-small"
+                  />
+                </span>
               </div>
               
-              {isCurrencyDropdownOpen && (
-                <div className="withdraw-currency-dropdown">
-                  {WITHDRAW_CURRENCIES.map((currency) => (
-                    <div
-                      key={currency.id}
-                      className={`withdraw-currency-option ${withdrawCurrency.id === currency.id ? 'active' : ''}`}
-                      onClick={() => handleCurrencySelect(currency)}
-                    >
-                      <img 
-                        src={currency.icon} 
-                        alt={currency.name} 
-                        className="withdraw-currency-icon"
-                      />
-                      <span className="withdraw-currency-name">{currency.name}</span>
-                    </div>
-                  ))}
+              {/* Compact Currency Selector */}
+              <div className="withdraw-currency-selector-compact">
+                <div 
+                  className="withdraw-currency-btn"
+                  onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
+                >
+                  <img 
+                    src={withdrawCurrency.icon} 
+                    alt={getCurrencyDisplayName(withdrawCurrency)} 
+                    className="withdraw-currency-icon-small"
+                  />
+                  <span className="withdraw-currency-name-small">{getCurrencyDisplayName(withdrawCurrency)}</span>
+                  <svg 
+                    className={`withdraw-currency-arrow-small ${isCurrencyDropdownOpen ? 'open' : ''}`}
+                    width="10" 
+                    height="10" 
+                    viewBox="0 0 12 12"
+                  >
+                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                  </svg>
                 </div>
-              )}
-            </div>
-
-            {/* Balance Display */}
-            <div className="withdraw-balance-info">
-              <span className="withdraw-balance-label">{t('withdraw.availableBalance')}</span>
-              <span className="withdraw-balance-value">
-                {getConvertedBalance()}
-                <img 
-                  src={withdrawCurrency.icon} 
-                  alt={withdrawCurrency.name} 
-                  className="withdraw-balance-icon"
-                />
-              </span>
+                
+                {isCurrencyDropdownOpen && (
+                  <div className="withdraw-currency-dropdown-compact">
+                    {withdrawCurrencies.map((currency) => (
+                      <div
+                        key={currency.id}
+                        className={`withdraw-currency-option-compact ${withdrawCurrency.id === currency.id ? 'active' : ''}`}
+                        onClick={() => handleCurrencySelect(currency)}
+                      >
+                        <img 
+                          src={currency.icon} 
+                          alt={getCurrencyDisplayName(currency)} 
+                          className="withdraw-currency-icon-small"
+                        />
+                        <span className="withdraw-currency-name-small">{getCurrencyDisplayName(currency)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Amount Input */}
@@ -304,10 +325,14 @@ function WithdrawModal({ isOpen, onClose }) {
                 onChange={(e) => {
                   let value = e.target.value
                   value = value.replace(/,/g, '.')
-                  value = value.replace(/[^0-9.]/g, '')
-                  const parts = value.split('.')
-                  if (parts.length > 2) {
-                    value = parts[0] + '.' + parts.slice(1).join('')
+                  if (isNoDecimalCurrency) {
+                    value = value.replace(/[^0-9]/g, '')
+                  } else {
+                    value = value.replace(/[^0-9.]/g, '')
+                    const parts = value.split('.')
+                    if (parts.length > 2) {
+                      value = parts[0] + '.' + parts.slice(1).join('')
+                    }
                   }
                   setAmount(value)
                 }}
