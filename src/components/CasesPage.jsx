@@ -35,11 +35,23 @@ function CasesPage() {
   
 
   /* ===== SPLIT PAID / FREE ===== */
-  const paidCases = cases.filter((c) => Number(c.price) > 0)
-  const freeCases = cases.filter((c) => Number(c.price) === 0)
+  const sortByPosition = (a, b) =>
+    (a.position ?? 0) - (b.position ?? 0)
+  
+  const paidCases = cases
+    .filter((c) => Number(c.price) > 0)
+    .sort(sortByPosition)
+  
+  const freeCases = cases
+    .filter((c) => Number(c.price) === 0)
+    .sort(sortByPosition)
+  
 
   const visibleCases = activeTab === 'paid' ? paidCases : freeCases
 
+
+
+  
   /* ===== HANDLERS ===== */
   const handleCaseClick = (caseItem) => {
     setSelectedCase(caseItem)

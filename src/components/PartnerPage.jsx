@@ -31,7 +31,7 @@ function PartnerPage() {
   const { user } = useUser()
   const [loadingFriends, setLoadingFriends] = useState(true)
   
-
+  const REFERRAL_PERCENT = 0.15
   const inviteLink = user?.refLink || ''
 
   useEffect(() => {
@@ -156,6 +156,10 @@ function PartnerPage() {
     if (num === null || num === undefined) return '0'
     return Number(num).toLocaleString('ru-RU')
   }
+  const totalEarned = friends.reduce(
+    (sum, f) => sum + (f.totalDEP || 0) * REFERRAL_PERCENT,
+    0
+  )
   
 
   return (
@@ -300,9 +304,14 @@ function PartnerPage() {
                   <img src={friend.avatar} alt={friend.name} className="friend-avatar" />
                   <span className="friend-name">{friend.firstname}</span>
                   <span className="friend-earnings">
-                  {formatNumber(friend.totalDEP)}
-                  <img src={selectedCurrency?.icon || '/image/Coin-Icon.svg'} alt={selectedCurrency?.id || 'TON'} className="ton-icon" />
-                  </span>
+  {formatNumber((friend.totalDEP || 0) * REFERRAL_PERCENT)}
+  <img
+    src={selectedCurrency?.icon || '/image/Coin-Icon.svg'}
+    alt={selectedCurrency?.id || 'TON'}
+    className="ton-icon"
+  />
+</span>
+
                 </div>
               ))}
             </div>
@@ -318,10 +327,11 @@ function PartnerPage() {
               <span className="stat-label">{t('partner.partners')}</span>
             </div>
             <div className="stat-card">
-              <span className="stat-value">
-                {formatNumber(0.00)} 
-                <span className="stat-currency"> TON</span>
-              </span>
+            <span className="stat-value">
+  {formatNumber(totalEarned)}
+  <span className="stat-currency"> TON</span>
+</span>
+
               <span className="stat-label">{t('partner.earned')}</span>
             </div>
           </div>
