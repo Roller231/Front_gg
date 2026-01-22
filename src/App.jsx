@@ -160,7 +160,7 @@ function App() {
       })
     } else {
       initUser({
-        tg_id: '9999999999',
+        tg_id: '99999',
         username: 'localuser',
         firstname: 'Guest',
         photo_url: null,

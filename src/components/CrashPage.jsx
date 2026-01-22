@@ -149,6 +149,14 @@ const myBetInRound = useMemo(() => {
 
   return players.find(p => p.userId === user.id)
 }, [players, user])
+
+
+const displayCountdown = useMemo(() => {
+  if (typeof countdown !== 'number') return null
+  return Math.max(0, countdown - 10)
+}, [countdown])
+
+
 const canBet =
 gameState === 'countdown' &&
 countdown > 0 &&
@@ -295,13 +303,11 @@ const loadBets = useCallback(async (roundId) => {
 }, [setPlayers])
 
 useEffect(() => {
-  if (!roundIdRef.current) return
 
   // чаще всего ставки меняются в countdown
   const intervalMs = gameState === 'countdown' ? 700 : 2000
 
   const id = setInterval(() => {
-    if (!roundIdRef.current) return
     loadBets(roundIdRef.current)
   }, intervalMs)
 
@@ -528,13 +534,14 @@ useEffect(() => {
                     <div className="crash-game-area-fade" />
           {/* Анимации взрывов и полёта кота */}
           <div className="crash-animation-container">
-          {gameState === 'countdown' && (
+{gameState === 'countdown' && displayCountdown !== null && (
   <div className="countdown-display">
     <span className="countdown-number">
-      {countdown === null ? '...' : countdown}
+      {displayCountdown}
     </span>
   </div>
 )}
+
 
 
             {gameState === 'flying' && (

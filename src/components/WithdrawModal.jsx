@@ -353,22 +353,40 @@ function WithdrawModal({ isOpen, onClose }) {
               <input
                 className="withdraw-amount-input"
                 type="text"
-                placeholder="0"
+                placeholder="6"
                 value={amount}
-                onChange={(e) => {
-                  let value = e.target.value
-                  value = value.replace(/,/g, '.')
-                  if (isNoDecimalCurrency) {
-                    value = value.replace(/[^0-9]/g, '')
-                  } else {
-                    value = value.replace(/[^0-9.]/g, '')
-                    const parts = value.split('.')
-                    if (parts.length > 2) {
-                      value = parts[0] + '.' + parts.slice(1).join('')
-                    }
-                  }
-                  setAmount(value)
-                }}
+onChange={(e) => {
+  let value = e.target.value.replace(/,/g, '.')
+
+  // stars — только целые
+  if (isNoDecimalCurrency) {
+    value = value.replace(/[^0-9]/g, '')
+  } else {
+    value = value.replace(/[^0-9.]/g, '')
+    const parts = value.split('.')
+    if (parts.length > 2) {
+      value = parts[0] + '.' + parts.slice(1).join('')
+    }
+  }
+
+  // разрешаем очистку поля
+  if (value === '') {
+    setAmount('')
+    return
+  }
+
+  const num = Number(value)
+  if (Number.isNaN(num)) return
+
+  // 🔒 минимум 6 TON
+  if (!isNoDecimalCurrency && num < 6) {
+    setAmount(String(6))
+    return
+  }
+
+  setAmount(value)
+}}
+
               />
               <button 
                 className="withdraw-max-button"
