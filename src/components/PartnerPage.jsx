@@ -79,12 +79,18 @@ function PartnerPage() {
     }
   }
 
-  const handleInvite = () => {
-    // Открыть Telegram для отправки приглашения
-    const shareText = t('partner.shareText')
-    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`
-    window.open(shareUrl, '_blank')
-  }
+const handleInvite = () => {
+  if (!user?.id) return
+
+  const botUsername = 'ggcat_game_bot'
+  const ref = user.id
+
+  // открывает Share Message с карточкой от бота
+  window.Telegram?.WebApp?.openTelegramLink(
+    `https://t.me/${botUsername}?inline_query=ref_${ref}`
+  )
+}
+
 
   const writeToClipboard = async (text) => {
     if (!text) return
