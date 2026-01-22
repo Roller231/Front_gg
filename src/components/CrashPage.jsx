@@ -153,7 +153,7 @@ const myBetInRound = useMemo(() => {
 
 const displayCountdown = useMemo(() => {
   if (typeof countdown !== 'number') return null
-  return Math.max(0, countdown - 10)
+  return Math.max(0, countdown )
 }, [countdown])
 
 
