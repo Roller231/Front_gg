@@ -19,6 +19,54 @@ export const translations = {
       guest: 'Гость',
     },
 
+
+
+// Transactions
+transactions: {
+  title: 'Транзакции',
+
+  // Rewards
+  daily_reward: 'Ежедневная награда',
+  daily_reward_10_days: 'Награда за 10 дней',
+
+  // PvP
+  pvp_bet: 'PvP ставка',
+  pvp_win: 'PvP выигрыш',
+  pvp_draw: 'PvP ничья',
+  pvp_lose: 'PvP поражение',
+
+  // Crash
+  crash_bet: 'Crash ставка',
+  crash_cashout: 'Crash вывод',
+  crash_bet_gift: 'Crash ставка подарком',
+
+  // Roulette
+  roulette_spin: 'Рулетка — ставка',
+  roulette_gift_bet: 'Рулетка — ставка подарком',
+  roulette_win: 'Рулетка — выигрыш',
+  roulette_free_win: 'Рулетка — бесплатный выигрыш',
+
+  // Cases
+  case_open: 'Открытие кейса',
+  case_win: 'Выигрыш из кейса',
+
+  // Upgrade
+  upgrade_bet: 'Апгрейд — ставка',
+  upgrade_win: 'Апгрейд — успех',
+
+  // Inventory
+  inventory_sell_single: 'Продажа предмета',
+  inventory_sell_all: 'Продажа всего инвентаря',
+
+  // Finance
+  deposit: 'Пополнение',
+  withdraw: 'Вывод средств',
+
+  unknown: 'Операция',
+},
+
+
+
     // Header
     header: {
       balance: 'Баланс',
@@ -646,5 +694,52 @@ export const translations = {
       apply: 'Apply',
       rewardReceived: 'Bonus activated',
     },
+
+
+    // Transactions
+transactions: {
+  title: 'Transactions',
+
+  // Rewards
+  daily_reward: 'Daily reward',
+  daily_reward_10_days: '10-day reward',
+
+  // PvP
+  pvp_bet: 'PvP bet',
+  pvp_win: 'PvP win',
+  pvp_draw: 'PvP draw',
+  pvp_lose: 'PvP loss',
+
+  // Crash
+  crash_bet: 'Crash bet',
+  crash_cashout: 'Crash cashout',
+  crash_bet_gift: 'Crash gift bet',
+
+  // Roulette
+  roulette_spin: 'Roulette bet',
+  roulette_gift_bet: 'Roulette gift bet',
+  roulette_win: 'Roulette win',
+  roulette_free_win: 'Roulette free win',
+
+  // Cases
+  case_open: 'Case opening',
+  case_win: 'Case win',
+
+  // Upgrade
+  upgrade_bet: 'Upgrade bet',
+  upgrade_win: 'Upgrade success',
+
+  // Inventory
+  inventory_sell_single: 'Item sold',
+  inventory_sell_all: 'Sell all items',
+
+  // Finance
+  deposit: 'Deposit',
+  withdraw: 'Withdraw',
+
+  unknown: 'Operation',
+},
+
+
   },
 }

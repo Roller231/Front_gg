@@ -5,8 +5,9 @@ import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
 import { useUser } from '../context/UserContext'
 import * as usersApi from '../api/users'
+import { createTransaction, getUserTransactions } from '../api/transactions'
 
-function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll }) {
+function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll, reloadTransactions,  }) {
   const { selectedCurrency, formatAmount } = useCurrency()
   const { t } = useLanguage()
   const [sellingId, setSellingId] = useState(null)
@@ -24,67 +25,121 @@ function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll
     }
   }, [isOpen])
 
-  const sellItem = async (item) => {
-    if (!user) return
-  
-    const inventory = [...user.inventory]
-    const idx = inventory.findIndex(i => i.drop_id === item.id)
-    if (idx === -1) return
-  
-    inventory[idx] = {
-      ...inventory[idx],
-      count: inventory[idx].count - 1,
-    }
-  
-    if (inventory[idx].count <= 0) {
-      inventory.splice(idx, 1)
-    }
-  
-    const updatedUser = {
-      ...user,
-      balance: Number(user.balance) + Number(item.price || 0),
-      inventory,
-    }
-  
-    setUser(updatedUser)
-  
-    await usersApi.updateUser(user.id, {
-      balance: updatedUser.balance,
+const sellItem = async (item) => {
+  if (!user) return
+
+  const inventory = [...user.inventory]
+  const idx = inventory.findIndex(i => i.drop_id === item.id)
+  if (idx === -1) return
+
+  const price = Number(item.price || 0)
+  if (price <= 0) return
+
+  const balanceBefore = Number(user.balance)
+  const balanceAfter = balanceBefore + price
+
+  // уменьшаем инвентарь
+  inventory[idx] = {
+    ...inventory[idx],
+    count: inventory[idx].count - 1,
+  }
+
+  if (inventory[idx].count <= 0) {
+    inventory.splice(idx, 1)
+  }
+
+  // 🔥 optimistic UI
+  setUser(prev => ({
+    ...prev,
+    balance: balanceAfter,
+    inventory,
+  }))
+
+  try {
+    // 1️⃣ обновляем пользователя
+    const serverUser = await usersApi.updateUser(user.id, {
+      balance: balanceAfter,
       inventory,
     })
-  }
-  
-  const sellAllItems = async () => {
-    if (!user || !user.inventory?.length) return
-  
-    const itemsById = Object.fromEntries(
-      items.map(item => [item.id, item])
-    )
-  
-    const total = user.inventory.reduce((sum, inv) => {
-      const drop = itemsById[inv.drop_id]
-      if (!drop) return sum
-  
-      return sum + Number(drop.price || 0) * Number(inv.count || 0)
-    }, 0)
-  
-    const nextBalance = Number(user.balance) + total
-  
-    if (!Number.isFinite(nextBalance)) {
-      console.error('Bad balance', { total, user })
-      return
-    }
-  
-    const payload = {
-      balance: nextBalance,
-      inventory: [],
-    }
-  
-    setUser(prev => ({ ...prev, ...payload }))
-  
-    const serverUser = await usersApi.updateUser(user.id, payload)
+
+    // 2️⃣ транзакция
+    await createTransaction({
+      user_id: user.id,
+      type: 'inventory_sell_single',
+      amount: price,
+      balance_before: balanceBefore,
+      balance_after: balanceAfter,
+      related_round_id: item.id, // 👈 id дропа
+    })
+await reloadTransactions()
     setUser(serverUser)
+
+    // 🔄 если есть стор истории — обновляем
+    // await refreshTransactions?.()
+  } catch (err) {
+    console.error('Sell item failed', err)
+    // при желании — откат состояния
   }
+}
+
+  const inventoryItems = (user?.inventory || []).map(inv => {
+  const item = items.find(i => i.id === inv.drop_id)
+  if (!item) return null
+  return {
+    ...item,
+    count: inv.count,
+  }
+}).filter(Boolean)
+
+const sellAllItems = async () => {
+  if (!user || !user.inventory?.length) return
+
+  const itemsById = Object.fromEntries(
+    items.map(item => [item.id, item])
+  )
+
+  const total = user.inventory.reduce((sum, inv) => {
+    const drop = itemsById[inv.drop_id]
+    if (!drop) return sum
+    return sum + Number(drop.price || 0) * Number(inv.count || 0)
+  }, 0)
+
+  if (total <= 0) return
+
+  const balanceBefore = Number(user.balance)
+  const balanceAfter = balanceBefore + total
+
+  // 🔥 сразу обновляем UI (optimistic)
+  setUser(prev => ({
+    ...prev,
+    balance: balanceAfter,
+    inventory: [],
+  }))
+
+  try {
+    // 1️⃣ обновляем пользователя
+    const serverUser = await usersApi.updateUser(user.id, {
+      balance: balanceAfter,
+      inventory: [],
+    })
+
+    // 2️⃣ ОДНА транзакция
+    await createTransaction({
+      user_id: user.id,
+      type: 'inventory_sell_all',
+      amount: total,
+      balance_before: balanceBefore,
+      balance_after: balanceAfter,
+      related_round_id: null,
+    })
+
+await reloadTransactions()
+    setUser(serverUser)
+  } catch (err) {
+    console.error('Sell all failed', err)
+    // при желании — откат состояния
+  }
+}
 
   // Начало свайпа/drag
   const handleDragStart = (e) => {
@@ -252,7 +307,7 @@ function InventoryModal({ isOpen, onClose, items, loading, onSellItem, onSellAll
             </div>
           ) : (
             <div className="inventory-modal-grid">
-              {items.map((item, index) => (
+              {inventoryItems.map((item, index) => (
                 <div
                   key={`${item.id}-${index}`}
                   className={`inventory-modal-card ${getRarityClass(item.rarity)}`}
