@@ -340,9 +340,6 @@ const displayUsername = settings?.hideLogin ? '@' + maskUsername(rawUsername) : 
       <MemoHeader />
       
       <main className="main-content pvp-content">
-        {/* FAQ Section */}
-        <GameFaq game="pvp" />
-
         {/* Зона игры */}
         <div className={`pvp-game-area ${gameState === 'countdown' ? 'pvp-countdown' : ''} ${gameState === 'result' ? 'pvp-result' : ''}`}>
           <div className="game-cosmic-background" aria-hidden="true" />
@@ -555,6 +552,9 @@ const displayUsername = settings?.hideLogin ? '@' + maskUsername(rawUsername) : 
     }
   }}
 />
+
+        {/* FAQ Section */}
+        <GameFaq game="pvp" />
 
         {/* Выбор атаки и защиты */}
         {gameState === 'waiting' && !isWaitingForOpponent && (

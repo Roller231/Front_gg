@@ -412,9 +412,6 @@ function UpgradePage() {
       <MemoHeader />
       
       <main className="main-content upgrade-content">
-        {/* FAQ Section */}
-        <GameFaq game="upgrade" />
-
         {/* Основная зона апгрейда */}
         <div className={`upgrade-game-area ${gameState}`}>
           <div className="game-cosmic-background" aria-hidden="true" />
@@ -507,7 +504,7 @@ function UpgradePage() {
           >
             {t('upgrade.upgrade')}
           </button>
-          
+
           {(gameState === 'win' || gameState === 'lose') && (
             <div className={`wheel-result-overlay ${gameState === 'lose' ? 'wheel-result-overlay--lose' : ''}`} onClick={closeResultModal}>
               <div className={`wheel-result-modal ${gameState === 'lose' ? 'wheel-result-modal--lose' : ''}`} onClick={(e) => e.stopPropagation()}>
@@ -544,6 +541,9 @@ function UpgradePage() {
             </div>
           )}
         </div>
+
+        {/* FAQ Section */}
+        <GameFaq game="upgrade" />
 
         {/* Выбор предметов - Ваши предметы */}
         <div className="upgrade-selection-section">

@@ -412,9 +412,6 @@ function WheelPage() {
       <Header />
 
       <main className="wheel-main">
-        {/* FAQ Section */}
-        <GameFaq game="wheel" />
-
         {/* Live feed bar - same as CasesPage */}
         <div className="live-feed-bar">
           <div className="live-indicator">
@@ -445,6 +442,9 @@ function WheelPage() {
             </div>
           </div>
         </div>
+
+        {/* FAQ Section */}
+        <GameFaq game="wheel" />
 
         {/* Fortune Wheel Section */}
         <div className="wheel-section">

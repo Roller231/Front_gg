@@ -17,9 +17,9 @@
 
 /* FAQ Block */
 .cases-faq-container {
-  margin: 0 16px 20px 16px;
+  margin: 0 0 12px 0;
   background: #1e0b4b;
-  border-radius: 16px;
+  border-radius: 0;
   border: 1px solid rgba(149, 27, 249, 0.2);
   overflow: hidden;
   transition: all 0.3s ease;
@@ -29,7 +29,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
+  padding: 10px 16px;
   cursor: pointer;
   user-select: none;
 }
@@ -37,14 +37,14 @@
 .faq-header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .faq-icon-wrapper {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  border: 2px solid #FFD700; /* Золотая обводка как на фото */
+  border: 1.5px solid #FFD700; /* Золотая обводка как на фото */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -53,12 +53,12 @@
 .faq-icon {
   color: #FFD700; /* Золотой */
   font-weight: 700;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .faq-title {
   color: #FFD700; /* Золотой заголовок как на фото */
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
   margin: 0;
 }
