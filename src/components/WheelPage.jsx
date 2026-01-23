@@ -8,6 +8,7 @@ import { Player } from '@lottiefiles/react-lottie-player'
 import HoverLottie from './HoverLottie'
 import BetModal from './BetModal'
 import { useLiveFeed } from '../context/LiveFeedContext'
+import GameFaq from './GameFaq'
 import { getDropById, getAllDrops } from '../api/cases'
 import { rouletteFreeSpin } from '../api/roulette'
 import { getUserById } from '../api/users'
@@ -411,6 +412,9 @@ function WheelPage() {
       <Header />
 
       <main className="wheel-main">
+        {/* FAQ Section */}
+        <GameFaq game="wheel" />
+
         {/* Live feed bar - same as CasesPage */}
         <div className="live-feed-bar">
           <div className="live-indicator">

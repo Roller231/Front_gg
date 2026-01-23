@@ -3,6 +3,7 @@ import './UpgradePage.css'
 import './WheelPage.css'
 import Header from './Header'
 import Navigation from './Navigation'
+import GameFaq from './GameFaq'
 import { useUser } from '../context/UserContext'
 import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
@@ -411,6 +412,9 @@ function UpgradePage() {
       <MemoHeader />
       
       <main className="main-content upgrade-content">
+        {/* FAQ Section */}
+        <GameFaq game="upgrade" />
+
         {/* Основная зона апгрейда */}
         <div className={`upgrade-game-area ${gameState}`}>
           <div className="game-cosmic-background" aria-hidden="true" />

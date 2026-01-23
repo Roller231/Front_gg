@@ -13,6 +13,7 @@ import { useUser } from '../context/UserContext'
 import { maskUsername } from '../utils/maskUsername'
 import { vibrate, VIBRATION_PATTERNS } from '../utils/vibration'
 import { useCurrency } from '../context/CurrencyContext'
+import GameFaq from './GameFaq'
 
 
 const MemoHeader = memo(Header)
@@ -519,6 +520,9 @@ useEffect(() => {
       <MemoHeader />
       
       <main className="main-content crash-content">
+        {/* FAQ Section */}
+        <GameFaq game="crash" />
+
         {/* Зона игры */}
         <div className={`crash-game-area ${gameState === 'countdown' ? 'crash-countdown' : ''} ${gameState === 'postflight' ? 'crash-postflight' : ''} ${gameState === 'postflight-done' ? 'crash-postflight-done' : ''} ${gameState !== 'countdown' ? 'crash-no-rays' : ''}`}>
           <div

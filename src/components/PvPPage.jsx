@@ -9,6 +9,7 @@ import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
 import { usePvpSocket } from "../hooks/usePvpSocket"
 import { getUserById } from '../api/users'
+import GameFaq from './GameFaq'
 const MemoHeader = memo(Header)
 const MemoNavigation = memo(Navigation)
 const MemoBetModal = memo(BetModal)
@@ -339,6 +340,9 @@ const displayUsername = settings?.hideLogin ? '@' + maskUsername(rawUsername) : 
       <MemoHeader />
       
       <main className="main-content pvp-content">
+        {/* FAQ Section */}
+        <GameFaq game="pvp" />
+
         {/* Зона игры */}
         <div className={`pvp-game-area ${gameState === 'countdown' ? 'pvp-countdown' : ''} ${gameState === 'result' ? 'pvp-result' : ''}`}>
           <div className="game-cosmic-background" aria-hidden="true" />
