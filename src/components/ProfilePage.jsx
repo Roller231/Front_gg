@@ -13,6 +13,7 @@ import * as usersApi from '../api/users'
 import { Player } from '@lottiefiles/react-lottie-player'
 import { canWithdraw } from '../api/withdraw'
 
+import { getUserTransactions } from '../api/transactions'
 
 
 
@@ -32,6 +33,8 @@ function ProfilePage() {
   const { user, settings, updateSettings } = useUser()
   const { t, language, changeLanguage, languages, currentLanguage } = useLanguage()
 
+const [transactions, setTransactions] = useState([])
+const [loadingTx, setLoadingTx] = useState(true)
 
   const level = user.level || 1
   const xp = user.xp || 0
@@ -64,7 +67,43 @@ function ProfilePage() {
       setNotification({ visible: false, message: '' })
     }, 3000)
   }
-  
+  useEffect(() => {
+  if (!user?.id) return
+
+  let mounted = true
+
+  getUserTransactions(user.id)
+    .then(data => {
+      if (mounted) setTransactions(data.reverse()) // новые сверху
+    })
+    .catch(e => console.error(e))
+    .finally(() => mounted && setLoadingTx(false))
+
+  return () => (mounted = false)
+}, [user?.id])
+
+const reloadTransactions = async () => {
+  if (!user?.id) return
+  setLoadingTx(true)
+
+  try {
+    const data = await getUserTransactions(user.id)
+    setTransactions(data.reverse())
+  } catch (e) {
+    console.error(e)
+  } finally {
+    setLoadingTx(false)
+  }
+}
+
+const getTxLabel = (type) =>
+  t(`transactions.${type}`) !== `transactions.${type}`
+    ? t(`transactions.${type}`)
+    : t('transactions.unknown')
+
+const formatDate = (date) =>
+  new Date(date).toLocaleString(language)
+
 
   if (!user) {
     return <div className="profile-page">Loading...</div>
@@ -199,6 +238,7 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
 
   const getItemImageSrc = (item) =>
     item?.icon || item?.image || item?.url || item?.url_image || '/image/mdi_gift (2).svg'
+const [showAllTx, setShowAllTx] = useState(false)
 
   return (
     <div className="profile-page">
@@ -432,13 +472,13 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
 
         {/* ===== WITHDRAW BUTTON ===== */}
       <button
-  className={`withdraw-btn gg-btn-glow ${(!withdrawInfo?.can || balance < 0.5) ? 'withdraw-btn--inactive' : ''}`}
+  className={`withdraw-btn gg-btn-glow ${(!withdrawInfo?.can || balance < 6) ? 'withdraw-btn--inactive' : ''}`}
   onClick={() => {
     if (!withdrawInfo?.can) {
       showNotification(t('profile.withdrawDepositRequired', { amount: '3' }))
       return
     }
-    if (balance < 0.5) {
+    if (balance < 6) {
       showNotification(t('profile.insufficientBalance'))
       return
     }
@@ -448,7 +488,56 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
   {t('profile.withdraw')}
 </button>
 
+{/* ===== TRANSACTIONS ===== */}
+<div className="transactions-section">
+  <h3 className="transactions-title">
+    {t('transactions.title')}
+  </h3>
 
+  {loadingTx ? (
+    <span>{t('common.loading')}</span>
+  ) : transactions.length === 0 ? (
+    <span className="transactions-empty">—</span>
+  ) : (
+    <div className="transactions-list">
+{(showAllTx ? transactions : transactions.slice(0, 5)).map(tx => {
+        const isPlus = tx.balance_after > tx.balance_before
+
+        return (
+          <div key={tx.id} className="transaction-item">
+            <div className="transaction-left">
+              <span className="transaction-type">
+                {getTxLabel(tx.type)}
+              </span>
+              <span className="transaction-date">
+                {formatDate(tx.created_at)}
+              </span>
+            </div>
+
+            <div
+              className={`transaction-amount ${
+                isPlus ? 'plus' : 'minus'
+              }`}
+            >
+              {isPlus ? '+' : '-'}
+              {formatAmount(tx.amount)}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )}
+</div>
+
+
+{!showAllTx && transactions.length > 10 && (
+  <button
+    className="transactions-load-more"
+    onClick={() => setShowAllTx(true)}
+  >
+    {language === 'ru' ? 'Загрузить все' : 'Load all'}
+  </button>
+)}
 
       {/* ===== OPERATIONS (заглушка) ===== */}
       {/* <div className="operations-section">
@@ -482,6 +571,7 @@ const inventoryPreview = inventoryDrops.slice(0, 4)
         onClose={() => setIsInventoryModalOpen(false)}
         items={inventoryDrops}
         loading={loadingInventory}
+         reloadTransactions={reloadTransactions}   // 👈 ВАЖНО
         onSellItem={(item) => {
           console.log('Sell item:', item)
         }}

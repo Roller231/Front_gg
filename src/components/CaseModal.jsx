@@ -14,6 +14,7 @@ import { vibrate, VIBRATION_PATTERNS } from '../utils/vibration'
 import { useNavigate } from 'react-router-dom'
 import { checkFreeCase, consumeFreeCase } from '../api/freeCases'
 import { apiFetch } from '../api/client'
+import { createTransaction } from '../api/transactions'
 
 
 
@@ -299,18 +300,36 @@ const canOpenCase = isPaid
     if (isPaid && user.balance < casePrice) return
   
     // 🔥 СПИСЫВАЕМ БАЛАНС
-    if (isPaid && user) {
-      try {
-        const updatedUser = await usersApi.updateUser(user.id, {
-          balance: user.balance - casePrice,
-        })
-        await playGame(user.id)
-        setUser(updatedUser)
-      } catch (err) {
-        console.error('Failed to deduct balance:', err)
-        return
-      }
-    }
+if (isPaid && user) {
+  try {
+    const balanceBefore = user.balance
+    const balanceAfter = user.balance - casePrice
+
+    // 1️⃣ списываем баланс
+    const updatedUser = await usersApi.updateUser(user.id, {
+      balance: balanceAfter,
+    })
+
+    // 2️⃣ пишем транзакцию
+    await createTransaction({
+      user_id: user.id,
+      type: 'case_open',
+      amount: casePrice,
+      balance_before: balanceBefore,
+      balance_after: balanceAfter,
+      related_round_id: caseData.id, // 👈 ID кейса
+    })
+
+    // 3️⃣ лог игры (если нужно)
+    await playGame(user.id)
+
+    setUser(updatedUser)
+  } catch (err) {
+    console.error('Failed to deduct balance:', err)
+    return
+  }
+}
+
     const winning = rollDrop(caseItems)
   
     setWonItem(winning)
