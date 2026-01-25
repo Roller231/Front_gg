@@ -385,12 +385,17 @@ function BetModal({
     }
   
     // конвертируем в TON
-    const amountInTon = uiAmount * selectedCurrency.rate
-  
+    const balanceTon = Number(user?.balance ?? 0)
+    let amountInTon = uiAmount * selectedCurrency.rate
+    
+    // Исправляем погрешность плавающей точки: если ставка почти равна балансу,
+    // но чуть больше из-за округления — используем точный баланс
+    if (amountInTon > balanceTon && amountInTon - balanceTon < 0.0001) {
+      amountInTon = balanceTon
+    }
+
     // PvP: проверка ТОЛЬКО по user.balance
     if (game === 'pvp') {
-      const balanceTon = Number(user?.balance ?? 0)
-  
       if (amountInTon > balanceTon) {
         console.warn('Not enough balance')
         return
